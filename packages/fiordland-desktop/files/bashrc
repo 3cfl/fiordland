@@ -27,3 +27,18 @@ __fl_fetch() {
   fastfetch
 }
 __fl_fetch
+
+command_not_found_handle() {
+  local pkgs
+  if command -v pkgfile >/dev/null; then
+    mapfile -t pkgs < <(pkgfile -b -- "$1" 2>/dev/null)
+  fi
+  if (( ${#pkgs[@]} )); then
+    printf '%s is not installed. Get it with:\n' "$1" >&2
+    local p
+    for p in "${pkgs[@]}"; do printf '  tawaki install %s\n' "${p##*/}" >&2; done
+  else
+    printf 'bash: %s: command not found\n' "$1" >&2
+  fi
+  return 127
+}
