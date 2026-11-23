@@ -1,6 +1,10 @@
 {
   "logo": {
-    "type": "none"
+    "type": "file-raw",
+    "source": "/usr/share/fiordland/tux.ans",
+    "padding": {
+      "right": 3
+    }
   },
   "display": {
     "separator": "  ",
