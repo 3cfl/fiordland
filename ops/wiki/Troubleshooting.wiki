@@ -1,4 +1,4 @@
-Common problems and fixes. If yours is not here, ask on the [https://fiordland.apollo44.lat/forum/ forum] and add the answer here once it is solved.
+Common problems and fixes. If yours is not here, ask on the [[Help desk]] and add the answer here once it is solved.
 
 == The live USB does not boot ==
 * Disable Secure Boot in the firmware settings.

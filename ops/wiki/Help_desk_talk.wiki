@@ -1,0 +1,5 @@
+<div class="fl-note">Ask anything about using Fiordland here. Click '''Add topic''' to start a new question, and '''Reply''' under a message to answer it. You need an account to post.
+
+Before asking: check the [[Troubleshooting]] page and the [[FAQ]]. Include what you did, the exact error text, and your hardware (<code>inxi -Fxz</code> prints a summary). Never post passwords or Wi-Fi keys.
+
+Bugs in Fiordland, tawaki or the installer go on [https://github.com/3cfl/fiordland/issues GitHub]. When a question gets solved, consider adding the fix to a wiki page so the next person finds it.</div>

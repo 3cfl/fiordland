@@ -9,6 +9,9 @@ ssh main 'cd /srv/fiordland/wiki/w && chmod a+r /tmp/flwiki/*.wiki && for f in /
     Fiordland_Linux) t="Fiordland Linux" ;;
     Style_guide) t="Fiordland Wiki:Style guide" ;;
     Sidebar) t="MediaWiki:Sidebar" ;;
+    Help_desk) t="Help desk" ;;
+    Help_desk_talk) t="Fiordland Wiki talk:Help desk" ;;
+    Help_desk_project) t="Fiordland Wiki:Help desk" ;;
     Vector-2022.css) t="MediaWiki:Vector-2022.css" ;;
     *) t="$b" ;;
   esac

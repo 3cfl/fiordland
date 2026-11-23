@@ -3,7 +3,7 @@ import sys, pathlib, html
 WEB = pathlib.Path(sys.argv[1])
 V = sys.argv[2]
 
-NAV = [("/#features", "Features"), ("/compare/", "Compare"), ("/docs/", "Docs"), ("/wiki/", "Wiki"), ("/forum/", "Forum"), ("https://github.com/3cfl/fiordland", "GitHub")]
+NAV = [("/#features", "Features"), ("/compare/", "Compare"), ("/docs/", "Docs"), ("/wiki/", "Wiki"), ("https://github.com/3cfl/fiordland", "GitHub")]
 
 def nav(cur):
     out = []
@@ -17,7 +17,6 @@ FOOT = """<footer class="foot">
     <span class="mark">Fiordland</span>
     <a href="/docs/">Docs</a>
     <a href="/wiki/">Wiki</a>
-    <a href="/forum/">Forum</a>
     <a href="/mirrors/">Mirrors</a>
     <a href="/repo/x86_64/">Repo</a>
     <a href="https://github.com/3cfl/fiordland">GitHub</a>
@@ -183,7 +182,7 @@ C["snapshots"] = "\n".join([
 C["help"] = "\n".join([
  sec("Where to ask", ul([
   '<a href="/wiki/">Wiki</a>: guides and fixes written by users. Search it first.',
-  '<a href="/forum/">Forum</a>: questions, help and discussion.',
+  '<a href="/wiki/Help_desk">Help desk</a>: ask a question on the wiki. Every wiki page also has a Discussion tab.',
   '<a href="https://github.com/3cfl/fiordland/issues">GitHub issues</a>: bugs in Fiordland, tawaki or the installer.',
   '<a href="https://wiki.archlinux.org">Arch Wiki</a>: Fiordland uses the Arch repos, so most of it applies.',
  ])),
@@ -213,12 +212,3 @@ for s, t, d in DOCS:
     (WEB / "docs" / s).mkdir(exist_ok=True)
     (WEB / "docs" / s / "index.html").write_text(doc(s, t, d))
 
-forum = """  <h1 class="page">Forum</h1>
-  <p class="lede">The forum is being set up. Until it opens:</p>
-  <ul class="dlist">
-    <li>Questions and fixes: the <a href="/wiki/">wiki</a>, where anyone with an account can write.</li>
-    <li>Bugs: <a href="https://github.com/3cfl/fiordland/issues">GitHub issues</a>.</li>
-    <li>Guides: the <a href="/docs/">docs</a>.</li>
-  </ul>"""
-(WEB / "forum").mkdir(exist_ok=True)
-(WEB / "forum/index.html").write_text(page("Forum", "Fiordland Linux community forum.", "/forum/", forum, "Community"))

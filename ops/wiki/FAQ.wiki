@@ -17,4 +17,4 @@ Yes. 32-bit libraries (multilib) and Vulkan drivers are set up by the installer.
 <code>tawaki update</code> in a terminal. It updates the system, Flatpaks and AUR packages in one go.
 
 == Where do I report bugs? ==
-On [https://github.com/3cfl/fiordland/issues GitHub], or on the forum if you are not sure it is a bug.
+On [https://github.com/3cfl/fiordland/issues GitHub], or on the [[Help desk]] if you are not sure it is a bug.

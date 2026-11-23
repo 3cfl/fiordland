@@ -1,7 +1,7 @@
 __NOTOC__ __NOEDITSECTION__
 Welcome to the '''Fiordland Wiki''', the community knowledge base for [[Fiordland Linux]]. Anyone with an account can edit.
 
-<div class="fl-note">New to Linux? Start with the official [https://fiordland.apollo44.lat/docs/ docs]: installing, first steps, installing apps, updates and snapshots. Questions go on the [https://fiordland.apollo44.lat/forum/ forum].</div>
+<div class="fl-note">New to Linux? Start with the official [https://fiordland.apollo44.lat/docs/ docs]: installing, first steps, installing apps, updates and snapshots. Questions go on the [[Help desk]].</div>
 
 == Start here ==
 <div class="fl-cards">
@@ -17,6 +17,8 @@ How Btrfs snapshots work on Fiordland and how to roll back.</div>
 No Wi-Fi, black screen, no sound, NVIDIA and other common problems.</div>
 <div class="fl-card">'''[[FAQ]]'''<br>
 Short answers to common questions.</div>
+<div class="fl-card">'''[[Help desk]]'''<br>
+Ask a question. Every page also has a Discussion tab for talking about that page.</div>
 </div>
 
 == Contributing ==
