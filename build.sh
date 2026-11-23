@@ -3,10 +3,26 @@ set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
 root=$PWD
 
+PUBLISHED=${PUBLISHED:-https://fiordland.apollo44.lat/repo/x86_64}
+export PUBLISHED
 [ -n "${SKIP_AUR:-}" ] || tools/aurbuild.sh
 for pkg in packages/*/; do
   case "$pkg" in packages/aur/|packages/crest/) continue ;; esac
-  (cd "$pkg" && rm -f ./*.pkg.tar.zst && PKGEXT=.pkg.tar.zst makepkg -fd --noconfirm >/dev/null)
+  (
+    cd "$pkg"
+    rm -f ./*.pkg.tar.zst
+    reused=1
+    for f in $(PKGEXT=.pkg.tar.zst makepkg --packagelist); do
+      n=$(basename "$f")
+      curl -fsSL -o "$n" "$PUBLISHED/$n" || { reused=0; break; }
+    done
+    if [ "$reused" = 1 ] && [ -z "${REBUILD:-}" ]; then
+      echo "reusing published $(basename "$pkg")"
+    else
+      rm -f ./*.pkg.tar.zst
+      PKGEXT=.pkg.tar.zst makepkg -fd --noconfirm >/dev/null
+    fi
+  )
 done
 mkdir -p repo/x86_64
 rm -f repo/x86_64/*

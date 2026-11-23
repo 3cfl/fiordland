@@ -109,14 +109,15 @@ C["install"] = "\n".join([
  sec("What you need", ul([
   "A 64-bit PC. UEFI is recommended; older BIOS machines work too.",
   "4 GB of RAM at least, 8 GB or more is better.",
-  "30 GB of free disk. <strong>The installer erases the whole disk you pick.</strong> Back up anything you want to keep.",
+  "30 GB of disk. Either a whole disk, which is erased, or room next to Windows on a UEFI computer. Back up anything you want to keep.",
+  "To keep Windows: turn off Fast Startup and BitLocker (Device encryption) in Windows first, then shut down fully.",
   "A USB stick of 4 GB or more, and an internet connection during the install.",
  ])),
  sec("Install", steps([
   ("Download the ISO", '<p>Get it from the <a href="/">home page</a>. The SHA-256 checksum is listed under the download button. On Linux, check it with:</p>' + term("sha256sum fiordland-*.iso")),
   ("Write it to a USB stick", '<p>On Windows use <a href="https://rufus.ie">Rufus</a> and pick <em>DD image mode</em> when it asks. On macOS or Windows, <a href="https://etcher.balena.io">balenaEtcher</a> also works. On Linux:</p>' + term("sudo dd if=fiordland-*.iso of=/dev/sdX bs=4M status=progress oflag=sync") + "<p>Replace <code>sdX</code> with the USB stick. <code>lsblk</code> lists your drives. Picking the wrong one erases it.</p>"),
   ("Boot from the stick", "<p>Restart and press the boot menu key while the logo shows. It is usually F12, F11, F8, Esc or F2. Turn off <strong>Secure Boot</strong> in the firmware settings first; Fiordland's boot files are not signed yet.</p>"),
-  ("Run the installer", "<p>The live desktop opens the installer by itself. Pick your language, keyboard, timezone, the disk, your account and a desktop. KDE Plasma is the default and the easiest switch from Windows. The review page lets you change the graphics driver and kernel before anything is written.</p>"),
+  ("Run the installer", "<p>The live desktop opens the installer by itself. Pick your language, keyboard, timezone, the disk (the whole disk, alongside Windows with a slider for the size, or partitions you choose, with a partition editor one click away), your account and a desktop. KDE Plasma is the default and the easiest switch from Windows. The review page lets you change the graphics driver and kernel before anything is written.</p>"),
   ("Restart", "<p>Packages download fresh, so the install takes 5 to 20 minutes. Remove the USB stick when the computer restarts.</p>"),
  ])),
  sec("If something goes wrong", ul([
@@ -158,11 +159,12 @@ C["apps"] = "\n".join([
    ]) + "</tbody></table></div>"),
  sec("Settings", p("Edit <code>~/.config/tawaki/config.toml</code> to change the order or turn off the light-package check:") + "\n    " + term('priority = ["pacman", "flatpak", "aur"]\nprefer_light = true')),
  sec("About the AUR", p("AUR packages are build scripts uploaded by users. Nobody at Arch or Fiordland reviews them. Prefer repo and Flathub packages, and only install from the AUR when you trust the package.")),
- sec("Other tools still work", p("<code>pacman</code>, <code>flatpak</code> and <code>paru</code> are all installed. tawaki is a front end, not a replacement.")),
+ sec("Other tools still work", p("<code>pacman</code> and <code>flatpak</code> work as usual. tawaki is a front end, not a replacement. No AUR helper is installed: tawaki builds AUR packages with <code>makepkg</code> and shows you the build script first. If you install <code>paru</code> or <code>yay</code> yourself, tawaki uses it.")),
 ])
 
 C["updates"] = "\n".join([
- sec("Update", term("tawaki update") + "\n" + p("Run it every week or two. Fiordland is a rolling release: there are no big version upgrades, just regular small ones.")),
+ sec("Update", term("tawaki update") + "\n" + p("Run it every week or two. Fiordland is a rolling release: packages update in small steps, and new releases arrive the same way.")),
+ sec("New releases", p("A new ISO is only for new installs. An installed system gets the same changes through <code>tawaki update</code>: new default packages, settings and fixes are applied once, inside the update, after the pre-update snapshot. When the release number changes, the update prints it with a short list of what's new, for example <code>Fiordland 0.9.0 -&gt; 1.0.0</code>.") + "\n    " + term("cat /etc/os-release") + "\n" + p("shows the current release. <code>fiordland-migrate --list</code> shows which release changes are applied. A change that fails is reported, logged in <code>/var/log/fiordland-migrate.log</code> and tried again on the next update.")),
  sec("Before updating", ul([
   "Close games and apps that are running.",
   "Keep the laptop plugged in.",
@@ -176,13 +178,13 @@ C["updates"] = "\n".join([
 C["snapshots"] = "\n".join([
  sec("What is saved", p("Fiordland uses Btrfs and <a href=\"https://wiki.archlinux.org/title/Snapper\">snapper</a>. A snapshot is a frozen copy of the system, not your home folder. Snapshots are taken before and after every package change, and every hour (5 hourly, 7 daily, 2 weekly and 1 monthly are kept).") + "\n    " + term("snapper -c root list")),
  sec("Undo an update while the system works", p("Find the snapshot pair for the bad update in the list (the <em>pre</em> and <em>post</em> numbers), then:") + "\n    " + term("sudo snapper -c root undochange PRE..POST") + "\n" + p("Restart afterwards.")),
- sec("Roll back when the system does not boot", p("Booting a snapshot from the boot menu is not supported yet. First try the <strong>Arch kernel</strong> and <strong>safe graphics</strong> boot entries. If neither works, boot the USB stick and open a terminal:") + "\n" + steps([
-  ("Find the partition", term("lsblk -f") + "<p>Look for the <code>btrfs</code> one, for example <code>/dev/nvme0n1p2</code>.</p>"),
-  ("Mount it", term("sudo mount -o subvolid=5 /dev/nvme0n1p2 /mnt")),
-  ("Pick a snapshot", term("sudo ls /mnt/@snapshots\nsudo cat /mnt/@snapshots/N/info.xml") + "<p>The file shows the date and what caused it.</p>"),
-  ("Swap it in", term("sudo mv /mnt/@ /mnt/@broken\nsudo btrfs subvolume snapshot /mnt/@snapshots/N/snapshot /mnt/@\nsudo umount /mnt")),
-  ("Restart", "<p>Remove the stick. Once everything works, delete <code>@broken</code> the same way you mounted it. If a kernel update caused the problem, reinstall the kernels with <code>sudo pacman -S linux-cachyos linux</code>.</p>"),
- ])),
+ sec("Roll back when the system does not boot", steps([
+  ("Pick a snapshot", "<p>Restart, open <strong>Fiordland snapshots</strong> in the boot menu and pick one from before the problem. Each entry shows its date and what caused it.</p>"),
+  ("Check it works", "<p>The system starts from the snapshot. Changes made now are kept in memory and lost at the next restart.</p>"),
+  ("Make it permanent", term("sudo fiordland-rollback") + "<p>Restart, and Fiordland starts from the restored system. Your home folder is not touched.</p>"),
+  ("Free the space", term("sudo fiordland-rollback --clean") + "<p>Deletes the old system once everything works.</p>"),
+ ]) + "\n" + p("Each snapshot carries its own kernel, so this also undoes a bad kernel update. To restore by number without booting it first, use <code>fiordland-rollback --list</code> and then <code>sudo fiordland-rollback N</code>.")),
+ sec("Installs from before 23 November 2026", p("Older installs use systemd-boot, so the snapshot menu is not there. Boot the USB stick, open a terminal, and:") + "\n    " + term("lsblk -f\nsudo mount -o subvolid=5 /dev/nvme0n1p2 /mnt\nsudo ls /mnt/@snapshots\nsudo mv /mnt/@ /mnt/@broken\nsudo btrfs subvolume snapshot /mnt/@snapshots/N/snapshot /mnt/@\nsudo umount /mnt") + "\n" + p("Use the <code>btrfs</code> partition from <code>lsblk -f</code>, and <code>info.xml</code> in each snapshot folder for its date. If a kernel update caused the problem, run <code>sudo pacman -S linux-cachyos linux</code> after restarting.")),
 ])
 
 C["help"] = "\n".join([

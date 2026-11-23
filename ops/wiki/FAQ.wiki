@@ -7,8 +7,8 @@ It uses the Arch Linux repositories, so most Arch guides apply. It adds its own 
 == How is it different from CachyOS or EndeavourOS? ==
 See the [https://fiordland.apollo44.lat/compare/ comparison page].
 
-== Can I use pacman, flatpak and paru directly? ==
-Yes. tawaki is a front end; everything underneath is standard.
+== Can I use pacman and flatpak directly? ==
+Yes. tawaki is a front end; everything underneath is standard. No AUR helper is installed: tawaki builds AUR packages with <code>makepkg</code> and shows the build script first. If you install paru or yay yourself, tawaki uses it.
 
 == Does it run games? ==
 Yes. 32-bit libraries (multilib) and Vulkan drivers are set up by the installer. Install Steam with <code>tawaki install steam</code>.
