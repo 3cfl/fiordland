@@ -1,10 +1,10 @@
 pkgname=fiordland-desktop
 pkgver=1.0
-pkgrel=10
+pkgrel=11
 pkgdesc="Fiordland Linux desktop defaults and branding"
 arch=('any')
 license=('MIT')
-depends=('inter-font' 'ttf-jetbrains-mono' 'fastfetch' 'papirus-icon-theme' 'dconf')
+depends=('inter-font' 'ttf-jetbrains-mono' 'fastfetch' 'papirus-icon-theme' 'dconf' 'ttf-nerd-fonts-symbols')
 makedepends=('python' 'papirus-icon-theme')
 install=fiordland-desktop.install
 

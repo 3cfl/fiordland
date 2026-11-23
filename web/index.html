@@ -4,76 +4,171 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fiordland Linux</title>
-<meta name="description" content="An Arch-based Linux distro with its own desktop, package manager and installer.">
+<meta name="description" content="An Arch-based Linux distro with its own package manager, installer and desktop.">
 <meta name="theme-color" content="#131313">
 <meta property="og:title" content="Fiordland Linux">
-<meta property="og:description" content="An Arch-based Linux distro with its own desktop, package manager and installer.">
-<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=3">
+<meta property="og:description" content="An Arch-based Linux distro with its own package manager, installer and desktop.">
+<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=4">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/site.css?v=8">
+<link rel="stylesheet" href="/assets/site.css?v=10">
 </head>
 <body>
-<header class="top wrap">
-  <a class="mark" href="/">Fiordland</a>
-  <nav>
-    <a href="/compare/">Compare</a>
-    <a href="#install">Install</a>
-    <a href="/repo/x86_64/">Repo</a>
-  </nav>
+<header class="nav">
+  <div class="nav-in">
+    <a class="mark" href="/">Fiordland</a>
+    <nav>
+      <a href="#desktops">Desktops</a>
+      <a href="#features">Features</a>
+      <a href="/compare/">Compare</a>
+      <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    </nav>
+    <a class="btn sm" data-iso href="/iso/fiordland-latest.iso">Download</a>
+  </div>
 </header>
 
 <main>
-  <section class="wrap intro">
-    <h1>Fiordland Linux</h1>
-    <p>Arch-based, with its own desktop, package manager and installer.</p>
-    <p class="get"><a class="btn" id="dl-top" href="/iso/fiordland-latest.iso">Download</a> <span class="meta" id="dl-meta">x86_64 &middot; about 2 GB</span></p>
+  <section class="hero">
+    <div class="aurora" data-aurora data-stops="#1e3a8a,#3b82f6,#8ec5ff,#5eead4,#a78bfa" data-amplitude="1.1" data-blend=".55" data-layers="2" data-opacity=".85"></div>
+    <div class="wrap hero-in">
+      <a class="badge" href="#install"><span class="dot"></span><span class="shine">Fiordland 1 &middot; <span id="dl-ver">out now</span></span></a>
+      <h1 data-blur>Fiordland Linux</h1>
+      <p class="lede">Arch-based, with its own package manager, installer and desktop shell. CachyOS kernel, Btrfs snapshots and Flathub set up from the start.</p>
+      <div class="cta">
+        <a class="btn" data-iso href="/iso/fiordland-latest.iso">Download ISO</a>
+        <a class="btn ghost" href="https://github.com/3cfl/fiordland">Source</a>
+      </div>
+      <p class="meta" id="dl-meta">x86_64 &middot; about 3 GB</p>
+    </div>
   </section>
 
-  <figure class="wrap shot big">
-    <img src="/assets/desktop.webp" alt="The Fiordland desktop" width="1920" height="1080">
-  </figure>
+  <section class="wrap showcase" id="desktops">
+    <div class="tabs" role="tablist" aria-label="Desktops">
+      <span class="pill" aria-hidden="true"></span>
+      <button role="tab" id="t-plasma" aria-controls="p-plasma" aria-selected="true">KDE Plasma</button>
+      <button role="tab" id="t-niri" aria-controls="p-niri" aria-selected="false" tabindex="-1">niri + Noctalia</button>
+      <button role="tab" id="t-hypr" aria-controls="p-hypr" aria-selected="false" tabindex="-1">Hyprland + crest</button>
+    </div>
+    <div class="frame">
+      <div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+      <figure role="tabpanel" id="p-plasma" aria-labelledby="t-plasma">
+        <img src="/assets/shots/plasma.webp" alt="KDE Plasma with Breeze Dark, Dolphin and Konsole running tawaki search" width="1920" height="1080">
+      </figure>
+      <figure role="tabpanel" id="p-niri" aria-labelledby="t-niri" hidden>
+        <img src="/assets/shots/niri.webp" alt="niri with the Noctalia bar, tawaki search results and btop in two columns" width="1920" height="1080" loading="lazy">
+      </figure>
+      <figure role="tabpanel" id="p-hypr" aria-labelledby="t-hypr" hidden>
+        <img src="/assets/shots/hyprland.webp" alt="Hyprland with crest, the Fiordland shell, showing its dashboard over kitty and Thunar" width="1920" height="1080" loading="lazy">
+      </figure>
+    </div>
+    <p class="cap">Real screenshots from a fresh install. Pick one of 24 desktops and window managers in the installer.</p>
+  </section>
 
-  <section class="wrap sec parts">
-    <div>
-      <h2>crest</h2>
-      <p>Fiordland's own Hyprland shell. Or pick Plasma, GNOME, niri, Noctalia and 20 others in the installer.</p>
-    </div>
-    <div>
-      <h2>tawaki</h2>
-      <p>One command for the Arch repos, Flathub and the AUR.</p>
-    </div>
-    <div>
-      <h2>rawaru</h2>
-      <p>Graphical installer. Picks the fastest mirrors and installs in a few minutes.</p>
+  <section class="wrap sec" id="features">
+    <h2 class="h2" data-blur>What's in it</h2>
+    <div class="bento">
+      <article class="card c-tawaki rise">
+        <div class="card-in">
+          <h3>tawaki</h3>
+          <p>One command for the Arch repos, Flathub and the AUR. Installs from the cleanest source and skips Flatpaks that would pull in a large runtime.</p>
+          <pre class="term" aria-label="Output of tawaki search ncspot"><span class="ps">~</span> <span class="cmd">tawaki search ncspot</span>
+<span class="pm">[pacman]</span> extra/<b class="nm">ncspot</b> <span class="v">1.5.0-2</span>
+    Cross-platform ncurses Spotify client written in Rust
+<span class="fp">[flatpak]</span> <b class="nm">io.github.hrkfdn.ncspot</b> <span class="v">1.5.0</span> (ncspot)
+    Cross-platform ncurses Spotify client
+<span class="au">[aur]</span> <b class="nm">ncspot-git</b> <span class="v">1.3.1-1</span>
+<span class="au">[aur]</span> <b class="nm">ncspot-ncurses</b> <span class="v">1.5.1-1</span></pre>
+        </div>
+      </article>
+      <article class="card c-rawaru rise">
+        <div class="card-in">
+          <h3>rawaru</h3>
+          <p>Graphical installer. Ranks mirrors, detects the GPU and offers dotfiles for each window manager.</p>
+        </div>
+        <img class="peek" src="/assets/shots/installer.webp" alt="The rawaru installer on the desktop step, with Hyprland and its shell options" width="2080" height="1400" loading="lazy">
+      </article>
+      <article class="card c-crest rise">
+        <div class="card-in">
+          <h3>crest</h3>
+          <p>A Hyprland shell forked from Caelestia: bar, dashboard, launcher, lock screen and settings, themed for Fiordland.</p>
+        </div>
+      </article>
+      <article class="card rise">
+        <div class="card-in">
+          <span class="ico" aria-hidden="true">&#9889;</span>
+          <h3>CachyOS kernel</h3>
+          <p>Default kernel, with the Arch kernel kept as a boot option.</p>
+        </div>
+      </article>
+      <article class="card rise">
+        <div class="card-in">
+          <span class="ico" aria-hidden="true">&#8634;</span>
+          <h3>Snapshots</h3>
+          <p>Btrfs with a snapshot before every update.</p>
+        </div>
+      </article>
+      <article class="card rise">
+        <div class="card-in">
+          <span class="ico" aria-hidden="true">&#9638;</span>
+          <h3>Flathub</h3>
+          <p>Set up on first boot, next to multilib for Steam and Wine.</p>
+        </div>
+      </article>
+      <article class="card c-wide rise">
+        <div class="card-in">
+          <h3>24 desktops and window managers</h3>
+          <ul class="chips">
+            <li>Plasma</li><li>GNOME</li><li>COSMIC</li><li>Xfce</li><li>Cinnamon</li><li>Budgie</li><li>MATE</li>
+            <li>Hyprland</li><li>niri</li><li>Sway</li><li>labwc</li><li>i3</li><li>bspwm</li><li>awesome</li>
+          </ul>
+          <p class="sub">Shells and dotfiles</p>
+          <ul class="chips alt">
+            <li>crest</li><li>Noctalia</li><li>Dux</li><li>Caelestia</li><li>illogical-impulse</li><li>HyDE</li><li>ML4W</li><li>JaKooLit</li><li>iNiR</li>
+          </ul>
+        </div>
+      </article>
     </div>
   </section>
 
   <section class="wrap sec">
-    <div class="grid">
-      <figure class="shot"><img src="/assets/launcher.webp" alt="Launcher" width="1920" height="1080" loading="lazy"></figure>
-      <figure class="shot"><img src="/assets/lock.webp" alt="Lock screen" width="1920" height="1080" loading="lazy"></figure>
-    </div>
+    <a class="card cmp-teaser rise" href="/compare/">
+      <div class="card-in">
+        <p class="eyebrow">Compare</p>
+        <h3>Fiordland, CachyOS and Arch, side by side.</h3>
+        <p>What each sets up after a default install, including where CachyOS is ahead.</p>
+      </div>
+      <span class="arrow" aria-hidden="true">&rarr;</span>
+    </a>
   </section>
 
   <section class="wrap sec" id="install">
-    <h2>Install</h2>
+    <h2 class="h2" data-blur>Install</h2>
     <ol class="steps">
-      <li>Write the ISO to a USB stick.</li>
-      <li>Boot from it.</li>
-      <li>Follow the installer.</li>
+      <li class="card rise"><div class="card-in"><span class="n">01</span><h3>Write the ISO</h3><p>To a USB stick with Ventoy, Fedora Media Writer or dd.</p></div></li>
+      <li class="card rise"><div class="card-in"><span class="n">02</span><h3>Boot it</h3><p>Try the live Plasma session, nothing is touched.</p></div></li>
+      <li class="card rise"><div class="card-in"><span class="n">03</span><h3>Install</h3><p>Pick a desktop and go. Uses the whole disk.</p></div></li>
     </ol>
-    <p class="note">Needs 4 GB RAM and 20 GB disk. Uses the whole disk.</p>
-    <p class="sum">SHA256 <code id="dl-sum">loading</code> <button class="copy" data-copy="#dl-sum">copy</button></p>
+    <div class="dl rise">
+      <a class="btn" data-iso href="/iso/fiordland-latest.iso">Download ISO</a>
+      <p class="note">Needs 4 GB RAM and 20 GB disk.</p>
+      <p class="sum">SHA256 <code id="dl-sum">loading</code> <button class="copy" data-copy="#dl-sum">Copy</button></p>
+    </div>
   </section>
 </main>
 
-<footer class="wrap foot">
-  <a href="https://apollo44.lat">apollo44.lat</a>
-  <a href="https://ivy.rest">ivy.rest</a>
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span class="mark">Fiordland</span>
+    <a href="/repo/x86_64/">Repo</a>
+    <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    <a href="https://apollo44.lat">apollo44.lat</a>
+    <a href="https://ivy.rest">ivy.rest</a>
+    <a class="rb" href="/assets/js/LICENSE-react-bits.txt">Effects from React Bits</a>
+  </div>
 </footer>
 
-<script src="/assets/site.js?v=7" defer></script>
+<script src="/assets/js/aurora.js?v=1" defer></script>
+<script src="/assets/js/site.js?v=2" defer></script>
 </body>
 </html>
