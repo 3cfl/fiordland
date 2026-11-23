@@ -157,3 +157,5 @@ h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
 .main-pad .note{margin-top:22px;max-width:700px;line-height:1.7}
 .main-pad .note a{color:var(--accent)}
 @media(max-width:560px){.cmp{font-size:14px}.cmp th,.cmp td{padding:11px 8px}.cmp tbody th{padding-left:14px}}
+.foot-in .credit{width:100%;font-size:13px;color:var(--muted);order:9}
+.foot-in .credit a{color:var(--text2)}

@@ -80,6 +80,7 @@ Installed systems use the package repo at `https://fiordland.apollo44.lat/repo/x
 - [archiso](https://gitlab.archlinux.org/archlinux/archiso), the base of the ISO profile
 - AUR maintainers of the bundled PKGBUILDs in `packages/aur/`
 - Tawaki photos on the website from Wikimedia Commons, credited per photo
+- Tux by Larry Ewing, Simon Budig and Garrett LeSage, made with The GIMP. Used as the temporary Fiordland mascot and logo.
 
 ## License
 
