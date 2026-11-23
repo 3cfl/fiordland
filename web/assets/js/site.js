@@ -89,4 +89,41 @@ document.querySelectorAll(".tabs").forEach(tabs => {
   requestAnimationFrame(() => { place(cur); tabs.classList.add("ready"); });
   new ResizeObserver(() => place(btns.find(b => b.getAttribute("aria-selected") === "true"))).observe(tabs);
 });
+const mlist = $("mirror-list");
+if (mlist) {
+  Promise.all(["/mirrors/mirrors.json", "/mirrors/status.json"].map(u => fetch(u, { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).catch(() => null))).then(([list, status]) => {
+    mlist.textContent = "";
+    const rows = list?.mirrors || [];
+    if (!rows.length) { mlist.textContent = "No mirrors listed yet."; return; }
+    const checks = status?.mirrors || {};
+    for (const m of rows) {
+      const url = m.url.replace(/\/$/, "");
+      const s = checks[url];
+      const row = document.createElement("div");
+      row.className = "mrow";
+      const dot = document.createElement("span");
+      dot.className = "dot " + (s ? (s.ok ? "ok" : "bad") : "idle");
+      dot.setAttribute("role", "img");
+      dot.setAttribute("aria-label", s ? (s.ok ? "Up" : "Down") : "Unknown");
+      const info = document.createElement("div");
+      info.className = "minfo";
+      const name = document.createElement("strong");
+      name.textContent = m.name + (m.primary ? " (primary)" : "");
+      const sub = document.createElement("span");
+      const lag = s?.ok ? (s.lag < 60 ? "up to date" : `${Math.round(s.lag / 60)} min behind`) : s ? "down" : "not checked yet";
+      sub.textContent = [m.location, m.sponsor && `hosted by ${m.sponsor}`, lag, s?.ok && s.ms ? `${s.ms} ms` : null].filter(Boolean).join(" · ");
+      info.append(name, sub);
+      const links = document.createElement("div");
+      links.className = "mlinks";
+      for (const [label, path] of [["Repo", "/repo/x86_64/"], ["ISO", "/iso/fiordland-latest.iso"]]) {
+        const a = document.createElement("a");
+        a.href = url + path;
+        a.textContent = label;
+        links.append(a);
+      }
+      row.append(dot, info, links);
+      mlist.append(row);
+    }
+  });
+}
 })();

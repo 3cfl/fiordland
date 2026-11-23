@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mirrors &middot; Fiordland Linux</title>
+<meta name="description" content="Servers that carry the Fiordland package repo and ISOs.">
+<meta name="theme-color" content="#131313">
+<meta property="og:title" content="Fiordland mirrors">
+<meta property="og:description" content="Servers that carry the Fiordland package repo and ISOs.">
+<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=3">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/assets/site.css?v=13">
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="mark" href="/"><img src="/assets/logos/tux.svg" alt="" width="18" height="21">Fiordland</a>
+    <nav>
+      <a href="/#desktops">Desktops</a>
+      <a href="/#features">Features</a>
+      <a href="/compare/">Compare</a>
+      <a href="/mirrors/" aria-current="page">Mirrors</a>
+      <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    </nav>
+    <a class="btn sm" data-iso href="/iso/fiordland-latest.iso">Download</a>
+  </div>
+</header>
+
+<main class="wrap main-pad">
+  <p class="eyebrow">Mirrors</p>
+  <h1 class="page">Fiordland mirrors</h1>
+  <p class="lede">Servers that carry the package repo and the ISOs. Packages are signed, so a mirror can't change one without pacman noticing.</p>
+
+  <div class="mlist" id="mirror-list" aria-live="polite">
+    <p class="note">Loading mirrors..</p>
+  </div>
+  <p class="note">Status is checked every 10 minutes. A mirror is marked down if it is unreachable or more than 6 hours behind.</p>
+
+  <section class="msec">
+    <h2 class="h3">Use a mirror</h2>
+    <p>Installed systems use the primary server. To switch, change the <code>[fiordland]</code> section in <code>/etc/pacman.conf</code>:</p>
+    <pre class="term" id="use-snip">[fiordland]
+SigLevel = Required
+Server = https://MIRROR/repo/$arch</pre>
+    <p class="note">A list of the mirrors that are up right now is at <a href="/mirrors/mirrorlist">/mirrors/mirrorlist</a>.</p>
+  </section>
+
+  <section class="msec">
+    <h2 class="h3">Host a mirror</h2>
+    <p>You need about 10 GB of disk, a hostname with HTTPS, and a connection that can handle ISO downloads of 3 GB each. Sync once an hour.</p>
+    <ol class="msteps">
+      <li><h3>Get the script</h3><pre class="term" id="m-get">curl -O https://fiordland.apollo44.lat/mirrors/sync.sh</pre></li>
+      <li><h3>Run the first sync</h3><pre class="term" id="m-run">bash sync.sh /srv/mirror/fiordland</pre><p>It downloads the repo and ISOs, checks every file against a SHA256 manifest, and removes files the primary no longer has.</p></li>
+      <li><h3>Sync every hour</h3><pre class="term" id="m-cron">0 * * * * /bin/bash /path/to/sync.sh /srv/mirror/fiordland</pre></li>
+      <li><h3>Serve it over HTTPS</h3><pre class="term" id="m-web">mirror.example.org {
+    root * /srv/mirror/fiordland
+    file_server
+}</pre><p>The site root must contain <code>repo/</code> and <code>iso/</code>.</p></li>
+      <li><h3>Tell us</h3><p>Open an issue on <a href="https://github.com/3cfl/fiordland/issues">GitHub</a> with the URL, your location and the name to show as sponsor. We add it to the list once it passes the check.</p></li>
+    </ol>
+  </section>
+
+  <section class="msec">
+    <h2 class="h3">Verify downloads</h2>
+    <p>The SHA256 for the latest ISO is on the <a href="/#install">install section</a> and in the mirror's <code>iso/latest.json</code>. Compare it after downloading from any mirror.</p>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span class="mark">Fiordland</span>
+    <a href="/repo/x86_64/">Repo</a>
+    <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    <a href="https://apollo44.lat">apollo44.lat</a>
+    <a href="https://ivy.rest">ivy.rest</a>
+    <span class="credit">Tux by <a href="https://isc.tamu.edu/~lewing/linux/">Larry Ewing</a>, Simon Budig and Garrett LeSage, made with The GIMP.</span>
+  </div>
+</footer>
+<script src="/assets/js/site.js?v=3" defer></script>
+</body>
+</html>

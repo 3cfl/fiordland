@@ -1,0 +1,5 @@
+{
+  "mirrors": [
+    {"name": "Fiordland", "url": "https://fiordland.apollo44.lat", "location": "United States", "sponsor": "Apollo", "primary": true}
+  ]
+}

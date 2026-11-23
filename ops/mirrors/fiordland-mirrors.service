@@ -1,0 +1,14 @@
+[Unit]
+Description=Fiordland mirror manifest and health check
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /srv/fiordland/ops/mirrors/mirrors.py
+StateDirectory=fiordland-mirrors
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+ReadWritePaths=/srv/fiordland/repo /srv/fiordland/site/mirrors
+ReadOnlyPaths=/srv/fiordland
+RestrictAddressFamilies=AF_INET AF_INET6
