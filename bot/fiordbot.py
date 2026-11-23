@@ -191,20 +191,25 @@ async def helpme(interaction: discord.Interaction):
 @bot.tree.command(description="Mark this support thread as solved")
 async def solved(interaction: discord.Interaction):
     thread = interaction.channel
-    if not isinstance(thread, discord.Thread) or not isinstance(thread.parent, discord.ForumChannel):
+    if not isinstance(thread, discord.Thread):
         await interaction.response.send_message("Use this inside a support thread.", ephemeral=True)
         return
     allowed = thread.owner_id == interaction.user.id or interaction.permissions.manage_threads
     if not allowed:
         await interaction.response.send_message("Only the thread author or a moderator can do that.", ephemeral=True)
         return
-    tag = discord.utils.find(lambda t: t.name.lower() == "solved", thread.parent.available_tags)
     await interaction.response.send_message("Marked as solved. Reply here to reopen it.")
-    tags = list(thread.applied_tags)
-    if tag and tag not in tags:
-        tags.append(tag)
+    changes = {"archived": True}
+    if isinstance(thread.parent, discord.ForumChannel):
+        tag = discord.utils.find(lambda t: t.name.lower() == "solved", thread.parent.available_tags)
+        tags = list(thread.applied_tags)
+        if tag and tag not in tags:
+            tags.append(tag)
+        changes["applied_tags"] = tags[:5]
+    elif not thread.name.startswith("[Solved]"):
+        changes["name"] = f"[Solved] {thread.name}"[:100]
     try:
-        await thread.edit(applied_tags=tags[:5], archived=True)
+        await thread.edit(**changes)
     except discord.HTTPException:
         pass
 
