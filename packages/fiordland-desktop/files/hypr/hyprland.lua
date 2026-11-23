@@ -13,6 +13,22 @@ hl.env("GTK_THEME", "Adwaita:dark")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 
+local function nvidia_only()
+    if not io.open("/proc/driver/nvidia/version", "r") then
+        return false
+    end
+    local p = io.popen("cat /sys/class/drm/card*/device/vendor 2>/dev/null")
+    local out = p and p:read("*a") or ""
+    if p then p:close() end
+    return not out:find("0x8086") and not out:find("0x1002")
+end
+
+if nvidia_only() then
+    hl.env("LIBVA_DRIVER_NAME", "nvidia")
+    hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+    hl.env("NVD_BACKEND", "direct")
+end
+
 hl.on("hyprland.start", function()
     hl.exec_cmd("qs -c crest -d")
     hl.exec_cmd("xdg-user-dirs-update")
