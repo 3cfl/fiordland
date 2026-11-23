@@ -47,3 +47,16 @@ h2{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px}
   .grid{grid-template-columns:1fr}
   .sec{margin-top:64px}
 }
+.page{font-size:34px;margin:56px 0 10px}
+.lede{font-size:17px}
+.cmp-wrap{margin-top:36px;overflow-x:auto}
+.cmp{width:100%;border-collapse:collapse;font-size:15px}
+.cmp th,.cmp td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:center}
+.cmp thead th{color:var(--text);font-weight:600;font-size:14px;width:16%}
+.cmp tbody th{text-align:left;font-weight:400;color:var(--text2);padding-left:0}
+.cmp tr.g th{text-align:left;padding:34px 0 8px;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.cmp .y{color:var(--accent);font-size:17px}
+.cmp .n{color:#f87171;font-size:17px}
+.cmp .p{color:var(--muted);font-size:13px}
+.top nav a[aria-current]{color:var(--text)}
+@media(max-width:560px){.cmp{font-size:14px}.cmp th,.cmp td{padding:10px 6px}.cmp thead th{font-size:13px}.page{font-size:28px}}

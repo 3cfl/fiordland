@@ -1,0 +1,81 @@
+#!/bin/bash
+conf="${XDG_CONFIG_HOME:-$HOME/.config}/fiordland/dots"
+names=(caelestia illogical-impulse hyde ml4w jakoolit inir)
+
+usage() {
+  echo "usage: fiordland-dots <${names[*]// /|}>"
+  exit 2
+}
+
+if [[ $1 != --run ]]; then
+  if [[ -n $1 ]]; then
+    id=$1
+  else
+    [[ -r $conf ]] || exit 0
+    id=$(<"$conf")
+    rm -f "$conf"
+  fi
+  [[ " ${names[*]} " == *" $id "* ]] || usage
+  for t in kitty foot alacritty konsole gnome-terminal xterm; do
+    if command -v "$t" >/dev/null; then
+      case $t in
+        kitty) exec kitty --class fiordland-dots -e fiordland-dots --run "$id" ;;
+        foot) exec foot --app-id fiordland-dots fiordland-dots --run "$id" ;;
+        gnome-terminal) exec gnome-terminal -- fiordland-dots --run "$id" ;;
+        *) exec "$t" -e fiordland-dots --run "$id" ;;
+      esac
+    fi
+  done
+  exit 1
+fi
+
+id=$2
+bold=$'\e[1m' dim=$'\e[2m' blue=$'\e[38;2;142;197;255m' reset=$'\e[0m'
+
+aur_helper() {
+  command -v paru >/dev/null || command -v yay >/dev/null && return
+  echo "${dim}Installing paru for AUR packages${reset}"
+  local d
+  d=$(mktemp -d)
+  git clone --depth 1 https://aur.archlinux.org/paru-bin.git "$d/paru-bin" && (cd "$d/paru-bin" && makepkg -si --noconfirm)
+  rm -rf "$d"
+}
+
+run() {
+  case $id in
+    caelestia)
+      aur_helper
+      local h; h=$(command -v paru || command -v yay)
+      "$h" -S --needed caelestia-cli && caelestia install ;;
+    illogical-impulse)
+      bash <(curl -fsSL https://ii.clsty.link/get) ;;
+    hyde)
+      rm -rf "$HOME/HyDE"
+      git clone --depth 1 https://github.com/HyDE-Project/HyDE "$HOME/HyDE" && cd "$HOME/HyDE/Scripts" && ./install.sh ;;
+    ml4w)
+      bash <(curl -fsSL https://ml4w.com/os/stable) ;;
+    jakoolit)
+      sh <(curl -fsSL https://raw.githubusercontent.com/JaKooLit/Arch-Hyprland/main/auto-install.sh) ;;
+    inir)
+      mkdir -p "$HOME/.local/src" && rm -rf "$HOME/.local/src/inir"
+      git clone https://github.com/snowarch/inir.git "$HOME/.local/src/inir" && cd "$HOME/.local/src/inir" && ./setup install ;;
+  esac
+}
+
+clear
+echo "${bold}${blue}Setting up $id${reset}"
+echo "${dim}This runs the official installer from the $id project. It asks for your password and may ask a few questions.${reset}"
+echo
+until curl -fsI --max-time 5 https://github.com >/dev/null 2>&1; do
+  echo "${dim}Waiting for an internet connection...${reset}"
+  sleep 5
+done
+read -rp "Press Enter to start, or Ctrl+C to skip. "
+if run; then
+  echo
+  echo "${bold}Done.${reset} Log out and back in, or restart, to load the new setup."
+else
+  echo
+  echo "${bold}The installer stopped with an error.${reset} Run ${blue}fiordland-dots $id${reset} to try again."
+fi
+read -rp "Press Enter to close. "

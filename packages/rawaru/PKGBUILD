@@ -1,6 +1,6 @@
 pkgname=rawaru
 pkgver=1.0
-pkgrel=6
+pkgrel=7
 pkgdesc="The Fiordland Linux installer"
 arch=('any')
 license=('MIT')
@@ -9,7 +9,7 @@ depends=('python' 'pyside6' 'qt6-wayland' 'arch-install-scripts' 'gptfdisk' 'btr
 
 package() {
   local s="$startdir/../../rawaru"
-  install -Dm644 "$s/backend.py" "$s/engine.py" -t "$pkgdir/usr/lib/rawaru/"
+  install -Dm644 "$s/backend.py" "$s/engine.py" "$s/desktops.py" -t "$pkgdir/usr/lib/rawaru/"
   install -Dm755 "$s/rawaru.py" "$pkgdir/usr/lib/rawaru/rawaru.py"
   install -Dm644 "$s"/qml/* -t "$pkgdir/usr/lib/rawaru/qml/"
   install -Dm644 "$s/rawaru.desktop" "$pkgdir/usr/share/applications/rawaru.desktop"

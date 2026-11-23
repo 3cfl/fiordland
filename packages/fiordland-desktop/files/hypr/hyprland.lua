@@ -1,6 +1,9 @@
+local shell = "crest"
 local mod = "SUPER"
 local terminal = "kitty"
+local crested = shell == "crest"
 local function crest(name) return hl.dsp.global("crest:" .. name) end
+local runs = { crest = "qs -c crest -d", noctalia = "noctalia", dux = "dms run", none = "waybar" }
 local files = "thunar"
 local browser = "firefox"
 
@@ -30,13 +33,14 @@ if nvidia_only() then
 end
 
 hl.on("hyprland.start", function()
-    hl.exec_cmd("qs -c crest -d")
-    hl.exec_cmd("xdg-user-dirs-update")
-    local live = io.open("/run/archiso/bootmnt", "r")
-    if live then
-        live:close()
-        hl.exec_cmd("rawaru")
+    if runs[shell] then hl.exec_cmd(runs[shell]) end
+    if shell == "none" then
+        hl.exec_cmd("mako")
+        hl.exec_cmd("swaybg -m fill -i /usr/share/fiordland/wallpaper.png")
     end
+    hl.exec_cmd("systemctl --user start hyprpolkitagent")
+    hl.exec_cmd("xdg-user-dirs-update")
+    hl.exec_cmd("fiordland-dots")
 end)
 
 hl.config({
@@ -90,28 +94,38 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
 hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(mod .. " + T", hl.dsp.exec_cmd(terminal))
-hl.bind("SUPER + SUPER_L", crest("launcher"), { release = true })
-hl.bind(mod .. " + SPACE", crest("launcher"))
-hl.bind(mod .. " + D", crest("dashboard"))
-hl.bind(mod .. " + A", crest("sidebar"))
-hl.bind(mod .. " + N", crest("sidebar"))
-hl.bind(mod .. " + SHIFT + N", crest("clearNotifs"), { locked = true })
-hl.bind(mod .. " + L", crest("lock"), { locked = true })
-hl.bind(mod .. " + ESCAPE", crest("session"))
-hl.bind(mod .. " + M", crest("session"))
-hl.bind(mod .. " + I", crest("nexus"))
-hl.bind(mod .. " + SHIFT + V", hl.dsp.exec_cmd("pkill fuzzel || caelestia clipboard"))
-hl.bind(mod .. " + PERIOD", hl.dsp.exec_cmd("pkill fuzzel || caelestia emoji -p"))
+if crested then
+    hl.bind("SUPER + SUPER_L", crest("launcher"), { release = true })
+    hl.bind(mod .. " + SPACE", crest("launcher"))
+    hl.bind(mod .. " + D", crest("dashboard"))
+    hl.bind(mod .. " + A", crest("sidebar"))
+    hl.bind(mod .. " + N", crest("sidebar"))
+    hl.bind(mod .. " + SHIFT + N", crest("clearNotifs"), { locked = true })
+    hl.bind(mod .. " + L", crest("lock"), { locked = true })
+    hl.bind(mod .. " + ESCAPE", crest("session"))
+    hl.bind(mod .. " + M", crest("session"))
+    hl.bind(mod .. " + I", crest("nexus"))
+    hl.bind(mod .. " + SHIFT + V", hl.dsp.exec_cmd("pkill fuzzel || caelestia clipboard"))
+    hl.bind(mod .. " + PERIOD", hl.dsp.exec_cmd("pkill fuzzel || caelestia emoji -p"))
+    hl.bind(mod .. " + SHIFT + S", crest("screenshot"))
+    hl.bind(mod .. " + SHIFT + ALT + S", crest("screenshotFreeze"))
+else
+    hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd("pkill fuzzel || fuzzel"), { release = true })
+    hl.bind(mod .. " + SPACE", hl.dsp.exec_cmd("pkill fuzzel || fuzzel"))
+    hl.bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"), { locked = true })
+    hl.bind(mod .. " + SHIFT + S", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | wl-copy"))
+end
 hl.bind(mod .. " + E", hl.dsp.exec_cmd(files))
 hl.bind(mod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mod .. " + Q", hl.dsp.window.close())
 hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }))
 hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mod .. " + SHIFT + S", crest("screenshot"))
-hl.bind(mod .. " + SHIFT + ALT + S", crest("screenshotFreeze"))
-hl.bind("Print", hl.dsp.exec_cmd("caelestia screenshot"), { locked = true })
-hl.bind(mod .. " + SHIFT + R", hl.dsp.exec_cmd("caelestia record -r"))
-
+if crested then
+    hl.bind("Print", hl.dsp.exec_cmd("caelestia screenshot"), { locked = true })
+    hl.bind(mod .. " + SHIFT + R", hl.dsp.exec_cmd("caelestia record -r"))
+else
+    hl.bind("Print", hl.dsp.exec_cmd("grim - | wl-copy"), { locked = true })
+end
 hl.bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mod .. " + TAB", hl.dsp.focus({ workspace = "previous" }))
@@ -139,20 +153,29 @@ hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), { locked = true, repeating = true })
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true })
 hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { locked = true })
-hl.bind("XF86MonBrightnessUp", crest("brightnessUp"), { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", crest("brightnessDown"), { locked = true, repeating = true })
-hl.bind("XF86AudioPlay", crest("mediaToggle"), { locked = true })
-hl.bind("XF86AudioPause", crest("mediaToggle"), { locked = true })
-hl.bind("XF86AudioNext", crest("mediaNext"), { locked = true })
-hl.bind("XF86AudioPrev", crest("mediaPrev"), { locked = true })
-hl.bind("XF86AudioStop", crest("mediaStop"), { locked = true })
-
+if crested then
+    hl.bind("XF86MonBrightnessUp", crest("brightnessUp"), { locked = true, repeating = true })
+    hl.bind("XF86MonBrightnessDown", crest("brightnessDown"), { locked = true, repeating = true })
+    hl.bind("XF86AudioPlay", crest("mediaToggle"), { locked = true })
+    hl.bind("XF86AudioPause", crest("mediaToggle"), { locked = true })
+    hl.bind("XF86AudioNext", crest("mediaNext"), { locked = true })
+    hl.bind("XF86AudioPrev", crest("mediaPrev"), { locked = true })
+    hl.bind("XF86AudioStop", crest("mediaStop"), { locked = true })
+else
+    hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), { locked = true, repeating = true })
+    hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { locked = true, repeating = true })
+    hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+    hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+    hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
+    hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
+    hl.bind("XF86AudioStop", hl.dsp.exec_cmd("playerctl stop"), { locked = true })
+end
 hl.layer_rule({ match = { namespace = "^crest-(border-exclusion|area-picker)$" }, no_anim = true })
 hl.layer_rule({ match = { namespace = "^crest-(drawers|background)$" }, animation = "fade" })
 hl.layer_rule({ match = { namespace = "^(selection|hyprpicker|wayfreeze)$" }, animation = "fade" })
 hl.layer_rule({ match = { namespace = "^launcher$" }, animation = "popin 80%", blur = true })
 
-hl.window_rule({ name = "rawaru", match = { class = "^rawaru$" }, float = true, center = true, size = "1040 700" })
+hl.window_rule({ name = "fiordland-dots", match = { class = "^fiordland-dots$" }, float = true, center = true, size = "1000 640" })
 hl.window_rule({ name = "pavucontrol", match = { class = "^org.pulseaudio.pavucontrol$" }, float = true, size = "760 520" })
 hl.window_rule({ name = "nm-editor", match = { class = "^nm-connection-editor$" }, float = true })
 hl.window_rule({ name = "dialogs", match = { title = "^(Open|Save|Open File|Save As|Select|Choose|File Upload).*" }, float = true, center = true })

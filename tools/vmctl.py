@@ -77,7 +77,10 @@ def size(q):
 
 
 GRIM = ("u=$(stat -c %U /run/user/1000); w=$(basename $(ls /run/user/1000/wayland-? | head -1)); "
-        "su \"$u\" -c \"XDG_RUNTIME_DIR=/run/user/1000 WAYLAND_DISPLAY=$w grim -t png -\" | base64 -w0")
+        "e=\"XDG_RUNTIME_DIR=/run/user/1000 WAYLAND_DISPLAY=$w DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus\"; "
+        "if command -v grim >/dev/null; then su \"$u\" -c \"env $e grim -t png -\" | base64 -w0; "
+        "else rm -f /tmp/vmshot.png; su \"$u\" -c \"env $e spectacle -b -n -f -o /tmp/vmshot.png\" >/dev/null 2>&1; "
+        "base64 -w0 /tmp/vmshot.png; fi")
 
 
 def shot(q, out):

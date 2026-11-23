@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compare &middot; Fiordland Linux</title>
+<meta name="description" content="Fiordland Linux next to CachyOS and Arch Linux.">
+<meta name="theme-color" content="#131313">
+<meta property="og:title" content="Fiordland, CachyOS and Arch">
+<meta property="og:description" content="Fiordland Linux next to CachyOS and Arch Linux.">
+<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=3">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css?v=8">
+</head>
+<body>
+<header class="top wrap">
+  <a class="mark" href="/">Fiordland</a>
+  <nav>
+    <a href="/compare/" aria-current="page">Compare</a>
+    <a href="/#install">Install</a>
+    <a href="/repo/x86_64/">Repo</a>
+  </nav>
+</header>
+
+<main class="wrap">
+  <h1 class="page">Fiordland, CachyOS and Arch</h1>
+  <p class="lede">What each one sets up for you after a default install.</p>
+  <div class="cmp-wrap">
+    <table class="cmp">
+      <thead><tr><td></td><th scope="col">Fiordland</th><th scope="col">CachyOS</th><th scope="col">Arch</th></tr></thead>
+      <tbody>
+      <tr class="g"><th colspan="4" scope="colgroup">Only on Fiordland</th></tr>
+      <tr><th scope="row">One command that picks the repo, Flathub or the AUR for you</th><td class="y" aria-label="Yes">&#10003;</td><td class="n" aria-label="No">&#10007;</td><td class="n" aria-label="No">&#10007;</td></tr>
+      <tr><th scope="row">Skips a Flatpak when it would pull in a large runtime you don't have</th><td class="y" aria-label="Yes">&#10003;</td><td class="n" aria-label="No">&#10007;</td><td class="n" aria-label="No">&#10007;</td></tr>
+      <tr><th scope="row">Flathub set up on first boot</th><td class="y" aria-label="Yes">&#10003;</td><td class="n" aria-label="No">&#10007;</td><td class="n" aria-label="No">&#10007;</td></tr>
+      <tr><th scope="row">Caelestia, end-4, HyDE, ML4W, JaKooLit, Dux and iNiR in the installer</th><td class="y" aria-label="Yes">&#10003;</td><td class="p">Noctalia only</td><td class="n" aria-label="No">&#10007;</td></tr>
+      <tr class="g"><th colspan="4" scope="colgroup">Shared with CachyOS</th></tr>
+      <tr><th scope="row">Graphical installer</th><td class="y" aria-label="Yes">&#10003;</td><td class="y" aria-label="Yes">&#10003;</td><td class="p">Text installer</td></tr>
+      <tr><th scope="row">CachyOS kernel</th><td class="y" aria-label="Yes">&#10003;</td><td class="y" aria-label="Yes">&#10003;</td><td class="n" aria-label="No">&#10007;</td></tr>
+      <tr><th scope="row">GPU driver detection</th><td class="y" aria-label="Yes">&#10003;</td><td class="y" aria-label="Yes">&#10003;</td><td class="n" aria-label="No">&#10007;</td></tr>
+      <tr><th scope="row">Btrfs snapshot before every update</th><td class="y" aria-label="Yes">&#10003;</td><td class="y" aria-label="Yes">&#10003;</td><td class="n" aria-label="No">&#10007;</td></tr>
+      <tr><th scope="row">zram swap</th><td class="y" aria-label="Yes">&#10003;</td><td class="y" aria-label="Yes">&#10003;</td><td class="n" aria-label="No">&#10007;</td></tr>
+      <tr><th scope="row">Multilib for Steam and Wine</th><td class="y" aria-label="Yes">&#10003;</td><td class="y" aria-label="Yes">&#10003;</td><td class="n" aria-label="No">&#10007;</td></tr>
+      <tr><th scope="row">Choice of desktops and window managers at install</th><td class="y" aria-label="Yes">&#10003;</td><td class="y" aria-label="Yes">&#10003;</td><td class="y" aria-label="Yes">&#10003;</td></tr>
+      <tr><th scope="row">Arch repos and the AUR</th><td class="y" aria-label="Yes">&#10003;</td><td class="y" aria-label="Yes">&#10003;</td><td class="y" aria-label="Yes">&#10003;</td></tr>
+      <tr class="g"><th colspan="4" scope="colgroup">Where CachyOS is ahead</th></tr>
+      <tr><th scope="row">Packages rebuilt for x86-64-v3 and v4 CPUs</th><td class="n" aria-label="No">&#10007;</td><td class="y" aria-label="Yes">&#10003;</td><td class="n" aria-label="No">&#10007;</td></tr>
+      <tr><th scope="row">Boot into an older snapshot from the boot menu</th><td class="n" aria-label="No">&#10007;</td><td class="y" aria-label="Yes">&#10003;</td><td class="n" aria-label="No">&#10007;</td></tr>
+      <tr><th scope="row">Gaming packages like proton-cachyos</th><td class="n" aria-label="No">&#10007;</td><td class="y" aria-label="Yes">&#10003;</td><td class="p">AUR</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Checked against the CachyOS November 2026 release and archinstall. Everything here can be added to Arch by hand.
+  Sources: <a href="https://cachyos.org/blog/">CachyOS blog</a>, <a href="https://wiki.cachyos.org/">CachyOS wiki</a>, <a href="https://wiki.archlinux.org/title/Archinstall">ArchWiki</a>.</p>
+</main>
+
+<footer class="wrap foot">
+  <a href="https://apollo44.lat">apollo44.lat</a>
+  <a href="https://ivy.rest">ivy.rest</a>
+</footer>
+</body>
+</html>

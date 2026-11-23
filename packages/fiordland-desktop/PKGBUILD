@@ -1,12 +1,10 @@
 pkgname=fiordland-desktop
 pkgver=1.0
-pkgrel=8
+pkgrel=10
 pkgdesc="Fiordland Linux desktop defaults and branding"
 arch=('any')
 license=('MIT')
-depends=('hyprland' 'crest' 'kitty'
-         'inter-font' 'ttf-material-symbols-variable' 'ttf-jetbrains-mono' 'fastfetch'
-         'papirus-icon-theme' 'dconf' 'grim' 'slurp' 'wl-clipboard' 'brightnessctl' 'playerctl')
+depends=('inter-font' 'ttf-jetbrains-mono' 'fastfetch' 'papirus-icon-theme' 'dconf')
 makedepends=('python' 'papirus-icon-theme')
 install=fiordland-desktop.install
 
@@ -17,8 +15,8 @@ package() {
   install -Dm644 "$f/os-release" "$pkgdir/usr/share/fiordland/os-release"
   install -Dm644 "$f/issue" "$pkgdir/usr/share/fiordland/issue"
   install -Dm644 "$f/config.jsonc" "$pkgdir/usr/share/fiordland/xdg/fastfetch/config.jsonc"
+  install -Dm644 "$f/kde/kdeglobals" "$pkgdir/usr/share/fiordland/xdg/kdeglobals"
   install -Dm644 "$f/kitty.conf" "$pkgdir/usr/share/fiordland/xdg/kitty/kitty.conf"
-  install -Dm644 "$f/hypr/hyprland.lua" "$pkgdir/etc/skel/.config/hypr/hyprland.lua"
   install -Dm644 "$f/kitty/user.conf" "$pkgdir/etc/skel/.config/kitty/kitty.conf"
   install -Dm644 "$f/crest/scheme.json" "$pkgdir/etc/skel/.local/state/caelestia/scheme.json"
   for v in 3.0 4.0; do
@@ -28,6 +26,7 @@ package() {
   install -Dm644 "$f/gtk/dconf" "$pkgdir/etc/dconf/db/local.d/00-fiordland"
   install -Dm644 /dev/stdin "$pkgdir/etc/dconf/profile/user" <<< $'user-db:user\nsystem-db:local'
   install -Dm644 "$f/bashrc" "$pkgdir/usr/share/fiordland/bashrc"
+  install -Dm755 "$f/fiordland-dots" "$pkgdir/usr/bin/fiordland-dots"
   install -Dm644 "$f/hypr/hyprland.lua" "$pkgdir/usr/share/fiordland/hyprland.lua"
   install -Dm644 /dev/stdin "$pkgdir/etc/profile.d/fiordland.sh" <<< 'export XDG_CONFIG_DIRS="/usr/share/fiordland/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}"'
   install -Dm644 "$f/speed/reflector.conf" "$pkgdir/usr/share/fiordland/reflector.conf"

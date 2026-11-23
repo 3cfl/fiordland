@@ -1,6 +1,24 @@
 #!/bin/sh
 useradd -m -G wheel,video,input,audio,network -s /bin/bash -c "Fiordland Live" fiord
 passwd -d fiord
-mkdir -p /home/fiord/Desktop
+mkdir -p /home/fiord/Desktop /home/fiord/.config/autostart
 cp /usr/share/applications/rawaru.desktop /home/fiord/Desktop/ 2>/dev/null
+chmod +x /home/fiord/Desktop/rawaru.desktop 2>/dev/null
+cp /usr/share/applications/rawaru.desktop /home/fiord/.config/autostart/ 2>/dev/null
+cat > /home/fiord/.config/kscreenlockerrc <<'CONF'
+[Daemon]
+Autolock=false
+LockOnResume=false
+CONF
+cat > /home/fiord/.config/powermanagementprofilesrc <<'CONF'
+[AC][SuspendAndShutdown]
+AutoSuspendAction=0
+CONF
+cat > /home/fiord/.config/autostart/fiordland-wallpaper.desktop <<'CONF'
+[Desktop Entry]
+Type=Application
+Name=Fiordland wallpaper
+NoDisplay=true
+Exec=plasma-apply-wallpaperimage /usr/share/fiordland/wallpaper.png
+CONF
 chown -R fiord:fiord /home/fiord

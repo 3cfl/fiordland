@@ -5,3 +5,11 @@ icon-theme='Fiordland'
 font-name='Inter 10.5'
 monospace-font-name='JetBrains Mono 11'
 cursor-theme='Adwaita'
+
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/fiordland/wallpaper.png'
+picture-uri-dark='file:///usr/share/fiordland/wallpaper.png'
+picture-options='zoom'
+
+[org/gnome/desktop/screensaver]
+picture-uri='file:///usr/share/fiordland/wallpaper.png'

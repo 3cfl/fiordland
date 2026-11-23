@@ -19,3 +19,4 @@ packages/crest/pkg/
 web/deploy/
 packages/*/*.log
 packages/aur/*/*.log
+*.sig

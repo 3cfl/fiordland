@@ -1,0 +1,15 @@
+pkgname=fiordland-keyring
+pkgver=1
+pkgrel=1
+pkgdesc='Fiordland Linux package signing key'
+arch=('any')
+url='https://fiordland.apollo44.lat'
+license=('GPL-3.0-or-later')
+install=fiordland-keyring.install
+
+package() {
+  local d="$pkgdir/usr/share/pacman/keyrings"
+  install -Dm644 "$startdir/fiordland.gpg" "$d/fiordland.gpg"
+  install -Dm644 "$startdir/fiordland-trusted" "$d/fiordland-trusted"
+  install -Dm644 "$startdir/fiordland-revoked" "$d/fiordland-revoked"
+}
