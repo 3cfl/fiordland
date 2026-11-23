@@ -15,7 +15,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y shellcheck
       - run: git ls-files -z '*.sh' ':!iso/profiledef.sh' | xargs -0 shellcheck -S warning -e SC2054
       - run: bash ops/mirrors/test_sync.sh
-      - run: python3 -m py_compile ops/docs/build.py && python3 ops/docs/build.py "$RUNNER_TEMP/site" 0
+      - run: python3 -m py_compile ops/docs/build.py && mkdir -p "$RUNNER_TEMP/site" && python3 ops/docs/build.py "$RUNNER_TEMP/site" 0
   packages:
     runs-on: ubuntu-latest
     container: archlinux:base-devel
