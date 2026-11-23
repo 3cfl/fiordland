@@ -93,3 +93,44 @@ def release_embed_fields(data):
         "description": (data.get("body") or "")[:900],
         "id": data["id"],
     }
+
+
+DL_LOG = Path("/srv/fiordland/stats/iso.log")
+
+
+def count_downloads(state, path=DL_LOG):
+    path = Path(path)
+    dl = state.setdefault("dl", {"inode": 0, "offset": 0, "total": 0})
+    try:
+        st = path.stat()
+    except OSError:
+        return dl["total"]
+    if st.st_ino != dl["inode"] or st.st_size < dl["offset"]:
+        dl["inode"], dl["offset"] = st.st_ino, 0
+    with path.open("rb") as handle:
+        handle.seek(dl["offset"])
+        data = handle.read()
+    end = data.rfind(b"\n") + 1
+    for raw in data[:end].splitlines():
+        try:
+            entry = json.loads(raw)
+        except ValueError:
+            continue
+        request = entry.get("request", {})
+        if entry.get("status") == 200 and request.get("method") == "GET" and str(request.get("uri", "")).endswith(".iso"):
+            dl["total"] += 1
+    dl["offset"] += end
+    return dl["total"]
+
+
+def status_items(state, iso_path=ISO_JSON, log_path=DL_LOG):
+    items = []
+    try:
+        items.append(("playing", f"Fiordland {iso_info(iso_path)['date']}"))
+    except (OSError, ValueError, KeyError):
+        pass
+    total = count_downloads(state, log_path)
+    if total >= 10:
+        items.append(("watching", f"{total} ISO downloads"))
+    items.append(("playing", "Try /iso, /pkg and /aur"))
+    return items

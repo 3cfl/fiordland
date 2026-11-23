@@ -46,3 +46,26 @@ def test_parsers():
     assert [r["name"] for r in aur] == ["b", "a"] and aur[0]["desc"] == ""
     assert "q=a+b" in core.arch_url("a b")
     assert core.aur_url("a/b").startswith("https://aur.archlinux.org/rpc/v5/search/a%2Fb")
+
+
+def test_downloads_and_status():
+    with tempfile.TemporaryDirectory() as tmp:
+        log = Path(tmp) / "iso.log"
+        line = lambda status, method="GET", uri="/iso/f.iso": json.dumps({"status": status, "request": {"method": method, "uri": uri}}) + "\n"
+        log.write_text(line(200) + line(206) + line(200, "HEAD") + line(200, uri="/x") + "{broken")
+        state = {}
+        assert core.count_downloads(state, log) == 1
+        with log.open("a") as f:
+            f.write("\n" + line(200))
+        assert core.count_downloads(state, log) == 2
+        assert core.count_downloads(state, log) == 2
+        log.write_text(line(200))
+        assert core.count_downloads(state, log) == 3
+        iso = Path(tmp) / "latest.json"
+        iso.write_text(json.dumps({"file": "f.iso", "size": 1, "date": "2026-11-23", "sha256": "a"}))
+        items = core.status_items(state, iso, log)
+        assert items[0] == ("playing", "Fiordland 2026.11.23") and len(items) == 2
+        for _ in range(8):
+            with log.open("a") as f:
+                f.write(line(200))
+        assert core.status_items(state, iso, log)[1] == ("watching", "11 ISO downloads")

@@ -46,12 +46,14 @@ class Bot(discord.Client):
         super().__init__(intents=discord.Intents.default())
         self.tree = app_commands.CommandTree(self)
         self.http_session = None
+        self.status_index = 0
 
     async def setup_hook(self):
         timeout = aiohttp.ClientTimeout(total=15)
         self.http_session = aiohttp.ClientSession(timeout=timeout, headers={"User-Agent": "fiordland-bot"})
         await self.tree.sync()
         self.releases.start()
+        self.rotate.start()
 
     async def close(self):
         if self.http_session:
@@ -97,6 +99,23 @@ class Bot(discord.Client):
 
     @releases.before_loop
     async def wait_ready(self):
+        await self.wait_until_ready()
+
+    @tasks.loop(minutes=3)
+    async def rotate(self):
+        state = load_state()
+        items = core.status_items(state)
+        save_state({**load_state(), "dl": state["dl"]})
+        kind, text = items[self.status_index % len(items)]
+        self.status_index += 1
+        activity = discord.Activity(type=discord.ActivityType.watching if kind == "watching" else discord.ActivityType.playing, name=text)
+        try:
+            await self.change_presence(activity=activity)
+        except discord.HTTPException:
+            pass
+
+    @rotate.before_loop
+    async def wait_ready_rotate(self):
         await self.wait_until_ready()
 
 
