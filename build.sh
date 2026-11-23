@@ -6,7 +6,7 @@ root=$PWD
 [ -n "${SKIP_AUR:-}" ] || tools/aurbuild.sh
 for pkg in packages/*/; do
   case "$pkg" in packages/aur/|packages/crest/) continue ;; esac
-  (cd "$pkg" && rm -f ./*.pkg.tar.zst && makepkg -fd --noconfirm >/dev/null)
+  (cd "$pkg" && rm -f ./*.pkg.tar.zst && PKGEXT=.pkg.tar.zst makepkg -fd --noconfirm >/dev/null)
 done
 mkdir -p repo/x86_64
 rm -f repo/x86_64/*
