@@ -1,0 +1,7 @@
+NAME="Fiordland Linux"
+PRETTY_NAME="Fiordland Linux"
+ID=fiordland
+ID_LIKE=arch
+BUILD_ID=rolling
+ANSI_COLOR="38;2;255;204;0"
+LOGO=fiordland

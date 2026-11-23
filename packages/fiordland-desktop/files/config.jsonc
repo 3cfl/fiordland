@@ -1,0 +1,77 @@
+{
+  "logo": {
+    "source": "/usr/share/fiordland/logo.txt",
+    "type": "file",
+    "color": {
+      "1": "38;2;120;126;134",
+      "2": "38;2;226;226;226",
+      "3": "38;2;142;197;255"
+    },
+    "padding": {
+      "top": 1,
+      "left": 2,
+      "right": 4
+    }
+  },
+  "display": {
+    "separator": "  ",
+    "color": {
+      "keys": "38;2;142;197;255",
+      "output": "38;2;210;212;216",
+      "title": "38;2;142;197;255"
+    },
+    "key": {
+      "width": 3
+    }
+  },
+  "modules": [
+    "break",
+    {
+      "type": "title",
+      "format": "{user-name-colored}{at-symbol-colored}{host-name-colored}",
+      "key": " ",
+      "color": {
+        "user": "38;2;142;197;255",
+        "at": "38;2;120;126;134",
+        "host": "38;2;226;226;226"
+      }
+    },
+    "break",
+    {
+      "type": "os",
+      "key": "",
+      "format": "{pretty-name}"
+    },
+    {
+      "type": "kernel",
+      "key": "",
+      "format": "{release}"
+    },
+    {
+      "type": "wm",
+      "key": "󰍹",
+      "format": "{pretty-name}"
+    },
+    {
+      "type": "packages",
+      "key": "󰏗",
+      "format": "{all}"
+    },
+    {
+      "type": "uptime",
+      "key": "󰅐"
+    },
+    {
+      "type": "memory",
+      "key": "󰍛",
+      "format": "{used} / {total}"
+    },
+    "break",
+    {
+      "type": "colors",
+      "key": " ",
+      "symbol": "circle",
+      "paddingLeft": 0
+    }
+  ]
+}

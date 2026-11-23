@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiordland Linux</title>
+<meta name="description" content="An Arch-based Linux distro with its own desktop, package manager and installer.">
+<meta name="theme-color" content="#131313">
+<meta property="og:title" content="Fiordland Linux">
+<meta property="og:description" content="An Arch-based Linux distro with its own desktop, package manager and installer.">
+<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=3">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css?v=7">
+</head>
+<body>
+<header class="top wrap">
+  <a class="mark" href="/"><img src="/assets/logo.svg" alt="" width="22" height="22">Fiordland</a>
+  <nav>
+    <a href="#install">Install</a>
+    <a href="/repo/x86_64/">Repo</a>
+  </nav>
+</header>
+
+<main>
+  <section class="wrap intro">
+    <h1>Fiordland Linux</h1>
+    <p>Arch-based, with its own desktop, package manager and installer.</p>
+    <p class="get"><a class="btn" id="dl-top" href="/iso/fiordland-latest.iso">Download</a> <span class="meta" id="dl-meta">x86_64 &middot; about 2 GB</span></p>
+  </section>
+
+  <figure class="wrap shot big">
+    <img src="/assets/desktop.webp" alt="The Fiordland desktop" width="1920" height="1080">
+  </figure>
+
+  <section class="wrap sec parts">
+    <div>
+      <h2>crest</h2>
+      <p>Hyprland desktop shell. Bar, launcher, notifications, quick settings, lock screen.</p>
+    </div>
+    <div>
+      <h2>tawaki</h2>
+      <p>One command for the Arch repos, Flathub and the AUR.</p>
+    </div>
+    <div>
+      <h2>rawaru</h2>
+      <p>Graphical installer. Picks the fastest mirrors and installs in a few minutes.</p>
+    </div>
+  </section>
+
+  <section class="wrap sec">
+    <div class="grid">
+      <figure class="shot"><img src="/assets/launcher.webp" alt="Launcher" width="1920" height="1080" loading="lazy"></figure>
+      <figure class="shot"><img src="/assets/lock.webp" alt="Lock screen" width="1920" height="1080" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section class="wrap sec" id="install">
+    <h2>Install</h2>
+    <ol class="steps">
+      <li>Write the ISO to a USB stick.</li>
+      <li>Boot from it.</li>
+      <li>Follow the installer.</li>
+    </ol>
+    <p class="note">Needs 4 GB RAM and 20 GB disk. Uses the whole disk.</p>
+    <p class="sum">SHA256 <code id="dl-sum">loading</code> <button class="copy" data-copy="#dl-sum">copy</button></p>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <a href="https://apollo44.lat">apollo44.lat</a>
+  <a href="https://ivy.rest">ivy.rest</a>
+</footer>
+
+<script src="/assets/site.js?v=7" defer></script>
+</body>
+</html>

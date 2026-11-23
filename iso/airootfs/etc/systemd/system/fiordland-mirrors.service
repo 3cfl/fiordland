@@ -1,0 +1,12 @@
+[Unit]
+Description=Pick the fastest package mirrors
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/fiordland-mirrors
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

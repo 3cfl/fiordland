@@ -1,0 +1,20 @@
+pkgname=rawaru
+pkgver=1.0
+pkgrel=5
+pkgdesc="The Fiordland Linux installer"
+arch=('any')
+license=('MIT')
+depends=('python' 'pyside6' 'qt6-wayland' 'arch-install-scripts' 'gptfdisk' 'btrfs-progs' 'dosfstools' 'psmisc'
+         'parted' 'util-linux' 'inter-font' 'ttf-material-symbols-variable' 'ttf-jetbrains-mono')
+
+package() {
+  local s="$startdir/../../rawaru"
+  install -Dm644 "$s/backend.py" "$s/engine.py" -t "$pkgdir/usr/lib/rawaru/"
+  install -Dm755 "$s/rawaru.py" "$pkgdir/usr/lib/rawaru/rawaru.py"
+  install -Dm644 "$s"/qml/* -t "$pkgdir/usr/lib/rawaru/qml/"
+  install -Dm644 "$s/qml/logo.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/fiordland.svg"
+  install -Dm644 "$s/rawaru.desktop" "$pkgdir/usr/share/applications/rawaru.desktop"
+  install -dm755 "$pkgdir/usr/bin"
+  printf '#!/bin/sh\nexec python3 /usr/lib/rawaru/rawaru.py "$@"\n' > "$pkgdir/usr/bin/rawaru"
+  chmod 755 "$pkgdir/usr/bin/rawaru"
+}

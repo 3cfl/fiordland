@@ -1,0 +1,9 @@
+post_install() {
+  install -m644 /usr/share/fiordland/os-release /usr/lib/os-release
+  install -m644 /usr/share/fiordland/issue /etc/issue
+  dconf update 2>/dev/null || true
+}
+
+post_upgrade() {
+  post_install
+}

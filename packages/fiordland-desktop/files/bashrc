@@ -1,0 +1,29 @@
+alias ls='ls --color=auto'
+alias ll='ls -lh --group-directories-first'
+alias la='ls -lAh --group-directories-first'
+alias grep='grep --color=auto'
+alias ip='ip -color=auto'
+alias i='tawaki install'
+alias up='tawaki update'
+
+HISTSIZE=10000
+HISTCONTROL=ignoreboth:erasedups
+shopt -s histappend checkwinsize autocd 2>/dev/null
+
+__fl_prompt() {
+  local s=$? c='\[\e[38;2;142;197;255m\]'
+  [[ $s -ne 0 ]] && c='\[\e[38;2;255;107;107m\]'
+  local host=''
+  [[ -n $SSH_CONNECTION ]] && host='\[\e[38;2;107;121;136m\]\u@\h '
+  PS1="\n${host}\[\e[1;38;2;226;226;226m\]\w\[\e[0m\]\n${c}❯\[\e[0m\] "
+}
+PROMPT_COMMAND=(__fl_prompt "${PROMPT_COMMAND[@]}")
+
+__fl_fetch() {
+  [[ -z $FL_FETCHED && -z $SSH_CONNECTION && -z $TERM_PROGRAM ]] || return
+  export FL_FETCHED=1
+  command -v fastfetch >/dev/null || return
+  grep -qs '"terminalFetch": *false' "${XDG_CONFIG_HOME:-$HOME/.config}/caelestia/shell.json" && return
+  if (( $(tput cols 2>/dev/null || echo 80) < 76 )); then fastfetch --logo none; else fastfetch; fi
+}
+__fl_fetch

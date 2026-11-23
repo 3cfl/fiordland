@@ -1,0 +1,259 @@
+-- The CXX compiler identification is GNU 16.2.1
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Performing Test HAVE_STDATOMIC
+-- Performing Test HAVE_STDATOMIC - Success
+-- Found WrapAtomic: TRUE
+-- Found OpenGL: /usr/lib/libOpenGL.so
+-- Found WrapOpenGL: TRUE
+-- Could NOT find WrapVulkanHeaders (missing: Vulkan_INCLUDE_DIR) 
+-- Could NOT find WrapVulkanHeaders (missing: Vulkan_INCLUDE_DIR) 
+-- Found PkgConfig: /usr/bin/pkg-config (found version "3.0.11")
+-- Checking for module 'libqalculate'
+--   Found libqalculate, version 5.13.1
+-- Checking for module 'libpipewire-0.3'
+--   Found libpipewire-0.3, version 1.6.11
+-- Checking for module 'aubio'
+--   Found aubio, version 0.4.9
+-- QML install dir: //usr/lib/qt6/qml
+-- Created QML module: Caelestia
+-- Created QML module: Caelestia.Settings
+-- Created QML module: Caelestia.Components
+-- Created QML module: Caelestia.Config
+-- Created QML module: Caelestia.Models
+-- Created QML module: Caelestia.Services
+-- Created QML module: Caelestia.Blobs
+-- Created QML module: Caelestia.Images
+-- Created QML module: Caelestia.I18n
+-- Configuring done (0.7s)
+-- Generating done (0.1s)
+-- Build files have been written to: /build/crest/src/crest/build
+[1/223] Copying caelestia-settings qml resources into build dir
+[2/223] Copying caelestia-core qml sources into build dir
+[3/223] Copying caelestia-core qml resources into build dir
+[4/223] Copying caelestia-settings qml sources into build dir
+[5/223] Copying caelestia-config qml sources into build dir
+[6/223] Copying caelestia-i18n qml sources into build dir
+[7/223] Copying caelestia-config qml resources into build dir
+[8/223] Copying caelestia-i18n qml resources into build dir
+[9/223] Copying caelestia-components qml sources into build dir
+[10/223] Copying caelestia-components qml resources into build dir
+[11/223] Copying caelestia-models qml sources into build dir
+[12/223] Copying caelestia-services qml resources into build dir
+[13/223] Copying caelestia-models qml resources into build dir
+[14/223] Copying caelestia-blobs qml sources into build dir
+[15/223] Copying caelestia-blobs qml resources into build dir
+[16/223] Copying caelestia-images qml sources into build dir
+[17/223] Copying caelestia-services qml sources into build dir
+[18/223] Copying caelestia-images qml resources into build dir
+[19/223] Populating .qmlls.build.ini file at /build/crest/src/crest/build/.qt/.qmlls.build.ini
+[20/223] Automatic MOC and UIC for target caelestia-models
+[21/223] Running AUTOMOC file extraction for target caelestia-models
+[22/223] Running rcc for resource qmake_Caelestia_Models
+[23/223] Running moc --collect-json for target caelestia-models
+[24/223] Automatic MOC and UIC for target caelestia-images
+[25/223] Running AUTOMOC file extraction for target caelestia-images
+[26/223] Running rcc for resource qmake_Caelestia_Images
+[27/223] Automatic QML type registration for target caelestia-models
+[28/223] Running moc --collect-json for target caelestia-images
+[29/223] Automatic MOC and UIC for target caelestia-blobs
+[30/223] Building CXX object plugin/src/Caelestia/Models/CMakeFiles/caelestia-models.dir/.qt/rcc/qrc_qmake_Caelestia_Models.cpp.o
+[31/223] Running AUTOMOC file extraction for target caelestia-blobs
+[32/223] Running rcc for resource qmake_Caelestia_Blobs
+[33/223] Running moc --collect-json for target caelestia-blobs
+[34/223] Automatic QML type registration for target caelestia-images
+[35/223] Building CXX object plugin/src/Caelestia/Images/CMakeFiles/caelestia-images.dir/.qt/rcc/qrc_qmake_Caelestia_Images.cpp.o
+[36/223] Building CXX object extras/CMakeFiles/version.dir/version.cpp.o
+[37/223] Automatic MOC and UIC for target caelestia-core
+[38/223] Automatic QML type registration for target caelestia-blobs
+[39/223] Running AUTOMOC file extraction for target caelestia-core
+[40/223] Generating .qsb/shaders/blob.vert.qsb
+[41/223] Generating .qsb/shaders/blob.frag.qsb
+[42/223] Running rcc for resource qmake_Caelestia
+[43/223] Running rcc for resource blob_shaders
+[44/223] Running moc --collect-json for target caelestia-core
+[45/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobs.dir/.qt/rcc/qrc_qmake_Caelestia_Blobs.cpp.o
+[46/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobs.dir/.qt/rcc/qrc_blob_shaders.cpp.o
+[47/223] Automatic MOC and UIC for target caelestia-settings
+[48/223] Running AUTOMOC file extraction for target caelestia-settings
+[49/223] Running rcc for resource qmake_Caelestia_Settings
+[50/223] Running moc --collect-json for target caelestia-settings
+[51/223] Automatic QML type registration for target caelestia-core
+[52/223] Building CXX object plugin/src/Caelestia/CMakeFiles/caelestia-core.dir/.qt/rcc/qrc_qmake_Caelestia.cpp.o
+[53/223] Automatic QML type registration for target caelestia-settings
+[54/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/.qt/rcc/qrc_qmake_Caelestia_Settings.cpp.o
+[55/223] Linking CXX executable lib/version
+[56/223] Building CXX object plugin/src/Caelestia/CMakeFiles/caelestia-core.dir/cmake_pch.hxx.gch
+[57/223] Building CXX object plugin/src/Caelestia/Images/CMakeFiles/caelestia-images.dir/cmake_pch.hxx.gch
+[58/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobs.dir/cmake_pch.hxx.gch
+[59/223] Building CXX object plugin/src/Caelestia/Models/CMakeFiles/caelestia-models.dir/cmake_pch.hxx.gch
+[60/223] Building CXX object plugin/src/Caelestia/CMakeFiles/caelestia-core.dir/circularbuffer.cpp.o
+[61/223] Building CXX object plugin/src/Caelestia/CMakeFiles/caelestia-core.dir/toaster.cpp.o
+[62/223] Building CXX object plugin/src/Caelestia/CMakeFiles/caelestia-core.dir/requests.cpp.o
+[63/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/cmake_pch.hxx.gch
+[64/223] Building CXX object plugin/src/Caelestia/CMakeFiles/caelestia-core.dir/caelestia-core_qmltyperegistrations.cpp.o
+[65/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobs.dir/caelestia-blobs_autogen/mocs_compilation.cpp.o
+[66/223] Building CXX object plugin/src/Caelestia/CMakeFiles/caelestia-core.dir/qalculator.cpp.o
+[67/223] Building CXX object plugin/src/Caelestia/CMakeFiles/caelestia-core.dir/cutils.cpp.o
+[68/223] Building CXX object plugin/src/Caelestia/CMakeFiles/caelestia-core.dir/caelestia-core_autogen/mocs_compilation.cpp.o
+[69/223] Building CXX object plugin/src/Caelestia/Models/CMakeFiles/caelestia-models.dir/appdb.cpp.o
+[70/223] Building CXX object plugin/src/Caelestia/Models/CMakeFiles/caelestia-models.dir/caelestia-models_qmltyperegistrations.cpp.o
+[71/223] Building CXX object plugin/src/Caelestia/Models/CMakeFiles/caelestia-models.dir/caelestia-models_autogen/mocs_compilation.cpp.o
+[72/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/common.cpp.o
+[73/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/caelestia-settings_autogen/mocs_compilation.cpp.o
+[74/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/caelestia-settings_qmltyperegistrations.cpp.o
+[75/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/quarantine.cpp.o
+[76/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/schema.cpp.o
+[77/223] Building CXX object plugin/src/Caelestia/Models/CMakeFiles/caelestia-models.dir/filesystemmodel.cpp.o
+[78/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/changebatcher.cpp.o
+[79/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/objectnode.cpp.o
+[80/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/rootnode.cpp.o
+[81/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/node.cpp.o
+[82/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/settingsfile.cpp.o
+[83/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/codecs.cpp.o
+[84/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobs.dir/blobgroup.cpp.o
+[85/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobs.dir/caelestia-blobs_qmltyperegistrations.cpp.o
+[86/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobs.dir/blobmaterial.cpp.o
+[87/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobs.dir/blobshape.cpp.o
+[88/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobs.dir/blobrect.cpp.o
+[89/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobs.dir/blobinvertedrect.cpp.o
+[90/223] Building CXX object plugin/src/Caelestia/Images/CMakeFiles/caelestia-images.dir/caelestia-images_qmltyperegistrations.cpp.o
+[91/223] Building CXX object plugin/src/Caelestia/Images/CMakeFiles/caelestia-images.dir/caelestia-images_autogen/mocs_compilation.cpp.o
+[92/223] Building CXX object plugin/src/Caelestia/Images/CMakeFiles/caelestia-images.dir/iutils.cpp.o
+[93/223] Linking CXX shared library plugin/src/Caelestia/libcaelestia-core.so
+[94/223] Building CXX object plugin/src/Caelestia/Images/CMakeFiles/caelestia-images.dir/cachingimageprovider.cpp.o
+[95/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settings.dir/listnode.cpp.o
+[96/223] Automatic MOC and UIC for target caelestia-coreplugin
+[97/223] Building CXX object plugin/src/Caelestia/CMakeFiles/caelestia-coreplugin.dir/caelestia-coreplugin_autogen/mocs_compilation.cpp.o
+[98/223] Building CXX object plugin/src/Caelestia/Images/CMakeFiles/caelestia-images.dir/imagecacher.cpp.o
+[99/223] Automatic MOC and UIC for target caelestia-components
+[100/223] Running AUTOMOC file extraction for target caelestia-components
+[101/223] Running rcc for resource qmake_Caelestia_Components
+[102/223] Running moc --collect-json for target caelestia-components
+[103/223] Automatic QML type registration for target caelestia-components
+[104/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/.qt/rcc/qrc_qmake_Caelestia_Components.cpp.o
+[105/223] Building CXX object plugin/src/Caelestia/Images/CMakeFiles/caelestia-images.dir/imageanalyser.cpp.o
+[106/223] Linking CXX shared library plugin/src/Caelestia/Blobs/libcaelestia-blobs.so
+[107/223] Automatic MOC and UIC for target caelestia-blobsplugin
+[108/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobsplugin.dir/caelestia-blobsplugin_autogen/mocs_compilation.cpp.o
+[109/223] Linking CXX shared library plugin/src/Caelestia/Models/libcaelestia-models.so
+[110/223] Linking CXX shared library plugin/src/Caelestia/Settings/libcaelestia-settings.so
+[111/223] Automatic MOC and UIC for target caelestia-modelsplugin
+[112/223] Building CXX object plugin/src/Caelestia/Models/CMakeFiles/caelestia-modelsplugin.dir/caelestia-modelsplugin_autogen/mocs_compilation.cpp.o
+[113/223] Automatic MOC and UIC for target caelestia-settingsplugin
+[114/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settingsplugin.dir/caelestia-settingsplugin_autogen/mocs_compilation.cpp.o
+[115/223] Building CXX object plugin/src/Caelestia/CMakeFiles/caelestia-coreplugin.dir/caelestia-coreplugin_CaelestiaPlugin.cpp.o
+[116/223] Linking CXX shared module qml/Caelestia/libcaelestia-coreplugin.so
+[117/223] Linking CXX shared library plugin/src/Caelestia/Images/libcaelestia-images.so
+[118/223] Automatic MOC and UIC for target caelestia-imagesplugin
+[119/223] Building CXX object plugin/src/Caelestia/Images/CMakeFiles/caelestia-imagesplugin.dir/caelestia-imagesplugin_autogen/mocs_compilation.cpp.o
+[120/223] Building CXX object plugin/src/Caelestia/Blobs/CMakeFiles/caelestia-blobsplugin.dir/caelestia-blobsplugin_Caelestia_BlobsPlugin.cpp.o
+[121/223] Linking CXX shared module qml/Caelestia/Blobs/libcaelestia-blobsplugin.so
+[122/223] Automatic MOC and UIC for target caelestia-config
+[123/223] Running AUTOMOC file extraction for target caelestia-config
+[124/223] Running rcc for resource qmake_Caelestia_Config
+[125/223] Running moc --collect-json for target caelestia-config
+[126/223] Automatic QML type registration for target caelestia-config
+[127/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/.qt/rcc/qrc_qmake_Caelestia_Config.cpp.o
+[128/223] Building CXX object plugin/src/Caelestia/Models/CMakeFiles/caelestia-modelsplugin.dir/caelestia-modelsplugin_Caelestia_ModelsPlugin.cpp.o
+[129/223] Building CXX object plugin/src/Caelestia/Settings/CMakeFiles/caelestia-settingsplugin.dir/caelestia-settingsplugin_Caelestia_SettingsPlugin.cpp.o
+[130/223] Linking CXX shared module qml/Caelestia/Models/libcaelestia-modelsplugin.so
+[131/223] Linking CXX shared module qml/Caelestia/Settings/libcaelestia-settingsplugin.so
+[132/223] Building CXX object plugin/src/Caelestia/Images/CMakeFiles/caelestia-imagesplugin.dir/caelestia-imagesplugin_Caelestia_ImagesPlugin.cpp.o
+[133/223] Linking CXX shared module qml/Caelestia/Images/libcaelestia-imagesplugin.so
+[134/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/cmake_pch.hxx.gch
+[135/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/circularindicatormanager.cpp.o
+[136/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/linearindicatormanager.cpp.o
+[137/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/buttonrow.cpp.o
+[138/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/sparklineitem.cpp.o
+[139/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/wavyline.cpp.o
+[140/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/caelestia-components_qmltyperegistrations.cpp.o
+[141/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/visualiserbars.cpp.o
+[142/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/caelestia-components_autogen/mocs_compilation.cpp.o
+[143/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/animatedrepeater.cpp.o
+[144/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-components.dir/lazylistview.cpp.o
+[145/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/cmake_pch.hxx.gch
+[146/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/fontbuilder.cpp.o
+[147/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/common.cpp.o
+[148/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/borderconfig.cpp.o
+[149/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/font.cpp.o
+[150/223] Linking CXX shared library plugin/src/Caelestia/Components/libcaelestia-components.so
+[151/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/appearanceconfig.cpp.o
+[152/223] Automatic MOC and UIC for target caelestia-componentsplugin
+[153/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-componentsplugin.dir/caelestia-componentsplugin_autogen/mocs_compilation.cpp.o
+[154/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/anim.cpp.o
+[155/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/configattached.cpp.o
+[156/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/rootnodes.cpp.o
+[157/223] Building CXX object plugin/src/Caelestia/Components/CMakeFiles/caelestia-componentsplugin.dir/caelestia-componentsplugin_Caelestia_ComponentsPlugin.cpp.o
+[158/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/tokensattached.cpp.o
+[159/223] Linking CXX shared module qml/Caelestia/Components/libcaelestia-componentsplugin.so
+[160/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/caelestia-config_qmltyperegistrations.cpp.o
+[161/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-config.dir/caelestia-config_autogen/mocs_compilation.cpp.o
+[162/223] Linking CXX shared library plugin/src/Caelestia/Config/libcaelestia-config.so
+[163/223] Automatic MOC and UIC for target caelestia-i18n
+[164/223] Running AUTOMOC file extraction for target caelestia-i18n
+[165/223] Running rcc for resource caelestia-i18n_raw_qml_0
+[166/223] Running rcc for resource qmake_Caelestia_I18n
+[167/223] Running moc --collect-json for target caelestia-i18n
+[168/223] Generating .rcc/qmlcache/caelestia-i18n_qmlcache_loader.cpp
+[169/223] Automatic MOC and UIC for target caelestia-configplugin
+[170/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-configplugin.dir/caelestia-configplugin_autogen/mocs_compilation.cpp.o
+[171/223] Automatic QML type registration for target caelestia-i18n
+[172/223] Generating .rcc/qmlcache/caelestia-i18n_Tr_qml.cpp, .rcc/qmlcache/caelestia-i18n_Tr_qml.cpp.aotstats
+[173/223] Generating .rcc/qmlcache/caelestia-i18n_Units_qml.cpp, .rcc/qmlcache/caelestia-i18n_Units_qml.cpp.aotstats
+[174/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18n.dir/.qt/rcc/qrc_qmake_Caelestia_I18n.cpp.o
+[175/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18n.dir/.qt/rcc/qrc_caelestia-i18n_raw_qml_0.cpp.o
+[176/223] Automatic MOC and UIC for target caelestia-services
+[177/223] Running AUTOMOC file extraction for target caelestia-services
+[178/223] Running rcc for resource qmake_Caelestia_Services
+[179/223] Running moc --collect-json for target caelestia-services
+[180/223] Automatic QML type registration for target caelestia-services
+[181/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/.qt/rcc/qrc_qmake_Caelestia_Services.cpp.o
+[182/223] Building CXX object plugin/src/Caelestia/Config/CMakeFiles/caelestia-configplugin.dir/caelestia-configplugin_Caelestia_ConfigPlugin.cpp.o
+[183/223] Linking CXX shared module qml/Caelestia/Config/libcaelestia-configplugin.so
+[184/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18n.dir/cmake_pch.hxx.gch
+[185/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18n.dir/.rcc/qmlcache/caelestia-i18n_qmlcache_loader.cpp.o
+[186/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18n.dir/caelestia-i18n_qmltyperegistrations.cpp.o
+[187/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18n.dir/.rcc/qmlcache/caelestia-i18n_Units_qml.cpp.o
+[188/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18n.dir/pluralrules.cpp.o
+[189/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18n.dir/caelestia-i18n_autogen/mocs_compilation.cpp.o
+[190/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/cmake_pch.hxx.gch
+[191/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18n.dir/.rcc/qmlcache/caelestia-i18n_Tr_qml.cpp.o
+[192/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/serviceref.cpp.o
+[193/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/service.cpp.o
+[194/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/beattracker.cpp.o
+[195/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/audiocollector.cpp.o
+[196/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/audioprovider.cpp.o
+[197/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/cavaprovider.cpp.o
+[198/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/sensorslib.cpp.o
+[199/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/cpu.cpp.o
+[200/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/diskinfo.cpp.o
+[201/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/memory.cpp.o
+[202/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/caelestia-services_qmltyperegistrations.cpp.o
+[203/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/lyriccandidate.cpp.o
+[204/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/networkusage.cpp.o
+[205/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/storage.cpp.o
+[206/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/sessionmanager.cpp.o
+[207/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/caelestia-services_autogen/mocs_compilation.cpp.o
+[208/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/hyprextras.cpp.o
+[209/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/tickingservice.cpp.o
+[210/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18n.dir/translator.cpp.o
+[211/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/gpu.cpp.o
+[212/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/hyprdevices.cpp.o
+[213/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-services.dir/lyrics.cpp.o
+[214/223] Linking CXX shared library plugin/src/Caelestia/I18n/libcaelestia-i18n.so
+[215/223] Automatic MOC and UIC for target caelestia-i18nplugin
+[216/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18nplugin.dir/caelestia-i18nplugin_autogen/mocs_compilation.cpp.o
+[217/223] Building CXX object plugin/src/Caelestia/I18n/CMakeFiles/caelestia-i18nplugin.dir/caelestia-i18nplugin_Caelestia_I18nPlugin.cpp.o
+[218/223] Linking CXX shared module qml/Caelestia/I18n/libcaelestia-i18nplugin.so
+[219/223] Linking CXX shared library plugin/src/Caelestia/Services/libcaelestia-services.so
+[220/223] Automatic MOC and UIC for target caelestia-servicesplugin
+[221/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-servicesplugin.dir/caelestia-servicesplugin_autogen/mocs_compilation.cpp.o
+[222/223] Building CXX object plugin/src/Caelestia/Services/CMakeFiles/caelestia-servicesplugin.dir/caelestia-servicesplugin_Caelestia_ServicesPlugin.cpp.o
+[223/223] Linking CXX shared module qml/Caelestia/Services/libcaelestia-servicesplugin.so

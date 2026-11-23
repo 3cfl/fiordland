@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh the Flathub catalogue daily
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=1d
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

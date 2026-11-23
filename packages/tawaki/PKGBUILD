@@ -1,0 +1,22 @@
+pkgname=tawaki
+pkgver=0.1.0
+pkgrel=3
+pkgdesc="The Fiordland Linux package manager"
+arch=('x86_64')
+license=('MIT')
+depends=('pacman' 'gcc-libs' 'glibc')
+optdepends=('flatpak: Flathub apps'
+            'paru: AUR installs with dependency resolution'
+            'pacman-contrib: update counts')
+makedepends=('cargo')
+options=('!lto' '!debug')
+
+build() {
+  cd "$startdir/../../tawaki"
+  CARGO_TARGET_DIR="$srcdir/target" cargo build --release --locked
+}
+
+package() {
+  install -Dm755 "$srcdir/target/release/tawaki" "$pkgdir/usr/bin/tawaki"
+  install -Dm644 "$startdir/tawaki-catalogue.service" "$startdir/tawaki-catalogue.timer" -t "$pkgdir/usr/lib/systemd/system/"
+}

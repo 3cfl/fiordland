@@ -1,0 +1,10 @@
+[Trigger]
+Type = Package
+Operation = Install
+Operation = Upgrade
+Target = filesystem
+
+[Action]
+Description = Applying Fiordland Linux branding...
+When = PostTransaction
+Exec = /usr/bin/install -m644 /usr/share/fiordland/os-release /usr/lib/os-release

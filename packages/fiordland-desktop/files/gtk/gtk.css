@@ -1,0 +1,19 @@
+@define-color accent_color #8ec5ff;
+@define-color accent_bg_color #8ec5ff;
+@define-color accent_fg_color #00315a;
+@define-color window_bg_color #131313;
+@define-color view_bg_color #1a1a1a;
+@define-color headerbar_bg_color #131313;
+@define-color sidebar_bg_color #0e0e0e;
+@define-color theme_selected_bg_color #8ec5ff;
+@define-color theme_selected_fg_color #00315a;
+@define-color theme_bg_color #131313;
+@define-color theme_base_color #1a1a1a;
+@define-color borders #2a2a2a;
+window, .background { background-color: #131313; }
+.view, iconview, treeview.view { background-color: #1a1a1a; }
+.sidebar, placessidebar, .thunar .sidebar { background-color: #0e0e0e; }
+menubar { background-color: #131313; padding: 2px 6px; }
+entry { border-radius: 999px; padding: 4px 12px; }
+button { border-radius: 999px; }
+.view:selected, row:selected, iconview:selected, treeview.view:selected { background-color: alpha(#8ec5ff, .22); color: #e8f3ff; }

@@ -1,0 +1,42 @@
+pkgname=fiordland-desktop
+pkgver=1.0
+pkgrel=6
+pkgdesc="Fiordland Linux desktop defaults and branding"
+arch=('any')
+license=('MIT')
+depends=('hyprland' 'crest' 'kitty'
+         'inter-font' 'ttf-material-symbols-variable' 'ttf-jetbrains-mono' 'fastfetch'
+         'papirus-icon-theme' 'dconf' 'grim' 'slurp' 'wl-clipboard' 'brightnessctl' 'playerctl')
+makedepends=('python' 'papirus-icon-theme')
+install=fiordland-desktop.install
+
+package() {
+  local f="$startdir/files"
+  python "$f/mkicons.py" "$pkgdir/usr/share/icons/Fiordland"
+  install -Dm644 "$f/wallpaper.png" "$pkgdir/usr/share/fiordland/wallpaper.png"
+  install -Dm644 "$f/logo.txt" "$pkgdir/usr/share/fiordland/logo.txt"
+  install -Dm644 "$f/os-release" "$pkgdir/usr/share/fiordland/os-release"
+  install -Dm644 "$f/issue" "$pkgdir/usr/share/fiordland/issue"
+  install -Dm644 "$f/config.jsonc" "$pkgdir/usr/share/fiordland/xdg/fastfetch/config.jsonc"
+  install -Dm644 "$f/kitty.conf" "$pkgdir/usr/share/fiordland/xdg/kitty/kitty.conf"
+  install -Dm644 "$f/hypr/hyprland.lua" "$pkgdir/etc/skel/.config/hypr/hyprland.lua"
+  install -Dm644 "$f/kitty/user.conf" "$pkgdir/etc/skel/.config/kitty/kitty.conf"
+  install -Dm644 "$f/crest/scheme.json" "$pkgdir/etc/skel/.local/state/caelestia/scheme.json"
+  for v in 3.0 4.0; do
+    install -Dm644 "$f/gtk/settings.ini" "$pkgdir/usr/share/fiordland/xdg/gtk-$v/settings.ini"
+    install -Dm644 "$f/gtk/gtk.css" "$pkgdir/etc/skel/.config/gtk-$v/gtk.css"
+  done
+  install -Dm644 "$f/gtk/dconf" "$pkgdir/etc/dconf/db/local.d/00-fiordland"
+  install -Dm644 /dev/stdin "$pkgdir/etc/dconf/profile/user" <<< $'user-db:user\nsystem-db:local'
+  install -Dm644 "$f/bashrc" "$pkgdir/usr/share/fiordland/bashrc"
+  install -Dm644 "$f/hypr/hyprland.lua" "$pkgdir/usr/share/fiordland/hyprland.lua"
+  install -Dm644 /dev/stdin "$pkgdir/etc/profile.d/fiordland.sh" <<< 'export XDG_CONFIG_DIRS="/usr/share/fiordland/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}"'
+  install -Dm644 "$f/speed/reflector.conf" "$pkgdir/usr/share/fiordland/reflector.conf"
+  install -Dm644 "$f/speed/reflector-dropin.conf" "$pkgdir/usr/lib/systemd/system/reflector.service.d/fiordland.conf"
+  install -Dm644 "$f/speed/makepkg.conf" "$pkgdir/etc/makepkg.conf.d/fiordland.conf"
+  install -Dm644 "$f/speed/flatpak-appstream.service" "$pkgdir/usr/lib/systemd/system/flatpak-appstream.service"
+  install -Dm644 "$f/speed/flatpak-appstream.timer" "$pkgdir/usr/lib/systemd/system/flatpak-appstream.timer"
+  install -d "$pkgdir/usr/lib/systemd/system/timers.target.wants"
+  ln -s ../flatpak-appstream.timer "$pkgdir/usr/lib/systemd/system/timers.target.wants/flatpak-appstream.timer"
+  install -Dm644 "$f/fiordland-desktop.hook" "$pkgdir/usr/share/libalpm/hooks/fiordland-desktop.hook"
+}

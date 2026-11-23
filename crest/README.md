@@ -1,0 +1,26 @@
+# crest
+
+The desktop shell of [Fiordland Linux](https://fiordland.apollo44.lat), built on [Quickshell](https://quickshell.org).
+
+crest is a fork of [Caelestia shell](https://github.com/caelestia-dots/shell) v2.5.0 by the Caelestia contributors, licensed under GPL-3.0. Thanks to them for the foundation.
+
+## Changes from Caelestia
+
+- Fiordland branding, logo, wallpaper and penguin artwork
+- Grey and baby blue `fiordland` colour scheme
+- Inter as the interface font
+- Optional fastfetch when a terminal opens (Settings → Apps)
+- `crest:` global shortcuts and `crest-` layer namespaces
+- Fiordland defaults for apps and the calculator
+
+## Running
+
+```sh
+qs -c crest
+```
+
+Configuration lives in `~/.config/caelestia/shell.json` and uses the same options as Caelestia, so the upstream documentation applies.
+
+## License
+
+GPL-3.0-only, see [LICENSE](LICENSE).
