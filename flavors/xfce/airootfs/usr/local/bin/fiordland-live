@@ -1,0 +1,15 @@
+#!/bin/sh
+useradd -m -G wheel,video,input,audio,network -s /bin/bash -c "Fiordland Live" fiord
+passwd -d fiord
+mkdir -p /home/fiord/Desktop /home/fiord/.config/autostart
+cp /usr/share/applications/rawaru.desktop /home/fiord/Desktop/ 2>/dev/null
+chmod +x /home/fiord/Desktop/rawaru.desktop 2>/dev/null
+cp /usr/share/applications/rawaru.desktop /home/fiord/.config/autostart/ 2>/dev/null
+cat > /home/fiord/.config/autostart/fiordland-xfce-look.desktop <<'CONF'
+[Desktop Entry]
+Type=Application
+Name=Fiordland look
+NoDisplay=true
+Exec=sh /usr/local/bin/fiordland-xfce-look
+CONF
+chown -R fiord:fiord /home/fiord

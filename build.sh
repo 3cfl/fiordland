@@ -53,7 +53,23 @@ cleanwork() {
 
 cleanwork
 for f in repo/x86_64/*.pkg.tar.zst; do sudo rm -f "/var/cache/pacman/pkg/$(basename "$f")"; done
-sudo mkarchiso -v -w work -o out iso
+profile=iso
+if [ -n "${FLAVOR:-}" ]; then
+  [ -d "flavors/$FLAVOR" ] || { echo "no flavor $FLAVOR"; exit 1; }
+  profile=$root/work-profile
+  rm -rf "$profile"
+  cp -a iso "$profile"
+  cp -a "flavors/$FLAVOR/airootfs/." "$profile/airootfs/"
+  if [ -f "flavors/$FLAVOR/packages.remove" ]; then
+    grep -vxFf "flavors/$FLAVOR/packages.remove" iso/packages.x86_64 > "$profile/packages.x86_64"
+  fi
+  [ -f "flavors/$FLAVOR/packages.add" ] && cat "flavors/$FLAVOR/packages.add" >> "$profile/packages.x86_64"
+  sort -u -o "$profile/packages.x86_64" "$profile/packages.x86_64"
+  sed -i -e "s/^iso_name=.*/iso_name=\"fiordland-$FLAVOR\"/" \
+    -e "s/^iso_application=.*/iso_application=\"Fiordland Linux Live ($FLAVOR)\"/" "$profile/profiledef.sh"
+fi
+sudo mkarchiso -v -w work -o out "$profile"
+[ "$profile" = iso ] || rm -rf "$profile"
 cleanwork
 sudo chown "$(id -u):$(id -g)" out/*.iso
 ls -lh out/

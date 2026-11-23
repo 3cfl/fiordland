@@ -21,3 +21,4 @@ packages/*/*.log
 packages/aur/*/*.log
 *.sig
 packages/*/*.tar.gz
+work-profile/

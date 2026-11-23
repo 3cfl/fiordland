@@ -1,5 +1,5 @@
 pkgname=rawaru
-pkgver=1.4
+pkgver=1.6
 pkgrel=1
 pkgdesc="The Fiordland Linux installer"
 arch=('any')
@@ -8,7 +8,7 @@ license=('GPL-3.0-only')
 depends=('python' 'pyside6' 'qt6-wayland' 'arch-install-scripts' 'gptfdisk' 'btrfs-progs' 'dosfstools' 'psmisc'
          'parted' 'util-linux' 'ntfs-3g' 'os-prober' 'inter-font' 'ttf-jetbrains-mono')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('960ca197aaaf4db90310b52511e3bd75611afb19a703eda2bfcc8a04f3c9f713')
+sha256sums=('be696408766205fb2f0459e92fbfe9807ce02f95ea2d381ad38eb08b24b1b572')
 
 package() {
   local s="$srcdir/$pkgname-$pkgver"
