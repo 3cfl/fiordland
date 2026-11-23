@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Fiordland look
+NoDisplay=true
+OnlyShowIn=XFCE;
+Exec=sh /usr/local/bin/fiordland-xfce-look

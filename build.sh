@@ -48,6 +48,7 @@ trap 'sed -i "s#^Server = file://.*#Server = file://@REPO@#" iso/pacman.conf' EX
 
 cleanwork() {
   findmnt -rn -o TARGET | grep -F "$root/work/" | sort -r | xargs -r -n1 sudo umount -R 2>/dev/null || true
+  findmnt -rn -o TARGET | grep -F "$root/work/" | sort -r | xargs -r -n1 sudo umount -lR 2>/dev/null || true
   sudo rm -rf --one-file-system work
 }
 
@@ -68,7 +69,20 @@ if [ -n "${FLAVOR:-}" ]; then
   sed -i -e "s/^iso_name=.*/iso_name=\"fiordland-$FLAVOR\"/" \
     -e "s/^iso_application=.*/iso_application=\"Fiordland Linux Live ($FLAVOR)\"/" "$profile/profiledef.sh"
 fi
+sudo bash -c '
+  while sleep 2; do
+    for p in /proc/[0-9]*; do
+      case "$(readlink "$p/root" 2>/dev/null)" in
+        "'"$root"'"/work/*)
+          case "$(cat "$p/comm" 2>/dev/null)" in
+            gpg-agent|dirmngr|keyboxd) kill "${p#/proc/}" 2>/dev/null ;;
+          esac ;;
+      esac
+    done
+  done' &
+reaper=$!
 sudo mkarchiso -v -w work -o out "$profile"
+sudo kill "$reaper" 2>/dev/null || true
 [ "$profile" = iso ] || rm -rf "$profile"
 cleanwork
 sudo chown "$(id -u):$(id -g)" out/*.iso

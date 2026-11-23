@@ -1,0 +1,18 @@
+pkgname=fiordland-container
+pkgver=0.9.0
+pkgrel=1
+pkgdesc="Fiordland Linux release files for containers, without kernel, bootloader or snapshots"
+arch=('any')
+url='https://fiordland.apollo44.lat'
+license=('MIT')
+depends=('base' 'sudo' 'tawaki' 'fiordland-keyring' 'pacman-contrib' 'xdg-user-dirs' 'xdg-utils'
+         'pipewire' 'pipewire-pulse' 'wireplumber')
+provides=("fiordland-base=$pkgver")
+conflicts=('fiordland-base')
+
+package() {
+  local f="$startdir/../fiordland-base/files"
+  sed "s/@VERSION@/$pkgver/; s/^BUILD_ID=.*/BUILD_ID=container/" "$f/os-release" | install -Dm644 /dev/stdin "$pkgdir/usr/share/fiordland/os-release"
+  install -Dm755 "$f/fiordland-migrate" "$pkgdir/usr/bin/fiordland-migrate"
+  install -Dm644 "$f/os-release.hook" "$pkgdir/usr/share/libalpm/hooks/90-fiordland-os-release.hook"
+}

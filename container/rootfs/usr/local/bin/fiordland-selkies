@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+user=${CUSTOM_USER:-fiord}
+port=${SELKIES_PORT:-8080}
+if [ -z "${PASSWORD:-}" ]; then
+  echo "fiordland-selkies: set PASSWORD to log in to the desktop" >&2
+  exit 1
+fi
+if ! id "$user" >/dev/null 2>&1; then
+  useradd -m -G wheel -s /bin/bash "$user"
+fi
+echo "$user:$PASSWORD" | chpasswd
+uid=$(id -u "$user")
+install -d -m 700 -o "$user" -g "$user" "/run/user/$uid"
+if [ ! -S /run/dbus/system_bus_socket ]; then
+  install -d -m755 /run/dbus
+  dbus-daemon --system --fork --nopidfile
+fi
+home=$(getent passwd "$user" | cut -d: -f6)
+exec runuser -u "$user" -- env -i \
+  HOME="$home" USER="$user" LOGNAME="$user" SHELL=/bin/bash \
+  PATH=/usr/local/bin:/usr/bin LANG="${LANG:-en_US.UTF-8}" \
+  XDG_RUNTIME_DIR="/run/user/$uid" \
+  SELKIES_BASIC_AUTH_USER="$user" SELKIES_BASIC_AUTH_PASSWORD="$PASSWORD" \
+  selkies session --session=xfce --public --port="$port" "$@"

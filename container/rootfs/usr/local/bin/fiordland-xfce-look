@@ -1,0 +1,31 @@
+#!/bin/sh
+mark="${XDG_CONFIG_HOME:-$HOME/.config}/fiordland/xfce-look"
+[ -e "$mark" ] && exit 0
+sleep 2
+set_prop() { xfconf-query -c "$1" -p "$2" -n -t "$3" -s "$4" 2>/dev/null || xfconf-query -c "$1" -p "$2" -s "$4"; }
+set_prop xsettings /Net/ThemeName string Adwaita-dark
+set_prop xsettings /Net/IconThemeName string Fiordland
+set_prop xsettings /Gtk/FontName string "Inter 10"
+set_prop xsettings /Gtk/MonospaceFontName string "JetBrains Mono 10"
+set_prop xfwm4 /general/title_font string "Inter Bold 10"
+set_prop xfce4-desktop /desktop-icons/use-custom-label-text-color bool true
+set_prop xfce4-desktop /desktop-icons/use-custom-label-background-color bool true
+xfconf-query -c xfce4-desktop -p /desktop-icons/label-text-color -n -t double -t double -t double -t double -s 0.914 -s 0.918 -s 0.925 -s 1 2>/dev/null
+xfconf-query -c xfce4-desktop -p /desktop-icons/label-background-color -n -t double -t double -t double -t double -s 0 -s 0 -s 0 -s 0 2>/dev/null
+set_prop xfce4-power-manager /xfce4-power-manager/dpms-enabled bool false
+set_prop xfce4-power-manager /xfce4-power-manager/blank-on-ac int 0
+set_prop xfce4-screensaver /saver/enabled bool false
+set_prop xfce4-screensaver /lock/enabled bool false
+for _ in $(seq 20); do
+  pgrep -u "$(id -u)" -x xfdesktop >/dev/null && break
+  sleep 1
+done
+outputs=$(xrandr 2>/dev/null | awk '/ connected/{print $1}')
+[ -n "$outputs" ] || outputs=screen
+for o in $outputs; do
+  for w in 0 1 2 3; do
+    set_prop xfce4-desktop "/backdrop/screen0/monitor$o/workspace$w/last-image" string /usr/share/fiordland/wallpaper.png
+    set_prop xfce4-desktop "/backdrop/screen0/monitor$o/workspace$w/image-style" int 5
+  done
+done
+mkdir -p "${mark%/*}" && touch "$mark"
