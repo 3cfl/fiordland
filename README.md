@@ -74,6 +74,10 @@ SKIP_AUR=1 ./build.sh skip the chroot builds of crest and its AUR deps
 
 Installed systems use the package repo at `https://fiordland.apollo44.lat/repo/x86_64`.
 
+## Security
+
+Report vulnerabilities privately; see [SECURITY.md](SECURITY.md). Signing key handling and backups: [docs/signing-key.md](docs/signing-key.md).
+
 ## Credits
 
 - [Caelestia shell](https://github.com/caelestia-dots/shell) by the Caelestia contributors, which crest is forked from (GPL-3.0)

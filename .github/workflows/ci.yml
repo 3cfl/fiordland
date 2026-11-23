@@ -1,0 +1,36 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - run: git ls-files -z '*.sh' ':!iso/profiledef.sh' | xargs -0 shellcheck -S warning -e SC2054
+      - run: bash ops/mirrors/test_sync.sh
+      - run: python3 -m py_compile ops/docs/build.py && python3 ops/docs/build.py "$RUNNER_TEMP/site" 0
+  packages:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg: [fiordland-keyring, fiordland-desktop, rawaru, tawaki]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: pacman -Syu --noconfirm --needed git
+      - run: |
+          useradd -m b
+          echo 'b ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/b
+          chown -R b .
+      - working-directory: packages/${{ matrix.pkg }}
+        run: su b -c 'makepkg -s --noconfirm --skippgpcheck'
