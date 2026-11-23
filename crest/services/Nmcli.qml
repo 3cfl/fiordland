@@ -181,10 +181,11 @@ Singleton {
         return iface ? iface.connection : "";
     }
 
-    function executeCommand(args: list<string>, callback: var): void {
+    function executeCommand(args: list<string>, callback: var, input: string): void {
         const proc = commandProc.createObject(root);
         proc.cmdArgs = ["nmcli", ...args];
         proc.callback = callback;
+        proc.input = input || "";
 
         activeProcesses.push(proc);
 
@@ -434,16 +435,12 @@ Singleton {
             immediateCheckTimer.start();
         }
 
-        if (password && password.length > 0 && hasBssid) {
-            const bssidUpper = bssid.toUpperCase();
-            createConnectionWithPassword(ssid, bssidUpper, password, callback);
+        if (password && password.length > 0) {
+            createConnectionWithPassword(ssid, hasBssid ? bssid.toUpperCase() : "", password, callback);
             return;
         }
 
         let cmd = [root.nmcliCommandDevice, root.nmcliCommandWifi, "connect", ssid];
-        if (password && password.length > 0) {
-            cmd.push(root.connectionParamPassword, password);
-        }
         executeCommand(cmd, result => {
             if (result.needsPassword && callback) {
                 if (callback)
@@ -465,29 +462,48 @@ Singleton {
 
     function createConnectionWithPassword(ssid: string, bssidUpper: string, password: string, callback: var): void {
         checkAndDeleteConnection(ssid, () => {
-            const cmd = [root.nmcliCommandConnection, "add", root.connectionParamType, root.deviceTypeWifi, root.connectionParamConName, ssid, root.connectionParamIfname, "*", root.connectionParamSsid, ssid, root.connectionParamBssid, bssidUpper, root.securityKeyMgmt, root.keyMgmtWpaPsk, root.securityPsk, password];
+            const cmd = [root.nmcliCommandConnection, "add", root.connectionParamType, root.deviceTypeWifi, root.connectionParamConName, ssid, root.connectionParamIfname, "*", root.connectionParamSsid, ssid, "connection.autoconnect", "no"];
+            if (bssidUpper.length > 0)
+                cmd.push(root.connectionParamBssid, bssidUpper);
+            cmd.push(root.securityKeyMgmt, root.keyMgmtWpaPsk);
 
             executeCommand(cmd, result => {
-                if (result.success) {
+                const hasDuplicateWarning = result.error && (result.error.includes("another connection with the name") || result.error.includes("Reference the connection by its uuid"));
+                if (!result.success && !hasDuplicateWarning) {
+                    if (callback)
+                        callback(result);
+                    return;
+                }
+                setPsk(ssid, password, pskResult => {
+                    if (!pskResult.success) {
+                        if (callback)
+                            callback(pskResult);
+                        return;
+                    }
                     loadSavedConnections(() => {});
                     activateConnection(ssid, callback);
-                } else {
-                    const hasDuplicateWarning = result.error && (result.error.includes("another connection with the name") || result.error.includes("Reference the connection by its uuid"));
-
-                    if (hasDuplicateWarning || (result.exitCode > 0 && result.exitCode < 10)) {
-                        loadSavedConnections(() => {});
-                        activateConnection(ssid, callback);
-                    } else {
-                        console.warn(lc, "Connection profile creation failed, trying fallback...");
-                        let fallbackCmd = [root.nmcliCommandDevice, root.nmcliCommandWifi, "connect", ssid, root.connectionParamPassword, password];
-                        executeCommand(fallbackCmd, fallbackResult => {
-                            if (callback)
-                                callback(fallbackResult);
-                        });
-                    }
-                }
+                });
             });
         });
+    }
+
+    function setPsk(connectionName: string, password: string, callback: var): void {
+        const clean = password.replace(/[\r\n]/g, "");
+        const input = "set " + root.securityPsk + " " + clean + "\nsave persistent\nquit\n";
+        executeCommand([root.nmcliCommandConnection, "edit", "id", connectionName], result => {
+            const saved = result.output && result.output.includes("successfully updated") && !(result.output + result.error).includes("Error:");
+            if (!saved) {
+                if (callback)
+                    callback({
+                        success: false,
+                        output: "",
+                        error: "Could not save the network password",
+                        exitCode: 1
+                    });
+                return;
+            }
+            executeCommand([root.nmcliCommandConnection, "modify", "id", connectionName, "connection.autoconnect", "yes"], callback);
+        }, input);
     }
 
     function checkAndDeleteConnection(ssid: string, callback: var): void {
@@ -681,23 +697,32 @@ Singleton {
             let cmd = [root.nmcliCommandConnection, "add", root.connectionParamType, root.deviceTypeWifi, root.connectionParamConName, ssid, root.connectionParamIfname, "*", root.connectionParamSsid, ssid, root.connectionParamHidden, hidden ? "yes" : "no"];
 
             if (isSecure) {
-                cmd.push(root.securityKeyMgmt, root.keyMgmtWpaPsk, root.securityPsk, password);
+                cmd.push(root.securityKeyMgmt, root.keyMgmtWpaPsk, "connection.autoconnect", "no");
             }
 
             executeCommand(cmd, result => {
-                if (result.success) {
+                const hasDuplicateWarning = result.error && (result.error.includes("another connection with the name") || result.error.includes("Reference the connection by its uuid"));
+                if (!result.success && !hasDuplicateWarning) {
+                    if (callback)
+                        callback(result);
+                    return;
+                }
+                const activate = () => {
                     loadSavedConnections(() => {});
                     activateConnection(ssid, callback);
-                } else {
-                    const hasDuplicateWarning = result.error && (result.error.includes("another connection with the name") || result.error.includes("Reference the connection by its uuid"));
-
-                    if (hasDuplicateWarning) {
-                        loadSavedConnections(() => {});
-                        activateConnection(ssid, callback);
-                    } else if (callback) {
-                        callback(result);
-                    }
+                };
+                if (!isSecure) {
+                    activate();
+                    return;
                 }
+                setPsk(ssid, password, pskResult => {
+                    if (!pskResult.success) {
+                        if (callback)
+                            callback(pskResult);
+                        return;
+                    }
+                    activate();
+                });
             });
         });
     }
@@ -1691,10 +1716,19 @@ Singleton {
 
         property var callback: null
         property list<string> cmdArgs: []
+        property string input: ""
         property bool callbackCalled: false
         property int exitCode: 0
 
         signal processFinished
+
+        stdinEnabled: input.length > 0
+        onStarted: {
+            if (input.length > 0) {
+                write(input);
+                stdinEnabled = false;
+            }
+        }
 
         environment: ({
                 LANG: "C.UTF-8",

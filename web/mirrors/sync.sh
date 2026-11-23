@@ -19,7 +19,6 @@ grep -Eq ' repo/x86_64/fiordland\.db' "$work/manifest" || { echo "manifest looks
 fetch() {
   local sum="$1" size="$2" rel="$3" target="$DEST/$3"
   if [ -f "$target" ] && [ "$(stat -c %s "$target")" = "$size" ]; then
-    case "$rel" in iso/*.iso) return 0 ;; esac
     [ "$(sha256sum "$target" | cut -d' ' -f1)" = "$sum" ] && return 0
   fi
   echo "fetching $rel"
