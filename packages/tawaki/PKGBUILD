@@ -1,6 +1,6 @@
 pkgname=tawaki
-pkgver=0.1.0
-pkgrel=4
+pkgver=0.1.1
+pkgrel=1
 pkgdesc="The Fiordland Linux package manager"
 arch=('x86_64')
 url="https://github.com/3cfl/tawaki"
@@ -12,7 +12,7 @@ optdepends=('flatpak: Flathub apps'
 makedepends=('cargo')
 options=('!lto' '!debug')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('7232e1e6b0419e140750de135feee36e4263aeeb8321fc4e497e74eff5cd036a')
+sha256sums=('865a8ff8da50ee58a9173cfa5099e213228d6844ac102ebbfd9fb7e586f88e9b')
 
 prepare() {
   cd "$pkgname-$pkgver"

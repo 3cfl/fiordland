@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -uo pipefail
+DIR=/usr/lib/fiordland/migrations
+STATE=/var/lib/fiordland/migrations
+LOG=/var/log/fiordland-migrate.log
+
+usage() {
+  cat <<USAGE
+usage: fiordland-migrate [--list | --stamp | --os-release]
+
+Applies Fiordland system changes that ship after install. pacman runs it
+automatically; running it by hand is safe, each change applies once.
+  --list        show which changes are applied
+  --stamp       mark every change as applied (used by the installer)
+  --os-release  only refresh /usr/lib/os-release
+USAGE
+  exit "${1:-0}"
+}
+
+os_release() {
+  [ -f /usr/share/fiordland/os-release ] && install -m644 /usr/share/fiordland/os-release /usr/lib/os-release
+}
+
+installed() {
+  [ -e /etc/snapper/configs/root ] && [ ! -d /run/archiso ]
+}
+
+done_list() {
+  [ -f "$STATE" ] && cat "$STATE"
+}
+
+names() {
+  local f
+  for f in "$DIR"/*.sh; do
+    [ -e "$f" ] && basename "$f" .sh
+  done
+}
+
+case ${1:-} in
+  -h|--help) usage ;;
+  --os-release) os_release; exit 0 ;;
+  --list)
+    for n in $(names); do
+      if done_list | grep -qx "$n"; then echo "applied  $n"; else echo "pending  $n"; fi
+    done
+    exit 0 ;;
+  --stamp)
+    mkdir -p "${STATE%/*}"
+    names > "$STATE"
+    exit 0 ;;
+  "") ;;
+  *) usage 2 ;;
+esac
+
+[ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
+os_release
+installed || exit 0
+mkdir -p "${STATE%/*}"
+touch "$STATE"
+for n in $(names); do
+  grep -qx "$n" "$STATE" && continue
+  echo "  applying $n"
+  if bash "$DIR/$n.sh" >>"$LOG" 2>&1; then
+    echo "$n" >> "$STATE"
+    echo "$(date -Is) applied $n" >> "$LOG"
+  else
+    echo "$(date -Is) failed $n" >> "$LOG"
+    echo "  $n failed, see $LOG. It will be retried on the next update." >&2
+    break
+  fi
+done
+exit 0

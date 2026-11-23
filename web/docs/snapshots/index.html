@@ -45,17 +45,24 @@
   </section>
   <section class="msec">
     <h2 class="h3">Roll back when the system does not boot</h2>
-    <p>Booting a snapshot from the boot menu is not supported yet. First try the <strong>Arch kernel</strong> and <strong>safe graphics</strong> boot entries. If neither works, boot the USB stick and open a terminal:</p>
     <ol class="msteps">
-      <li><h3>Find the partition</h3><pre class="term">lsblk -f</pre><p>Look for the <code>btrfs</code> one, for example <code>/dev/nvme0n1p2</code>.</p></li>
-      <li><h3>Mount it</h3><pre class="term">sudo mount -o subvolid=5 /dev/nvme0n1p2 /mnt</pre></li>
-      <li><h3>Pick a snapshot</h3><pre class="term">sudo ls /mnt/@snapshots
-sudo cat /mnt/@snapshots/N/info.xml</pre><p>The file shows the date and what caused it.</p></li>
-      <li><h3>Swap it in</h3><pre class="term">sudo mv /mnt/@ /mnt/@broken
-sudo btrfs subvolume snapshot /mnt/@snapshots/N/snapshot /mnt/@
-sudo umount /mnt</pre></li>
-      <li><h3>Restart</h3><p>Remove the stick. Once everything works, delete <code>@broken</code> the same way you mounted it. If a kernel update caused the problem, reinstall the kernels with <code>sudo pacman -S linux-cachyos linux</code>.</p></li>
+      <li><h3>Pick a snapshot</h3><p>Restart, open <strong>Fiordland snapshots</strong> in the boot menu and pick one from before the problem. Each entry shows its date and what caused it.</p></li>
+      <li><h3>Check it works</h3><p>The system starts from the snapshot. Changes made now are kept in memory and lost at the next restart.</p></li>
+      <li><h3>Make it permanent</h3><pre class="term">sudo fiordland-rollback</pre><p>Restart, and Fiordland starts from the restored system. Your home folder is not touched.</p></li>
+      <li><h3>Free the space</h3><pre class="term">sudo fiordland-rollback --clean</pre><p>Deletes the old system once everything works.</p></li>
     </ol>
+    <p>Each snapshot carries its own kernel, so this also undoes a bad kernel update. To restore by number without booting it first, use <code>fiordland-rollback --list</code> and then <code>sudo fiordland-rollback N</code>.</p>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Installs from before 23 November 2026</h2>
+    <p>Older installs use systemd-boot, so the snapshot menu is not there. Boot the USB stick, open a terminal, and:</p>
+    <pre class="term">lsblk -f
+sudo mount -o subvolid=5 /dev/nvme0n1p2 /mnt
+sudo ls /mnt/@snapshots
+sudo mv /mnt/@ /mnt/@broken
+sudo btrfs subvolume snapshot /mnt/@snapshots/N/snapshot /mnt/@
+sudo umount /mnt</pre>
+    <p>Use the <code>btrfs</code> partition from <code>lsblk -f</code>, and <code>info.xml</code> in each snapshot folder for its date. If a kernel update caused the problem, run <code>sudo pacman -S linux-cachyos linux</code> after restarting.</p>
   </section>
   <nav class="dpager" aria-label="Docs pages"><a class="dp" href="/docs/updates/"><span>Previous</span>Updates</a><a class="dp nx" href="/docs/help/"><span>Next</span>Getting help</a></nav>
 </main>

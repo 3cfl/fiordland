@@ -1,18 +1,18 @@
 pkgname=rawaru
-pkgver=1.1
+pkgver=1.3
 pkgrel=1
 pkgdesc="The Fiordland Linux installer"
 arch=('any')
 url="https://github.com/3cfl/rawaru"
 license=('GPL-3.0-only')
 depends=('python' 'pyside6' 'qt6-wayland' 'arch-install-scripts' 'gptfdisk' 'btrfs-progs' 'dosfstools' 'psmisc'
-         'parted' 'util-linux' 'inter-font' 'ttf-jetbrains-mono')
+         'parted' 'util-linux' 'ntfs-3g' 'os-prober' 'inter-font' 'ttf-jetbrains-mono')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('d63c4162a51316b36e553b650b634309cdabddc576a34eefb546794a4ec218e9')
+sha256sums=('888389d975c0ccf6566e44dc0a78c2bdf7b9fdad8a9255f33efec3bec2682319')
 
 package() {
   local s="$srcdir/$pkgname-$pkgver"
-  install -Dm644 "$s/backend.py" "$s/engine.py" "$s/desktops.py" -t "$pkgdir/usr/lib/rawaru/"
+  install -Dm644 "$s/backend.py" "$s/engine.py" "$s/desktops.py" "$s/disks.py" -t "$pkgdir/usr/lib/rawaru/"
   install -Dm755 "$s/rawaru.py" "$pkgdir/usr/lib/rawaru/rawaru.py"
   install -Dm644 "$s"/qml/* -t "$pkgdir/usr/lib/rawaru/qml/"
   install -Dm644 "$s/rawaru.desktop" "$pkgdir/usr/share/applications/rawaru.desktop"

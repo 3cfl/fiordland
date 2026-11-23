@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pkg: [fiordland-keyring, fiordland-desktop, rawaru, tawaki]
+        pkg: [fiordland-keyring, fiordland-base, fiordland-desktop, rawaru, tawaki]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -33,4 +33,6 @@ jobs:
           echo 'b ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/b
           chown -R b .
       - working-directory: packages/${{ matrix.pkg }}
-        run: su b -c 'makepkg -s --noconfirm --skippgpcheck'
+        run: |
+          bash -c 'source PKGBUILD; [ ${#makedepends[@]} -eq 0 ] || pacman -S --noconfirm --needed "${makedepends[@]}"'
+          su b -c 'makepkg -d --noconfirm --skippgpcheck'

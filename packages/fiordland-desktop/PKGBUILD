@@ -1,10 +1,10 @@
 pkgname=fiordland-desktop
 pkgver=1.0
-pkgrel=14
+pkgrel=16
 pkgdesc="Fiordland Linux desktop defaults and branding"
 arch=('any')
 license=('MIT')
-depends=('inter-font' 'ttf-jetbrains-mono' 'fastfetch' 'papirus-icon-theme' 'dconf' 'ttf-nerd-fonts-symbols')
+depends=('fiordland-base' 'inter-font' 'ttf-jetbrains-mono' 'fastfetch' 'papirus-icon-theme' 'dconf' 'ttf-nerd-fonts-symbols')
 makedepends=('python' 'papirus-icon-theme')
 install=fiordland-desktop.install
 
@@ -12,7 +12,6 @@ package() {
   local f="$startdir/files"
   python "$f/mkicons.py" "$pkgdir/usr/share/icons/Fiordland"
   install -Dm644 "$f/wallpaper.png" "$pkgdir/usr/share/fiordland/wallpaper.png"
-  install -Dm644 "$f/os-release" "$pkgdir/usr/share/fiordland/os-release"
   install -Dm644 "$f/issue" "$pkgdir/usr/share/fiordland/issue"
   install -Dm644 "$f/config.jsonc" "$pkgdir/usr/share/fiordland/xdg/fastfetch/config.jsonc"
   install -Dm644 "$f/tux.ans" "$pkgdir/usr/share/fiordland/tux.ans"
@@ -28,6 +27,7 @@ package() {
   install -Dm644 /dev/stdin "$pkgdir/etc/dconf/profile/user" <<< $'user-db:user\nsystem-db:local'
   install -Dm644 "$f/bashrc" "$pkgdir/usr/share/fiordland/bashrc"
   install -Dm755 "$f/fiordland-dots" "$pkgdir/usr/bin/fiordland-dots"
+  install -Dm755 "$f/fiordland-rollback" "$pkgdir/usr/bin/fiordland-rollback"
   install -Dm644 "$f/hypr/hyprland.lua" "$pkgdir/usr/share/fiordland/hyprland.lua"
   install -Dm644 /dev/stdin "$pkgdir/etc/profile.d/fiordland.sh" <<< 'export XDG_CONFIG_DIRS="/usr/share/fiordland/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}"'
   install -Dm644 "$f/speed/reflector.conf" "$pkgdir/usr/share/fiordland/reflector.conf"
@@ -38,5 +38,4 @@ package() {
   install -Dm644 "$f/speed/flatpak-appstream.timer" "$pkgdir/usr/lib/systemd/system/flatpak-appstream.timer"
   install -d "$pkgdir/usr/lib/systemd/system/timers.target.wants"
   ln -s ../flatpak-appstream.timer "$pkgdir/usr/lib/systemd/system/timers.target.wants/flatpak-appstream.timer"
-  install -Dm644 "$f/fiordland-desktop.hook" "$pkgdir/usr/share/libalpm/hooks/fiordland-desktop.hook"
 }

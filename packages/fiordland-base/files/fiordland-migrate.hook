@@ -1,0 +1,10 @@
+[Trigger]
+Type = Package
+Operation = Install
+Operation = Upgrade
+Target = *
+
+[Action]
+Description = Applying Fiordland system updates...
+When = PostTransaction
+Exec = /usr/bin/fiordland-migrate

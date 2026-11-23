@@ -16,5 +16,8 @@ Yes. 32-bit libraries (multilib) and Vulkan drivers are set up by the installer.
 == How do I update? ==
 <code>tawaki update</code> in a terminal. It updates the system, Flatpaks and AUR packages in one go.
 
+== Do I need to reinstall when a new ISO comes out? ==
+No. New releases (beta to 1.0, 1.0 to 2.0) come through <code>tawaki update</code>. Package changes and system settings from the new ISO are applied to existing installs automatically. The ISO is only for new installs. See [https://fiordland.apollo44.lat/docs/updates/ Updates] in the docs.
+
 == Where do I report bugs? ==
 On [https://github.com/3cfl/fiordland/issues GitHub], or on the [[Help desk]] if you are not sure it is a bug.

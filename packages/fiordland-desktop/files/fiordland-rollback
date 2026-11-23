@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+set -euo pipefail
+[ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
+
+usage() {
+  cat <<EOF
+usage: fiordland-rollback [-y] [SNAPSHOT]
+       fiordland-rollback --list
+       fiordland-rollback --clean
+
+Makes snapshot SNAPSHOT the running system from the next boot.
+The current system is kept as @rollback-backup-<date>.
+Without SNAPSHOT, uses the snapshot this computer was started from.
+--clean deletes the kept @rollback-backup-* systems.
+EOF
+  exit "${1:-0}"
+}
+
+yes=0
+num=
+clean=0
+while [ $# -gt 0 ]; do
+  case $1 in
+    -h|--help) usage ;;
+    -l|--list) exec snapper -c root list ;;
+    -y|--yes) yes=1 ;;
+    --clean) clean=1 ;;
+    -*) usage 2 ;;
+    *) num=$1 ;;
+  esac
+  shift
+done
+
+if [ $clean = 0 ] && [ -z "$num" ]; then
+  num=$(grep -oP 'subvol=/?@snapshots/\K[0-9]+(?=/snapshot)' /proc/cmdline || true)
+  [ -n "$num" ] || { echo "Not started from a snapshot. Pick one with: fiordland-rollback --list" >&2; exit 1; }
+fi
+[ $clean = 1 ] || [[ $num =~ ^[0-9]+$ ]] || { echo "SNAPSHOT must be a number" >&2; exit 2; }
+
+src=$(findmnt -s -no SOURCE /)
+dev=$(findfs "$src")
+[ "$(findmnt -s -no FSTYPE /)" = btrfs ] || { echo "/ is not btrfs" >&2; exit 1; }
+
+top=$(mktemp -d)
+trap 'umount "$top" 2>/dev/null; rmdir "$top"' EXIT
+mount -o subvolid=5 "$dev" "$top"
+
+if [ $clean = 1 ]; then
+  shopt -s nullglob
+  olds=("$top"/@rollback-backup-*)
+  [ ${#olds[@]} -gt 0 ] || { echo "Nothing to clean."; exit 0; }
+  printf '%s\n' "${olds[@]##*/}"
+  if [ $yes = 0 ]; then
+    read -rp "Delete these? [y/N] " a
+    [[ $a =~ ^[Yy] ]] || exit 1
+  fi
+  for o in "${olds[@]}"; do
+    btrfs subvolume list -o "$o" | awk '{print $NF}' | sort -r | while read -r n; do
+      btrfs subvolume delete "$top/$n" >/dev/null
+    done
+    btrfs subvolume delete "$o" >/dev/null
+  done
+  echo "Deleted."
+  exit 0
+fi
+
+snap=$top/@snapshots/$num/snapshot
+[ -d "$snap" ] || { echo "No snapshot $num. See: fiordland-rollback --list" >&2; exit 1; }
+desc=$(sed -n 's:.*<description>\(.*\)</description>.*:\1:p' "$top/@snapshots/$num/info.xml" 2>/dev/null || true)
+date=$(sed -n 's:.*<date>\(.*\)</date>.*:\1:p' "$top/@snapshots/$num/info.xml" 2>/dev/null || true)
+backup=@rollback-backup-$(date +%Y%m%d-%H%M%S)
+
+echo "Roll back to snapshot $num${date:+ ($date UTC)}${desc:+: $desc}"
+echo "The current system is kept as $backup. /home is not changed."
+if [ $yes = 0 ]; then
+  read -rp "Continue? [y/N] " a
+  [[ $a =~ ^[Yy] ]] || exit 1
+fi
+
+mv "$top/@" "$top/$backup"
+if ! btrfs subvolume snapshot "$snap" "$top/@" >/dev/null; then
+  mv "$top/$backup" "$top/@"
+  echo "Rollback failed, nothing was changed." >&2
+  exit 1
+fi
+rm -f "$top/@/var/lib/pacman/db.lck"
+echo "Done. Reboot to start the rolled-back system."
+echo "When everything works, free the space with: sudo fiordland-rollback --clean"

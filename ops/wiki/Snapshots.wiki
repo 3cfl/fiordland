@@ -13,9 +13,20 @@ Find the "pre" snapshot number from before the bad update, then:
 Reboot afterwards.
 
 == Roll back when the system does not boot ==
-<div class="fl-warn">Booting straight into a snapshot from the boot menu is not supported yet. This is planned for Fiordland 1. Until then, use the steps below.</div>
+# Restart. In the boot menu, open '''Fiordland snapshots''' and pick one from before the problem. Each entry shows the date and what caused it (for example <code>pacman -Syu</code>).
+# The system starts from that snapshot. Changes made now are kept in memory only and are lost at the next restart.
+# If it works, make it permanent:
+#: <code>sudo fiordland-rollback</code>
+# Restart. Fiordland now starts from the restored system.
+# Once everything works, free the space used by the old system: <code>sudo fiordland-rollback --clean</code>
 
-First try the other boot entries: '''Arch kernel''' and '''safe graphics'''. If neither works:
+Each snapshot includes its own kernel, so rolling back also undoes a bad kernel update. Your home folder is never touched.
+
+To restore a snapshot without booting it first, use its number from <code>fiordland-rollback --list</code>:
+<pre>sudo fiordland-rollback 42</pre>
+
+== Installs from before 23 November 2026 ==
+Older installs use systemd-boot and keep the kernel on the boot partition, so the snapshot menu is not available. Use the steps below instead.
 
 # Boot the Fiordland USB stick and open a terminal.
 # Find your Fiordland partition: <code>lsblk -f</code> (the Btrfs one, for example <code>/dev/nvme0n1p2</code>).
@@ -26,8 +37,6 @@ First try the other boot entries: '''Arch kernel''' and '''safe graphics'''. If 
 #: <code>sudo mv /mnt/@ /mnt/@broken</code>
 #: <code>sudo btrfs subvolume snapshot /mnt/@snapshots/N/snapshot /mnt/@</code>
 # <code>sudo umount /mnt</code> and reboot.
-# Once everything works, delete the old copy: <code>sudo btrfs subvolume delete /@broken</code> after mounting with <code>subvolid=5</code> again.
-
-The kernel files live on the separate boot partition. If the problem came from a kernel update, reinstall the kernel after rolling back: <code>sudo pacman -S linux-cachyos linux</code>.
+# If a kernel update caused the problem, reinstall the kernels: <code>sudo pacman -S linux-cachyos linux</code>.
 
 [[Category:Guides]]

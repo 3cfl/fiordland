@@ -30,6 +30,25 @@ You pick language, keyboard, timezone, the disk, your account, and a desktop. On
 * Run <code>tawaki update</code> once a week or so.
 
 == Dual boot ==
-The installer currently uses a whole disk. To keep Windows, install Fiordland on a second disk.
+On a computer that starts in UEFI mode, the disk step offers '''Install alongside Windows'''. It shrinks the Windows partition (nothing is deleted) and you choose how much space Fiordland gets. Free space on the disk is offered too. When the computer starts, the GRUB menu lists both Fiordland and Windows.
+
+Before you start, in Windows:
+* Back up your important files.
+* Turn off '''Fast Startup''' (Control Panel, Power Options, Choose what the power buttons do) and shut down fully.
+* Turn off '''BitLocker''' or '''Device encryption''' for the Windows drive. Encrypted partitions cannot be shrunk.
+
+Windows runs a disk check the first time it starts after the shrink. This is normal.
+
+Installing on a second disk also works: pick that disk and choose '''Erase the disk'''. GRUB adds Windows from the other disk to its menu.
+
+Computers that start in legacy BIOS mode, and disks with the old MBR layout, cannot use '''Install alongside Windows'''. Use '''Choose partitions''' instead.
+
+== Choose partitions ==
+For other systems, other Linux installs, or your own layout, pick '''Choose partitions''' on the disk step:
+* '''Install Fiordland on''': any partition of 16 GB or more. Only this partition is formatted (Btrfs).
+* '''Boot files go on''' (UEFI): an existing FAT32 EFI system partition. It is kept as it is; Fiordland adds its own folder.
+* '''Partition editor''' opens KDE Partition Manager to shrink, delete or create partitions. The list updates when you close it.
+
+A UEFI disk without an EFI system partition needs one first: 512 MB, FAT32, with the ''boot'' and ''esp'' flags. A BIOS computer with a GPT disk needs a 1 MB partition with the ''bios_grub'' flag. On BIOS, GRUB is written to the start of the disk and lists the other systems it finds.
 
 [[Category:Guides]]

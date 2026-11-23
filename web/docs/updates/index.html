@@ -35,7 +35,13 @@
   <section class="msec">
     <h2 class="h3">Update</h2>
 <pre class="term">tawaki update</pre>
-    <p>Run it every week or two. Fiordland is a rolling release: there are no big version upgrades, just regular small ones.</p>
+    <p>Run it every week or two. Fiordland is a rolling release: packages update in small steps, and new releases arrive the same way.</p>
+  </section>
+  <section class="msec">
+    <h2 class="h3">New releases</h2>
+    <p>A new ISO is only for new installs. An installed system gets the same changes through <code>tawaki update</code>: new default packages, settings and fixes are applied once, inside the update, after the pre-update snapshot. When the release number changes, the update prints it with a short list of what's new, for example <code>Fiordland 0.9.0 -&gt; 1.0.0</code>.</p>
+    <pre class="term">cat /etc/os-release</pre>
+    <p>shows the current release. <code>fiordland-migrate --list</code> shows which release changes are applied. A change that fails is reported, logged in <code>/var/log/fiordland-migrate.log</code> and tried again on the next update.</p>
   </section>
   <section class="msec">
     <h2 class="h3">Before updating</h2>

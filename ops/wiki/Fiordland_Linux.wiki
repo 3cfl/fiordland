@@ -16,7 +16,9 @@
 == Base system ==
 * Arch Linux repositories, plus the <code>[fiordland]</code> repo (signed) and CachyOS's <code>[cachyos]</code> repo for the kernel.
 * Kernel: <code>linux-cachyos</code> by default, with the Arch <code>linux</code> kernel kept as a second boot entry.
-* Btrfs with snapper snapshots, zram swap, systemd-boot on UEFI or GRUB on BIOS.
+* Btrfs with snapper snapshots you can boot from the GRUB menu, zram swap.
+* Installs on a whole disk, next to Windows, or on partitions you choose.
+* New releases arrive through updates; no reinstall needed.
 * Enabled out of the box: NetworkManager, Bluetooth, printing (CUPS with network printer discovery), firewall (ufw), firmware updates (fwupd), power profiles, mirror ranking, package cache cleanup, early out-of-memory handling (systemd-oomd).
 
 == Links ==
