@@ -88,6 +88,8 @@ sudo tar --numeric-owner --xattrs --acls -C "$root" -c . | zstd -q -T0 -10 -o "$
 sha256sum "$tarball" | sed "s|  .*/|  |" > "$tarball.sha256"
 podman import \
   --change 'ENV LANG=en_US.UTF-8' \
+  --change 'ENV NVIDIA_DRIVER_CAPABILITIES=all' \
+  --change 'ENV NVIDIA_VISIBLE_DEVICES=all' \
   --change 'CMD ["/usr/local/bin/fiordland-selkies"]' \
   --change 'EXPOSE 8080' \
   --change "LABEL org.opencontainers.image.source=https://github.com/3cfl/fiordland" \

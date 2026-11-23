@@ -10,6 +10,17 @@ if ! id "$user" >/dev/null 2>&1; then
   useradd -m -G wheel -s /bin/bash "$user"
 fi
 echo "$user:$PASSWORD" | chpasswd
+for dev in /dev/dri/* /dev/nvidia*; do
+  [ -c "$dev" ] || continue
+  gid=$(stat -c %g "$dev")
+  case "$gid" in 0|65534) continue ;; esac
+  grp=$(getent group "$gid" | cut -d: -f1)
+  if [ -z "$grp" ]; then
+    grp=gpu$gid
+    groupadd -g "$gid" "$grp"
+  fi
+  usermod -aG "$grp" "$user"
+done
 uid=$(id -u "$user")
 install -d -m 700 -o "$user" -g "$user" "/run/user/$uid"
 if [ ! -S /run/dbus/system_bus_socket ]; then
@@ -17,9 +28,11 @@ if [ ! -S /run/dbus/system_bus_socket ]; then
   dbus-daemon --system --fork --nopidfile
 fi
 home=$(getent passwd "$user" | cut -d: -f6)
+pass=()
+while IFS= read -r v; do pass+=("$v"); done < <(env | grep -E "^(SELKIES_|NVIDIA_|CUDA_|LIBVA_|__GLX_|__EGL_|DRINODE=|DRI_NODE=|TZ=)" | grep -v -E "^SELKIES_BASIC_AUTH_" || true)
 exec runuser -u "$user" -- env -i \
   HOME="$home" USER="$user" LOGNAME="$user" SHELL=/bin/bash \
   PATH=/usr/local/bin:/usr/bin LANG="${LANG:-en_US.UTF-8}" \
-  XDG_RUNTIME_DIR="/run/user/$uid" \
+  XDG_RUNTIME_DIR="/run/user/$uid" "${pass[@]}" \
   SELKIES_BASIC_AUTH_USER="$user" SELKIES_BASIC_AUTH_PASSWORD="$PASSWORD" \
   selkies session --session=fiordland --public --port="$port" "$@"
