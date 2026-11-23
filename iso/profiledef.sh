@@ -6,6 +6,7 @@ iso_publisher="Fiordland Linux"
 iso_application="Fiordland Linux Live"
 iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
 install_dir="fiord"
+kernel_params_x86_64="cow_spacesize=4G"
 buildmodes=('iso')
 bootmodes=('bios.syslinux'
            'uefi.systemd-boot')
