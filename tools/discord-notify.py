@@ -5,7 +5,9 @@ import sys
 import urllib.error
 import urllib.request
 
-REPO = os.environ.get("FIORD_REPO", "3cfl/fiordland")
+REPOS = [r.strip() for r in os.environ.get("FIORD_REPOS", "3cfl/fiordland,3cfl/tawaki,3cfl/rawaru").split(",") if r.strip()]
+NAME = os.environ.get("DISCORD_NAME", "GitHub")
+AVATAR = os.environ.get("DISCORD_AVATAR", "https://fiordland.apollo44.lat/assets/github.png")
 HOOK = os.environ.get("DISCORD_WEBHOOK", "")
 STATE = os.environ.get("STATE_FILE", "/var/lib/fiordland-discord/state.json")
 
@@ -29,12 +31,12 @@ def save(state):
     os.replace(tmp, STATE)
 
 
-def api(path):
-    return urllib.request.Request(f"https://api.github.com/repos/{REPO}/{path}",
+def api(repo, path):
+    return urllib.request.Request(f"https://api.github.com/repos/{repo}/{path}",
                                   headers={"User-Agent": "fiordland-discord", "Accept": "application/vnd.github+json"})
 
 
-def commits(p):
+def commits(repo, p):
     if p.get("commits"):
         return [(c["sha"], c["message"], c.get("author", {}).get("name", "")) for c in p["commits"]]
     before, head = p.get("before", ""), p.get("head", "")
@@ -42,18 +44,18 @@ def commits(p):
         return []
     try:
         if before and set(before) != {"0"}:
-            with urllib.request.urlopen(api(f"compare/{before}...{head}"), timeout=20) as r:
+            with urllib.request.urlopen(api(repo, f"compare/{before}...{head}"), timeout=20) as r:
                 data = json.load(r)["commits"]
         else:
-            with urllib.request.urlopen(api(f"commits/{head}"), timeout=20) as r:
+            with urllib.request.urlopen(api(repo, f"commits/{head}"), timeout=20) as r:
                 data = [json.load(r)]
     except (urllib.error.URLError, ValueError, KeyError):
         return [(head, "", "")]
     return [(c["sha"], c["commit"]["message"], c["commit"]["author"]["name"]) for c in data]
 
 
-def fetch(etag):
-    req = api("events?per_page=50")
+def fetch(repo, etag):
+    req = api(repo, "events?per_page=50")
     if etag:
         req.add_header("If-None-Match", etag)
     try:
@@ -65,8 +67,8 @@ def fetch(etag):
         raise
 
 
-def embed(ev):
-    t, p, actor = ev["type"], ev["payload"], ev["actor"]
+def embed(repo, ev):
+    t, p = ev["type"], ev["payload"]
     if t == "PullRequestEvent":
         pr = p["pull_request"]
         action = p["action"]
@@ -84,29 +86,29 @@ def embed(ev):
                 "description": (issue.get("body") or "")[:400], "color": COLOURS[p["action"]]}
     if t == "PushEvent":
         branch = p.get("ref", "").removeprefix("refs/heads/")
-        cs = commits(p)
+        cs = commits(repo, p)
         if not cs:
             return None
-        lines = [f"[`{sha[:7]}`](https://github.com/{REPO}/commit/{sha}) {msg.splitlines()[0][:90] if msg else ''}"
+        lines = [f"[`{sha[:7]}`](https://github.com/{repo}/commit/{sha}) {msg.splitlines()[0][:90] if msg else ''}"
                  for sha, msg, _ in cs[-10:]]
         if len(cs) > 10:
             lines.insert(0, f"...and {len(cs) - 10} earlier")
         n = len(cs)
-        url = f"https://github.com/{REPO}/compare/{p['before'][:12]}...{p['head'][:12]}" if n > 1 and p.get("before") \
-            else f"https://github.com/{REPO}/commit/{cs[-1][0]}"
+        url = f"https://github.com/{repo}/compare/{p['before'][:12]}...{p['head'][:12]}" if n > 1 and p.get("before") \
+            else f"https://github.com/{repo}/commit/{cs[-1][0]}"
         return {"title": f"{n} new commit{'s' if n != 1 else ''} to {branch}"[:256], "url": url,
                 "description": "\n".join(lines)[:2000], "color": COLOURS["push"]}
     if t in ("CreateEvent", "DeleteEvent") and p.get("ref_type") in ("branch", "tag"):
         verb = "created" if t == "CreateEvent" else "deleted"
         ref = p["ref"]
-        url = f"https://github.com/{REPO}/tree/{ref}" if verb == "created" else f"https://github.com/{REPO}"
+        url = f"https://github.com/{repo}/tree/{ref}" if verb == "created" else f"https://github.com/{repo}"
         return {"title": f"{p['ref_type'].capitalize()} {ref} {verb}"[:256], "url": url,
                 "color": COLOURS["create" if verb == "created" else "delete"]}
     if t == "ForkEvent":
         f = p["forkee"]
         return {"title": f"Forked to {f['full_name']}"[:256], "url": f["html_url"], "color": COLOURS["fork"]}
     if t == "WatchEvent" and p.get("action") == "started":
-        return {"title": f"Starred {REPO}", "url": f"https://github.com/{REPO}/stargazers", "color": COLOURS["star"]}
+        return {"title": f"Starred {repo}", "url": f"https://github.com/{repo}/stargazers", "color": COLOURS["star"]}
     if t == "ReleaseEvent" and p["action"] == "published":
         rel = p["release"]
         return {"title": f"Released {rel.get('name') or rel['tag_name']}"[:256], "url": rel["html_url"],
@@ -114,35 +116,47 @@ def embed(ev):
     return None
 
 
-def post(e, actor):
+def post(repo, e, actor):
     e["author"] = {"name": actor["login"], "icon_url": actor["avatar_url"], "url": f"https://github.com/{actor['login']}"}
-    e["footer"] = {"text": REPO}
-    body = json.dumps({"username": "Fiordland", "embeds": [e], "allowed_mentions": {"parse": []}}).encode()
+    e["footer"] = {"text": repo}
+    body = json.dumps({"username": NAME, "avatar_url": AVATAR, "embeds": [e], "allowed_mentions": {"parse": []}}).encode()
     req = urllib.request.Request(HOOK, data=body, headers={"Content-Type": "application/json", "User-Agent": "fiordland-discord"})
     urllib.request.urlopen(req, timeout=20).close()
 
 
-def main():
-    if not HOOK:
-        sys.exit("DISCORD_WEBHOOK not set")
-    state = load()
-    events, etag = fetch(state.get("etag"))
+def poll(repo, st):
+    events, etag = fetch(repo, st.get("etag"))
     if events is None:
         return
-    seen = set(state.get("seen", []))
-    first = "seen" not in state
+    seen = set(st.get("seen", []))
+    first = "seen" not in st
     for ev in sorted(events, key=lambda x: int(x["id"])):
         if ev["id"] in seen:
             continue
         seen.add(ev["id"])
         if first:
             continue
-        e = embed(ev)
+        e = embed(repo, ev)
         if e:
-            post(e, ev["actor"])
-    state["seen"] = sorted(seen, key=int)[-300:]
-    state["etag"] = etag
-    save(state)
+            post(repo, e, ev["actor"])
+    st["seen"] = sorted(seen, key=int)[-300:]
+    st["etag"] = etag
+
+
+def main():
+    if not HOOK:
+        sys.exit("DISCORD_WEBHOOK not set")
+    state = load()
+    if "repos" not in state:
+        state = {"repos": {"3cfl/fiordland": state} if state else {}}
+    i = state.get("next", 0) % len(REPOS)
+    repo = REPOS[i]
+    state["next"] = i + 1
+    st = state["repos"].setdefault(repo, {})
+    try:
+        poll(repo, st)
+    finally:
+        save(state)
 
 
 if __name__ == "__main__":

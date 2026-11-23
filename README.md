@@ -5,9 +5,16 @@ Named after the Fiordland penguin, the tawaki.</p>
 
 <p align="center"><a href="https://fiordland.apollo44.lat">fiordland.apollo44.lat</a></p>
 
-![Desktop](docs/screenshots/desktop.webp)
+<p align="center"><img src="web/assets/shots/hyprland.webp" alt="Hyprland with crest, the Fiordland shell, showing its dashboard over kitty and Thunar"></p>
 
-![Terminal](docs/screenshots/terminal.webp)
+<p align="center">
+<img src="web/assets/shots/plasma.webp" width="49%" alt="KDE Plasma with Breeze Dark, Dolphin and Konsole running tawaki search">
+<img src="web/assets/shots/niri.webp" width="49%" alt="niri with the Noctalia bar, tawaki search results and btop in two columns">
+</p>
+
+<p align="center"><img src="web/assets/shots/installer.webp" width="80%" alt="The rawaru installer on the desktop step, with Hyprland and its shell options"></p>
+
+<p align="center"><sub>Hyprland with crest · KDE Plasma · niri · the rawaru installer</sub></p>
 
 ## What's inside
 
