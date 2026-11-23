@@ -6,7 +6,7 @@ crest is a fork of [Caelestia shell](https://github.com/caelestia-dots/shell) v2
 
 ## Changes from Caelestia
 
-- Fiordland branding, logo, wallpaper and penguin artwork
+- Fiordland branding and wallpaper
 - Grey and baby blue `fiordland` colour scheme
 - Inter as the interface font
 - Optional fastfetch when a terminal opens (Settings → Apps)

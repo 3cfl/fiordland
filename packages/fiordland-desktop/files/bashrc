@@ -24,6 +24,6 @@ __fl_fetch() {
   export FL_FETCHED=1
   command -v fastfetch >/dev/null || return
   grep -qs '"terminalFetch": *false' "${XDG_CONFIG_HOME:-$HOME/.config}/caelestia/shell.json" && return
-  if (( $(tput cols 2>/dev/null || echo 80) < 76 )); then fastfetch --logo none; else fastfetch; fi
+  fastfetch
 }
 __fl_fetch

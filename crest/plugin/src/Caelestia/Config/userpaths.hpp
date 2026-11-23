@@ -16,9 +16,9 @@ class UserPaths : public settings::ObjectNode {
         QString, wallpaperDir, QStandardPaths::writableLocation(QStandardPaths::PicturesLocation) + u"/Wallpapers"_s)
     CONFIG_GLOBAL_PROPERTY(
         QString, lyricsDir, QStandardPaths::writableLocation(QStandardPaths::MusicLocation) + u"/Lyrics/"_s)
-    CONFIG_PROPERTY(QString, sessionGif, u"root:/assets/penguin-waddle.gif"_s)
-    CONFIG_PROPERTY(QString, mediaGif, u"root:/assets/penguin-bop.gif"_s)
-    CONFIG_PROPERTY(QString, noNotifsPic, u"root:/assets/penguin-rest.png"_s)
-    CONFIG_PROPERTY(QString, lockNoNotifsPic, u"root:/assets/penguin-rest.png"_s)
+    CONFIG_PROPERTY(QString, sessionGif, {})
+    CONFIG_PROPERTY(QString, mediaGif, {})
+    CONFIG_PROPERTY(QString, noNotifsPic, {})
+    CONFIG_PROPERTY(QString, lockNoNotifsPic, {})
 };
 }

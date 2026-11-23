@@ -1,8 +1,8 @@
 alsa-firmware
 alsa-utils
 amd-ucode
-arch-install-scripts
 archinstall
+arch-install-scripts
 b43-fwcutter
 base
 base-devel
@@ -15,6 +15,8 @@ brightnessctl
 brltty
 btop
 btrfs-progs
+cachyos-keyring
+cachyos-mirrorlist
 clonezilla
 cloud-init
 crest
@@ -100,11 +102,11 @@ noto-fonts
 noto-fonts-emoji
 ntfsprogs
 nvme-cli
-open-iscsi
-open-vm-tools
 openconnect
+open-iscsi
 openpgp-card-tools
 openssh
+open-vm-tools
 openvpn
 pacman-contrib
 papirus-icon-theme

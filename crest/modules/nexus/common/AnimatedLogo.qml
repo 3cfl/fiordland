@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 import qs.components
 
 Item {
@@ -8,16 +7,12 @@ Item {
     implicitWidth: 112
     implicitHeight: 112
 
-    Image {
+    Logo {
         id: img
 
         anchors.centerIn: parent
         width: root.width
         height: root.height
-        source: Qt.resolvedUrl(`${Quickshell.shellDir}/assets/logo.svg`)
-        sourceSize: Qt.size(width * 2, height * 2)
-        fillMode: Image.PreserveAspectFit
-        smooth: true
         opacity: 0
         scale: 0.7
 

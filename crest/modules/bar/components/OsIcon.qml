@@ -30,6 +30,7 @@ Item {
         id: caelestiaLogo
 
         Logo {
+            icon: "apps"
             implicitWidth: Math.round(Tokens.font.body.large.pointSize * 1.6)
             implicitHeight: Math.round(Tokens.font.body.large.pointSize * 1.6)
         }

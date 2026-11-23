@@ -164,6 +164,8 @@ Item {
     AnimatedImage {
         id: bongocat
 
+        visible: Config.paths.mediaGif !== ""
+
         anchors.top: controls.bottom
         anchors.bottom: parent.bottom
         anchors.left: parent.left

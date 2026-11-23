@@ -94,17 +94,11 @@ Item {
             sourceComponent: ColumnLayout {
                 spacing: Tokens.spacing.extraLarge
 
-                Image {
-                    asynchronous: true
-                    source: Paths.absolutePath(Config.paths.noNotifsPic)
-                    fillMode: Image.PreserveAspectFit
-                    sourceSize.width: clipRect.width * 0.8 * ((QsWindow.window as QsWindow)?.devicePixelRatio ?? 1)
-
-                    layer.enabled: true
-                    layer.effect: Colouriser {
-                        colorizationColor: Colours.palette.m3outlineVariant
-                        brightness: 1
-                    }
+                MaterialIcon {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: "notifications_off"
+                    color: Colours.palette.m3outlineVariant
+                    fontStyle: Tokens.font.icon.builders.extraLarge.scale(2).build()
                 }
 
                 StyledText {
