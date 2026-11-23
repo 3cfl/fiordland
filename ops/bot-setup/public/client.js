@@ -8,7 +8,7 @@
   const clear = () => { token.value = ""; secret = ""; };
   if (!/^[A-Za-z\d_-]{43}$/.test(secret)) { token.disabled = true; status.textContent = "Open the complete private link to continue."; return; }
   button.disabled = false;
-  status.textContent = "The token is checked directly with Discord.";
+  status.textContent = "The token is saved privately on the server.";
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (button.disabled) return;

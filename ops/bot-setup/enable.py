@@ -5,6 +5,7 @@ from pathlib import Path
 import secrets
 import shutil
 import subprocess
+import sys
 import time
 import urllib.request
 
@@ -26,7 +27,11 @@ runtime.mkdir(mode=0o700, exist_ok=True)
 runtime.chmod(0o700)
 route = '/f-' + secrets.token_hex(16)
 secret = secrets.token_urlsafe(32)
-config = {'route': route, 'tokenHash': hashlib.sha256(secret.encode()).hexdigest(), 'expiresAt': int(time.time() * 1000) + 86400000}
+kind = sys.argv[1] if len(sys.argv) > 1 else 'discord'
+key_files = {'discord': '/etc/fiordland/bot.token', 'tunnel': '/etc/fiordland/tunnel.token'}
+if kind not in key_files:
+    raise SystemExit('kind must be discord or tunnel')
+config = {'kind': kind, 'keyFile': key_files[kind], 'route': route, 'tokenHash': hashlib.sha256(secret.encode()).hexdigest(), 'expiresAt': int(time.time() * 1000) + 86400000}
 config_file = runtime / 'config.json'
 config_file.unlink(missing_ok=True)
 with config_file.open('x') as handle:
