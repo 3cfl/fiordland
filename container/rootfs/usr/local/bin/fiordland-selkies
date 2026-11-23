@@ -1,15 +1,45 @@
 #!/bin/bash
 set -euo pipefail
 user=${CUSTOM_USER:-fiord}
-port=${SELKIES_PORT:-8080}
-if [ -z "${PASSWORD:-}" ]; then
-  echo "fiordland-selkies: set PASSWORD to log in to the desktop" >&2
-  exit 1
+port=${SELKIES_PORT:-${CUSTOM_PORT:-8080}}
+puid=${PUID:-1000}
+pgid=${PGID:-1000}
+password=${PASSWORD:-${PASSWD:-}}
+
+if mountpoint -q /config 2>/dev/null; then
+  home=/config
+else
+  home=/home/$user
+fi
+
+if ! getent group "$user" >/dev/null; then
+  groupadd -o -g "$pgid" "$user"
+elif [ "$(getent group "$user" | cut -d: -f3)" != "$pgid" ]; then
+  groupmod -o -g "$pgid" "$user"
 fi
 if ! id "$user" >/dev/null 2>&1; then
-  useradd -m -G wheel -s /bin/bash "$user"
+  useradd -o -u "$puid" -g "$user" -G wheel -d "$home" -M -s /bin/bash "$user"
+else
+  [ "$(id -u "$user")" = "$puid" ] || usermod -o -u "$puid" "$user"
+  [ "$(getent passwd "$user" | cut -d: -f6)" = "$home" ] || usermod -d "$home" "$user"
 fi
-echo "$user:$PASSWORD" | chpasswd
+if [ ! -d "$home" ]; then
+  install -d -m 755 -o "$user" -g "$user" "$home"
+  cp -rT /etc/skel "$home" 2>/dev/null || true
+  chown -R "$user:$user" "$home"
+else
+  chown "$user:$user" "$home"
+fi
+
+auth=(SELKIES_ENABLE_BASIC_AUTH=false)
+if [ -n "$password" ]; then
+  echo "$user:$password" | chpasswd
+  auth=(SELKIES_ENABLE_BASIC_AUTH=true SELKIES_BASIC_AUTH_USER="$user" SELKIES_BASIC_AUTH_PASSWORD="$password")
+else
+  passwd -d "$user" >/dev/null
+  echo "fiordland-selkies: no PASSWORD set, serving the desktop without a login" >&2
+fi
+
 for dev in /dev/dri/* /dev/nvidia*; do
   [ -c "$dev" ] || continue
   gid=$(stat -c %g "$dev")
@@ -21,18 +51,37 @@ for dev in /dev/dri/* /dev/nvidia*; do
   fi
   usermod -aG "$grp" "$user"
 done
+
+tls=()
+case "${SELKIES_ENABLE_HTTPS:-}" in
+  1|true|TRUE|True|yes)
+    if [ -z "${SELKIES_HTTPS_CERT:-}" ]; then
+      dir=/etc/fiordland/tls
+      if [ ! -s "$dir/cert.pem" ]; then
+        install -d -m 755 "$dir"
+        openssl req -x509 -nodes -newkey rsa:2048 -days 3650 -subj "/CN=fiordland" \
+          -keyout "$dir/key.pem" -out "$dir/cert.pem" >/dev/null 2>&1
+        chmod 644 "$dir/cert.pem" "$dir/key.pem"
+      fi
+      tls=(SELKIES_HTTPS_CERT="$dir/cert.pem" SELKIES_HTTPS_KEY="$dir/key.pem")
+    fi
+    ;;
+esac
+
 uid=$(id -u "$user")
+install -d -m 1777 /tmp/.X11-unix /tmp/.ICE-unix
 install -d -m 700 -o "$user" -g "$user" "/run/user/$uid"
 if [ ! -S /run/dbus/system_bus_socket ]; then
   install -d -m755 /run/dbus
   dbus-daemon --system --fork --nopidfile
 fi
-home=$(getent passwd "$user" | cut -d: -f6)
+
 pass=()
-while IFS= read -r v; do pass+=("$v"); done < <(env | grep -E "^(SELKIES_|NVIDIA_|CUDA_|LIBVA_|__GLX_|__EGL_|DRINODE=|DRI_NODE=|TZ=)" | grep -v -E "^SELKIES_BASIC_AUTH_" || true)
+while IFS= read -r v; do pass+=("$v"); done < <(env | grep -E "^(SELKIES_|NVIDIA_|CUDA_|LIBVA_|__GLX_|__EGL_|DRINODE=|DRI_NODE=|TZ=|SUBFOLDER=)" | grep -v -E "^SELKIES_(BASIC_AUTH_|ENABLE_BASIC_AUTH=|PORT=)" || true)
+[ -z "${SELKIES_UI_TITLE:-}" ] && pass+=(SELKIES_UI_TITLE="${TITLE:-Fiordland}")
+
 exec runuser -u "$user" -- env -i \
   HOME="$home" USER="$user" LOGNAME="$user" SHELL=/bin/bash \
   PATH=/usr/local/bin:/usr/bin LANG="${LANG:-en_US.UTF-8}" \
-  XDG_RUNTIME_DIR="/run/user/$uid" "${pass[@]}" \
-  SELKIES_BASIC_AUTH_USER="$user" SELKIES_BASIC_AUTH_PASSWORD="$PASSWORD" \
+  XDG_RUNTIME_DIR="/run/user/$uid" "${pass[@]}" "${tls[@]}" "${auth[@]}" \
   selkies session --session=fiordland --public --port="$port" "$@"
