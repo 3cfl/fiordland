@@ -1,0 +1,27 @@
+[Unit]
+Description=Fiordland Discord bot
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/etc/fiordland/bot.token
+
+[Service]
+Type=simple
+User=fiordland-bot
+Group=fiordland-bot
+WorkingDirectory=/srv/fiordland/bot
+ExecStart=/srv/fiordland/bot/venv/bin/python /srv/fiordland/bot/fiordbot.py
+LoadCredential=token:/etc/fiordland/bot.token
+StateDirectory=fiordland-bot
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ReadOnlyPaths=/srv/fiordland
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6
+RestrictNamespaces=true
+LockPersonality=true
+MemoryMax=300M

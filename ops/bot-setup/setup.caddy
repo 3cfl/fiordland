@@ -1,0 +1,18 @@
+@fiordland_bot_setup {
+ host ivy.rest
+ path __ROUTE__ __ROUTE__/*
+}
+handle @fiordland_bot_setup {
+ header {
+  >Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'"
+  >Cache-Control "no-store, private, max-age=0"
+  >X-Robots-Tag "noindex, nofollow, noarchive"
+  >Referrer-Policy no-referrer
+ }
+ reverse_proxy 127.0.0.1:3719 {
+  transport http {
+   dial_timeout 2s
+   response_header_timeout 60s
+  }
+ }
+}

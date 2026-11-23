@@ -1,0 +1,34 @@
+[Unit]
+Description=Fiordland one-time Discord bot connection
+After=network-online.target caddy.service
+
+[Service]
+Type=simple
+User=root
+UMask=0077
+RuntimeDirectory=fiordland-bot-setup
+RuntimeDirectoryMode=0700
+ExecStart=/usr/local/bin/node --max-old-space-size=64 /srv/fiordland/ops/bot-setup/server.mjs /run/fiordland-bot-setup/config.json
+ExecStopPost=+/usr/bin/bash /usr/local/libexec/fiordland-bot-setup-cleanup
+Restart=no
+RuntimeMaxSec=24h
+TimeoutStopSec=10s
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ReadWritePaths=/etc/fiordland
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+RestrictSUIDSGID=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LockPersonality=true
+MemoryMax=192M
+TasksMax=32
+LimitNOFILE=64
+StandardOutput=null
+StandardError=null
