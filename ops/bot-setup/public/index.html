@@ -5,19 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
     <meta name="robots" content="noindex, nofollow">
-    <title>__TITLE__</title>
+    <title>Connect the Fiordland bot</title>
     <link rel="stylesheet" href="__ROUTE__/style.css">
     <script defer src="__ROUTE__/client.js"></script>
   </head>
   <body>
     <main>
       <span class="brand">Fiordland</span>
-      <h1>__TITLE__</h1>
-      <p>The token is checked and saved privately on the server for the bot. This link works once, then it is gone for good.</p>
+      <h1>Connect the Discord bot</h1>
+      <p>The token is checked with Discord and saved privately on the server for the bot. This link works once, then it is gone for good.</p>
       <form autocomplete="off">
-        <label for="token">__LABEL__</label>
-        <input id="token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="600" required>
-        
+        <label for="token">Bot token</label>
+        <input id="token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" required>
+        <details>
+          <summary>Where to find it</summary>
+          <ol>
+            <li>discord.com/developers/applications, open the Fiordland application</li>
+            <li>Bot, Reset Token, copy it</li>
+          </ol>
+        </details>
         <button type="submit" disabled>Connect</button>
       </form>
       <p id="status" role="status" aria-live="polite">Checking your private link..</p>

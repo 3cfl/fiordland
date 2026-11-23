@@ -4,8 +4,7 @@ import { readFile, open, rename, unlink } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
 
-const patterns = { discord: /^[\w.-]{50,120}$/, tunnel: /^[A-Za-z\d+\/=_-]{80,600}$/ };
-const labels = { discord: ["Connect the Discord bot", "Bot token"], tunnel: ["Connect the mirror tunnel", "Tunnel token"] };
+const tokenPattern = /^[\w.-]{50,120}$/;
 
 export async function installToken(file, token) {
   const temporary = path.join(path.dirname(file), `.bot-${randomBytes(12).toString("hex")}.tmp`);
@@ -33,15 +32,7 @@ export async function checkBotToken(token, fetchImpl = fetch) {
   return { name: String(data.username).slice(0, 40) };
 }
 
-export async function checkTunnelToken(token) {
-  try {
-    const data = JSON.parse(Buffer.from(token, "base64").toString("utf8"));
-    if (typeof data.a === "string" && typeof data.t === "string" && typeof data.s === "string") return { name: `tunnel ${data.t.slice(0, 8)}` };
-  } catch {}
-  return { error: "That doesn't look like a Cloudflare tunnel token." };
-}
-
-export async function createSetupServer({ route, tokenHash, expiresAt, keyFile, kind = "discord", check = kind === "tunnel" ? checkTunnelToken : checkBotToken, save = installToken, complete = () => {}, now = Date.now, host = "ivy.rest" }) {
+export async function createSetupServer({ route, tokenHash, expiresAt, keyFile, check = checkBotToken, save = installToken, complete = () => {}, now = Date.now, host = "ivy.rest" }) {
   if (!/^\/[a-z\d-]{20,80}$/.test(route) || !/^[a-f\d]{64}$/.test(tokenHash) || !Number.isFinite(expiresAt)) throw new Error("invalid setup configuration");
   const expected = Buffer.from(tokenHash, "hex");
   const assets = new Map(await Promise.all([
@@ -73,7 +64,7 @@ export async function createSetupServer({ route, tokenHash, expiresAt, keyFile, 
     if (request.method === "GET" && assets.has(relative)) {
       const asset = assets.get(relative);
       response.writeHead(200, { "Content-Type": asset.type });
-      return response.end(asset.type.startsWith("text/") ? asset.body.toString().replaceAll("__ROUTE__", route).replaceAll("__TITLE__", labels[kind][0]).replaceAll("__LABEL__", labels[kind][1]) : asset.body);
+      return response.end(asset.type.startsWith("text/") ? asset.body.toString().replaceAll("__ROUTE__", route) : asset.body);
     }
     if (request.method !== "POST" || relative !== "/") return reply(404, "Not found");
     if (request.headers.origin !== `https://${host}` || request.headers["content-type"] !== "application/json") return reply(403, "Request denied");
@@ -94,14 +85,14 @@ export async function createSetupServer({ route, tokenHash, expiresAt, keyFile, 
       let input;
       try { input = JSON.parse(body); } catch { return reply(400, "Paste the bot token."); }
       const token = typeof input?.token === "string" ? input.token.trim() : "";
-      if (!patterns[kind].test(token)) return reply(400, "That doesn't look like the right kind of token.");
+      if (!tokenPattern.test(token)) return reply(400, "That doesn't look like a Discord bot token.");
       const checked = await check(token);
       if (checked.error) return reply(400, checked.error);
       if (now() >= expiresAt) return reply(410, "This link has expired.");
       await save(keyFile, token);
       used = true;
       expected.fill(0);
-      reply(200, `Saved. ${checked.name}. This page is now gone for good.`);
+      reply(200, `Saved. Connected as ${checked.name}. This page is now gone for good.`);
       complete();
     })().catch(() => reply(503, "Couldn't reach Discord. Try again shortly.")).finally(() => { busy = false; });
   });
@@ -121,7 +112,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
     server.closeIdleConnections();
     setTimeout(() => process.exit(0), 2000).unref();
   };
-  const server = await createSetupServer({ ...config, keyFile: config.keyFile || "/etc/fiordland/bot.token", complete: stop });
+  const server = await createSetupServer({ ...config, keyFile: "/etc/fiordland/bot.token", complete: stop });
   server.listen(3719, "127.0.0.1");
   setTimeout(stop, Math.max(1, config.expiresAt - Date.now())).unref();
   process.on("SIGTERM", stop);
