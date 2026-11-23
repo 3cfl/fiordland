@@ -91,16 +91,34 @@ document.querySelectorAll(".tabs").forEach(tabs => {
 });
 const mlist = $("mirror-list");
 if (mlist) {
-  Promise.all(["/mirrors/mirrors.json", "/mirrors/status.json"].map(u => fetch(u, { cache: "no-cache" }).then(r => (r.ok ? r.json() : null)).catch(() => null))).then(([list, status]) => {
+  const CONT = {
+    NA: "US CA MX GT BZ SV HN NI CR PA CU JM HT DO BS BB TT GL PR BM KY AG DM GD KN LC VC",
+    SA: "BR AR CL CO PE VE EC BO PY UY GY SR",
+    EU: "GB IE FR DE ES PT IT NL BE LU CH AT DK NO SE FI IS PL CZ SK HU RO BG GR HR SI RS BA ME MK AL UA BY MD LT LV EE RU CY MT AD MC LI SM",
+    AS: "CN JP KR KP IN PK BD LK NP BT MM TH VN LA KH MY SG ID PH TW HK MO MN KZ UZ TM KG TJ AF IR IQ SY LB IL JO SA AE QA KW BH OM YE TR GE AM AZ BN",
+    AF: "EG ZA NG KE ET GH TZ UG DZ MA TN LY SD SN CI CM AO MZ ZM ZW BW NA MG RW",
+    OC: "AU NZ FJ PG NC PF WS TO"
+  };
+  const continentOf = code => Object.keys(CONT).find(k => CONT[k].split(" ").includes(code)) || "";
+  const load = u => fetch(u, { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).catch(() => null);
+  Promise.all([load("/mirrors/mirrors.json"), load("/mirrors/status.json"), load("/mirrors/whoami")]).then(([list, status, who]) => {
     mlist.textContent = "";
     const rows = list?.mirrors || [];
     if (!rows.length) { mlist.textContent = "No mirrors listed yet."; return; }
     const checks = status?.mirrors || {};
-    for (const m of rows) {
+    const country = /^[A-Z]{2}$/.test(who?.country || "") ? who.country : "";
+    const continent = continentOf(country);
+    const rank = m => {
+      const s = checks[m.url.replace(/\/$/, "")];
+      const near = country && m.country === country ? 0 : continent && m.continent === continent ? 1 : 2;
+      return [s?.ok ? 0 : 1, near, s?.ms || 0, m.primary ? 0 : 1];
+    };
+    const ordered = rows.map(m => ({ m, r: rank(m) })).sort((x, y) => { for (let i = 0; i < 4; i++) if (x.r[i] !== y.r[i]) return x.r[i] - y.r[i]; return 0; });
+    ordered.forEach(({ m, r }, index) => {
       const url = m.url.replace(/\/$/, "");
       const s = checks[url];
       const row = document.createElement("div");
-      row.className = "mrow";
+      row.className = "mrow" + (index === 0 && s?.ok && country ? " best" : "");
       const dot = document.createElement("span");
       dot.className = "dot " + (s ? (s.ok ? "ok" : "bad") : "idle");
       dot.setAttribute("role", "img");
@@ -109,9 +127,14 @@ if (mlist) {
       info.className = "minfo";
       const name = document.createElement("strong");
       name.textContent = m.name + (m.primary ? " (primary)" : "");
+      if (index === 0 && s?.ok && country) {
+        const tag = document.createElement("em");
+        tag.textContent = r[1] === 0 ? "Closest to you" : r[1] === 1 ? "Nearest region" : "Best available";
+        name.append(tag);
+      }
       const sub = document.createElement("span");
       const lag = s?.ok ? (s.lag < 60 ? "up to date" : `${Math.round(s.lag / 60)} min behind`) : s ? "down" : "not checked yet";
-      sub.textContent = [m.location, m.sponsor && `hosted by ${m.sponsor}`, lag, s?.ok && s.ms ? `${s.ms} ms` : null].filter(Boolean).join(" · ");
+      sub.textContent = [m.location, m.sponsor && `hosted by ${m.sponsor}`, lag].filter(Boolean).join(" · ");
       info.append(name, sub);
       const links = document.createElement("div");
       links.className = "mlinks";
@@ -123,7 +146,9 @@ if (mlist) {
       }
       row.append(dot, info, links);
       mlist.append(row);
-    }
+    });
+    const where = $("mirror-where");
+    if (where) where.textContent = country ? `Sorted by distance to ${country} (from your connection, nothing is stored).` : "Sorted by status.";
   });
 }
 })();
