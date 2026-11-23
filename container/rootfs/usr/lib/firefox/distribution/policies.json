@@ -1,0 +1,26 @@
+{
+  "policies": {
+    "OverrideFirstRunPage": "",
+    "OverridePostUpdatePage": "",
+    "DontCheckDefaultBrowser": true,
+    "DisableProfileImport": true,
+    "DisableTelemetry": true,
+    "FirefoxHome": {
+      "SponsoredTopSites": false,
+      "SponsoredStories": false,
+      "SponsoredPocket": false
+    },
+    "UserMessaging": {
+      "SkipOnboarding": true,
+      "ExtensionRecommendations": false,
+      "FeatureRecommendations": false,
+      "MoreFromMozilla": false
+    },
+    "Preferences": {
+      "datareporting.policy.firstRunURL": {
+        "Value": "",
+        "Status": "locked"
+      }
+    }
+  }
+}

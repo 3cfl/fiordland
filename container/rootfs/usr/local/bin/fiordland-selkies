@@ -22,4 +22,4 @@ exec runuser -u "$user" -- env -i \
   PATH=/usr/local/bin:/usr/bin LANG="${LANG:-en_US.UTF-8}" \
   XDG_RUNTIME_DIR="/run/user/$uid" \
   SELKIES_BASIC_AUTH_USER="$user" SELKIES_BASIC_AUTH_PASSWORD="$PASSWORD" \
-  selkies session --session=xfce --public --port="$port" "$@"
+  selkies session --session=fiordland --public --port="$port" "$@"

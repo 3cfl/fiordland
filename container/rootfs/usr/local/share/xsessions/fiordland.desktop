@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=Fiordland
+Exec=/usr/local/bin/fiordland-xfce-session
+DesktopNames=XFCE
+Type=Application

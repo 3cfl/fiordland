@@ -42,6 +42,7 @@ SigLevel = Required DatabaseOptional
 LocalFileSigLevel = Optional
 NoExtract = usr/share/help/* !usr/share/help/en*
 NoExtract = usr/share/gtk-doc/html/* usr/share/doc/*
+NoExtract = usr/share/backgrounds/xfce/xfce-x.svg
 '
 {
   printf '%s\n' "$options"
@@ -67,6 +68,7 @@ printf 'snapshot=%s\nselkies=%s\nbuilt=%s\n' "$snapshot" "$selkies" "$date" | su
 sudo cp -r --no-preserve=ownership rootfs/. "$root/"
 sudo chmod 755 "$root"/usr/local/bin/fiordland-*
 sudo chmod 440 "$root/etc/sudoers.d/10-wheel"
+sudo ln -sfn /usr/share/fiordland/wallpaper.png "$root/usr/share/backgrounds/xfce/xfce-x.svg"
 sudo sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' "$root/etc/locale.gen"
 echo LANG=en_US.UTF-8 | sudo tee "$root/etc/locale.conf" >/dev/null
 sudo arch-chroot "$root" bash -e <<'IN'
