@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snapshots and rollback &middot; Fiordland Linux</title>
+<meta name="description" content="Undo a bad update with Btrfs snapshots.">
+<meta name="theme-color" content="#131313">
+<meta property="og:title" content="Snapshots and rollback">
+<meta property="og:description" content="Undo a bad update with Btrfs snapshots.">
+<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=3">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/assets/site.css?v=17">
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="mark" href="/"><img src="/assets/logos/tux.svg" alt="" width="18" height="21">Fiordland</a>
+    <nav>
+      <a href="/#features">Features</a>
+      <a href="/compare/">Compare</a>
+      <a href="/docs/" aria-current="page">Docs</a>
+      <a href="/wiki/">Wiki</a>
+      <a href="/forum/">Forum</a>
+      <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    </nav>
+    <a class="btn sm" data-iso href="/iso/fiordland-latest.iso">Download</a>
+  </div>
+</header>
+
+<main class="wrap main-pad">
+  <p class="eyebrow"><a href="/docs/">Docs</a></p>
+  <h1 class="page">Snapshots and rollback</h1>
+  <p class="lede">Undo a bad update with Btrfs snapshots.</p>
+  <section class="msec">
+    <h2 class="h3">What is saved</h2>
+    <p>Fiordland uses Btrfs and <a href="https://wiki.archlinux.org/title/Snapper">snapper</a>. A snapshot is a frozen copy of the system, not your home folder. Snapshots are taken before and after every package change, and every hour (5 hourly, 7 daily, 2 weekly and 1 monthly are kept).</p>
+    <pre class="term">snapper -c root list</pre>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Undo an update while the system works</h2>
+    <p>Find the snapshot pair for the bad update in the list (the <em>pre</em> and <em>post</em> numbers), then:</p>
+    <pre class="term">sudo snapper -c root undochange PRE..POST</pre>
+    <p>Restart afterwards.</p>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Roll back when the system does not boot</h2>
+    <p>Booting a snapshot from the boot menu is not supported yet. First try the <strong>Arch kernel</strong> and <strong>safe graphics</strong> boot entries. If neither works, boot the USB stick and open a terminal:</p>
+    <ol class="msteps">
+      <li><h3>Find the partition</h3><pre class="term">lsblk -f</pre><p>Look for the <code>btrfs</code> one, for example <code>/dev/nvme0n1p2</code>.</p></li>
+      <li><h3>Mount it</h3><pre class="term">sudo mount -o subvolid=5 /dev/nvme0n1p2 /mnt</pre></li>
+      <li><h3>Pick a snapshot</h3><pre class="term">sudo ls /mnt/@snapshots
+sudo cat /mnt/@snapshots/N/info.xml</pre><p>The file shows the date and what caused it.</p></li>
+      <li><h3>Swap it in</h3><pre class="term">sudo mv /mnt/@ /mnt/@broken
+sudo btrfs subvolume snapshot /mnt/@snapshots/N/snapshot /mnt/@
+sudo umount /mnt</pre></li>
+      <li><h3>Restart</h3><p>Remove the stick. Once everything works, delete <code>@broken</code> the same way you mounted it. If a kernel update caused the problem, reinstall the kernels with <code>sudo pacman -S linux-cachyos linux</code>.</p></li>
+    </ol>
+  </section>
+  <nav class="dpager" aria-label="Docs pages"><a class="dp" href="/docs/updates/"><span>Previous</span>Updates</a><a class="dp nx" href="/docs/help/"><span>Next</span>Getting help</a></nav>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span class="mark">Fiordland</span>
+    <a href="/docs/">Docs</a>
+    <a href="/wiki/">Wiki</a>
+    <a href="/forum/">Forum</a>
+    <a href="/mirrors/">Mirrors</a>
+    <a href="/repo/x86_64/">Repo</a>
+    <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    <a href="https://apollo44.lat">apollo44.lat</a>
+    <a href="https://ivy.rest">ivy.rest</a>
+    <span class="credit">Tux by <a href="https://isc.tamu.edu/~lewing/linux/">Larry Ewing</a>, Simon Budig and Garrett LeSage, made with The GIMP.</span>
+  </div>
+</footer>
+<script src="/assets/js/site.js?v=4" defer></script>
+</body>
+</html>

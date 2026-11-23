@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting help &middot; Fiordland Linux</title>
+<meta name="description" content="Where to ask, and what to include so people can help.">
+<meta name="theme-color" content="#131313">
+<meta property="og:title" content="Getting help">
+<meta property="og:description" content="Where to ask, and what to include so people can help.">
+<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=3">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/assets/site.css?v=17">
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="mark" href="/"><img src="/assets/logos/tux.svg" alt="" width="18" height="21">Fiordland</a>
+    <nav>
+      <a href="/#features">Features</a>
+      <a href="/compare/">Compare</a>
+      <a href="/docs/" aria-current="page">Docs</a>
+      <a href="/wiki/">Wiki</a>
+      <a href="/forum/">Forum</a>
+      <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    </nav>
+    <a class="btn sm" data-iso href="/iso/fiordland-latest.iso">Download</a>
+  </div>
+</header>
+
+<main class="wrap main-pad">
+  <p class="eyebrow"><a href="/docs/">Docs</a></p>
+  <h1 class="page">Getting help</h1>
+  <p class="lede">Where to ask, and what to include so people can help.</p>
+  <section class="msec">
+    <h2 class="h3">Where to ask</h2>
+    <ul class="dlist"><li><a href="/wiki/">Wiki</a>: guides and fixes written by users. Search it first.</li><li><a href="/forum/">Forum</a>: questions, help and discussion.</li><li><a href="https://github.com/3cfl/fiordland/issues">GitHub issues</a>: bugs in Fiordland, tawaki or the installer.</li><li><a href="https://wiki.archlinux.org">Arch Wiki</a>: Fiordland uses the Arch repos, so most of it applies.</li></ul>
+  </section>
+  <section class="msec">
+    <h2 class="h3">What to include</h2>
+    <ul class="dlist"><li>What you did, what you expected, and what happened instead.</li><li>The exact error text. Copy it, do not retype it.</li><li>Your hardware, especially the GPU.</li></ul>
+    <p>This prints a hardware summary you can paste:</p>
+    <pre class="term">inxi -Fxz</pre>
+    <p>For errors from the current boot:</p>
+    <pre class="term">journalctl -b -p err --no-pager | tail -50</pre>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Do not paste</h2>
+    <p>Passwords, Wi-Fi keys or anything from <code>/etc/shadow</code>. <code>inxi -z</code> already hides serial numbers and IP addresses.</p>
+  </section>
+  <nav class="dpager" aria-label="Docs pages"><a class="dp" href="/docs/snapshots/"><span>Previous</span>Snapshots and rollback</a><span></span></nav>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span class="mark">Fiordland</span>
+    <a href="/docs/">Docs</a>
+    <a href="/wiki/">Wiki</a>
+    <a href="/forum/">Forum</a>
+    <a href="/mirrors/">Mirrors</a>
+    <a href="/repo/x86_64/">Repo</a>
+    <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    <a href="https://apollo44.lat">apollo44.lat</a>
+    <a href="https://ivy.rest">ivy.rest</a>
+    <span class="credit">Tux by <a href="https://isc.tamu.edu/~lewing/linux/">Larry Ewing</a>, Simon Budig and Garrett LeSage, made with The GIMP.</span>
+  </div>
+</footer>
+<script src="/assets/js/site.js?v=4" defer></script>
+</body>
+</html>

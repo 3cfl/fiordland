@@ -1,0 +1,24 @@
+'''Fiordland Linux''' is an Arch-based Linux distribution named after the Fiordland penguin (tawaki). It aims to be fast and stable for gaming, development and everyday use, and friendly to people new to Linux.
+
+== Components ==
+{| class="wikitable"
+! Part !! What it does
+|-
+| [[tawaki]] || Package manager. One command for the Arch repos, Flathub and the AUR.
+|-
+| rawaru || Graphical installer. Disk setup, desktop choice, drivers.
+|-
+| crest || Fiordland's own Hyprland shell, one of the desktop options.
+|-
+| fiordland-desktop || Defaults: theme, icons, fonts, shell prompt, mirror ranking.
+|}
+
+== Base system ==
+* Arch Linux repositories, plus the <code>[fiordland]</code> repo (signed) and CachyOS's <code>[cachyos]</code> repo for the kernel.
+* Kernel: <code>linux-cachyos</code> by default, with the Arch <code>linux</code> kernel kept as a second boot entry.
+* Btrfs with snapper snapshots, zram swap, systemd-boot on UEFI or GRUB on BIOS.
+* Enabled out of the box: NetworkManager, Bluetooth, printing (CUPS with network printer discovery), firewall (ufw), firmware updates (fwupd), power profiles, mirror ranking, package cache cleanup, early out-of-memory handling (systemd-oomd).
+
+== Links ==
+* [https://fiordland.apollo44.lat Website]
+* [https://github.com/3cfl/fiordland Source]

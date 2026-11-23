@@ -1,0 +1,14 @@
+The installer offers 11 desktops and 13 window managers. KDE Plasma is the default and the best pick for most people coming from Windows.
+
+== Desktops ==
+KDE Plasma, GNOME, COSMIC, Xfce, Cinnamon, Budgie, MATE, LXQt, Deepin, Enlightenment, LXDE.
+
+== Window managers ==
+Tiling and scrolling window managers such as Hyprland, niri, Sway and i3 are keyboard driven and need more setup. Some come with a ready-made "shell" (bar, launcher, notifications) you can pick in the installer, such as crest (Fiordland's own Hyprland shell), Noctalia or Caelestia.
+
+== Adding another desktop later ==
+Install it with tawaki, then pick it on the login screen. For example:
+<pre>tawaki install plasma-meta</pre>
+Installing several desktops side by side can leave duplicate apps in your menus.
+
+[[Category:Guides]]

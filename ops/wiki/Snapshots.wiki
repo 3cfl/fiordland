@@ -1,0 +1,33 @@
+Fiordland installs on Btrfs and takes automatic snapshots with [https://wiki.archlinux.org/title/Snapper snapper]. A snapshot is a frozen copy of the system (not your home folder) at a point in time.
+
+== When snapshots are taken ==
+* Before and after every package install, removal or update (snap-pac).
+* Every hour, kept as: 5 hourly, 7 daily, 2 weekly, 1 monthly.
+
+List them:
+<pre>snapper -c root list</pre>
+
+== Undo a change while the system still boots ==
+Find the "pre" snapshot number from before the bad update, then:
+<pre>sudo snapper -c root undochange PRE..POST</pre>
+Reboot afterwards.
+
+== Roll back when the system does not boot ==
+<div class="fl-warn">Booting straight into a snapshot from the boot menu is not supported yet. This is planned for Fiordland 1. Until then, use the steps below.</div>
+
+First try the other boot entries: '''Arch kernel''' and '''safe graphics'''. If neither works:
+
+# Boot the Fiordland USB stick and open a terminal.
+# Find your Fiordland partition: <code>lsblk -f</code> (the Btrfs one, for example <code>/dev/nvme0n1p2</code>).
+# Mount the top of the filesystem:
+#: <code>sudo mount -o subvolid=5 /dev/nvme0n1p2 /mnt</code>
+# Pick a snapshot: <code>sudo ls /mnt/@snapshots</code> and check <code>sudo cat /mnt/@snapshots/N/info.xml</code> for its date.
+# Move the broken system aside and restore the snapshot:
+#: <code>sudo mv /mnt/@ /mnt/@broken</code>
+#: <code>sudo btrfs subvolume snapshot /mnt/@snapshots/N/snapshot /mnt/@</code>
+# <code>sudo umount /mnt</code> and reboot.
+# Once everything works, delete the old copy: <code>sudo btrfs subvolume delete /@broken</code> after mounting with <code>subvolid=5</code> again.
+
+The kernel files live on the separate boot partition. If the problem came from a kernel update, reinstall the kernel after rolling back: <code>sudo pacman -S linux-cachyos linux</code>.
+
+[[Category:Guides]]

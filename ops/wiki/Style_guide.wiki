@@ -1,0 +1,6 @@
+* Write for someone who installed Linux for the first time this week.
+* Short sentences. Commands in <code>&lt;code&gt;</code> or <code>&lt;pre&gt;</code>.
+* Say what a command does before asking people to run it, especially with <code>sudo</code>.
+* Only document things you tested on Fiordland.
+* Link to the [https://wiki.archlinux.org Arch Wiki] for deep detail instead of copying it.
+* No advertising, no links to unofficial ISOs or downloads.

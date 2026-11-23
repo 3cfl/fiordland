@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>First steps &middot; Fiordland Linux</title>
+<meta name="description" content="What to do after the first boot.">
+<meta name="theme-color" content="#131313">
+<meta property="og:title" content="First steps">
+<meta property="og:description" content="What to do after the first boot.">
+<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=3">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/assets/site.css?v=17">
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="mark" href="/"><img src="/assets/logos/tux.svg" alt="" width="18" height="21">Fiordland</a>
+    <nav>
+      <a href="/#features">Features</a>
+      <a href="/compare/">Compare</a>
+      <a href="/docs/" aria-current="page">Docs</a>
+      <a href="/wiki/">Wiki</a>
+      <a href="/forum/">Forum</a>
+      <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    </nav>
+    <a class="btn sm" data-iso href="/iso/fiordland-latest.iso">Download</a>
+  </div>
+</header>
+
+<main class="wrap main-pad">
+  <p class="eyebrow"><a href="/docs/">Docs</a></p>
+  <h1 class="page">First steps</h1>
+  <p class="lede">What to do after the first boot.</p>
+  <section class="msec">
+    <h2 class="h3">Connect to the internet</h2>
+    <p>Click the network icon in the panel and pick your Wi-Fi. A cable works without any setup.</p>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Update once</h2>
+    <p>The ISO may be a few days old. Open a terminal and run:</p>
+    <pre class="term">tawaki update</pre>
+    <p>It asks for your password, then updates the system, Flatpaks and AUR packages together.</p>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Install your apps</h2>
+    <p>Use the package manager from the terminal:</p>
+    <pre class="term">tawaki install firefox steam discord</pre>
+    <p><code>i</code> is a shortcut for <code>tawaki install</code>. More in <a href="/docs/apps/">Installing apps</a>.</p>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Already set up for you</h2>
+    <ul class="dlist"><li>Graphics drivers for your GPU, Vulkan and 32-bit libraries for Steam and Wine.</li><li>Flathub, so Flatpak apps work straight away.</li><li>Printing, with network printers found automatically.</li><li>A firewall (ufw) that blocks incoming connections.</li><li>Bluetooth, power profiles, firmware updates and zram swap.</li><li>Snapshots before every update, so a bad update can be undone.</li></ul>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Terminal basics</h2>
+    <ul class="dlist"><li><code>sudo</code> runs a command as administrator. It asks for your own password.</li><li>Typing a command you do not have tells you which package provides it.</li><li><code>Ctrl+C</code> stops a running command. <code>Ctrl+Shift+V</code> pastes in most terminals.</li></ul>
+  </section>
+  <nav class="dpager" aria-label="Docs pages"><a class="dp" href="/docs/install/"><span>Previous</span>Install Fiordland</a><a class="dp nx" href="/docs/apps/"><span>Next</span>Installing apps</a></nav>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span class="mark">Fiordland</span>
+    <a href="/docs/">Docs</a>
+    <a href="/wiki/">Wiki</a>
+    <a href="/forum/">Forum</a>
+    <a href="/mirrors/">Mirrors</a>
+    <a href="/repo/x86_64/">Repo</a>
+    <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    <a href="https://apollo44.lat">apollo44.lat</a>
+    <a href="https://ivy.rest">ivy.rest</a>
+    <span class="credit">Tux by <a href="https://isc.tamu.edu/~lewing/linux/">Larry Ewing</a>, Simon Budig and Garrett LeSage, made with The GIMP.</span>
+  </div>
+</footer>
+<script src="/assets/js/site.js?v=4" defer></script>
+</body>
+</html>

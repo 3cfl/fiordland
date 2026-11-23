@@ -1,0 +1,12 @@
+* navigation
+** mainpage|mainpage-description
+** recentchanges-url|recentchanges
+** randompage-url|randompage
+** Special:SpecialPages|Special pages
+* Fiordland
+** https://fiordland.apollo44.lat|Website
+** https://fiordland.apollo44.lat/docs/|Docs
+** https://fiordland.apollo44.lat/forum/|Forum
+** https://github.com/3cfl/fiordland|Source
+* SEARCH
+* TOOLBOX

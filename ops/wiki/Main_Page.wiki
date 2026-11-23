@@ -1,0 +1,30 @@
+__NOTOC__ __NOEDITSECTION__
+Welcome to the '''Fiordland Wiki''', the community knowledge base for [[Fiordland Linux]]. Anyone with an account can edit.
+
+<div class="fl-note">New to Linux? Start with the official [https://fiordland.apollo44.lat/docs/ docs]: installing, first steps, installing apps, updates and snapshots. Questions go on the [https://fiordland.apollo44.lat/forum/ forum].</div>
+
+== Start here ==
+<div class="fl-cards">
+<div class="fl-card">'''[[Installation]]'''<br>
+Making a USB stick, booting it and running the installer.</div>
+<div class="fl-card">'''[[tawaki]]'''<br>
+Installing, updating and removing apps from the repos, Flathub and the AUR.</div>
+<div class="fl-card">'''[[Desktops]]'''<br>
+The 24 desktops and window managers you can pick, and how to switch.</div>
+<div class="fl-card">'''[[Snapshots]]'''<br>
+How Btrfs snapshots work on Fiordland and how to roll back.</div>
+<div class="fl-card">'''[[Troubleshooting]]'''<br>
+No Wi-Fi, black screen, no sound, NVIDIA and other common problems.</div>
+<div class="fl-card">'''[[FAQ]]'''<br>
+Short answers to common questions.</div>
+</div>
+
+== Contributing ==
+* Create an account, then edit any page. New pages can be created once your account is a couple of days old.
+* Keep pages factual and tested on Fiordland. If a fix comes from the [https://wiki.archlinux.org Arch Wiki], link to it.
+* See [[Fiordland Wiki:Style guide]] before writing a new page.
+
+== Elsewhere ==
+* [https://fiordland.apollo44.lat Website and downloads]
+* [https://github.com/3cfl/fiordland Source code] · [https://github.com/3cfl/tawaki tawaki] · [https://github.com/3cfl/rawaru rawaru]
+* [https://github.com/3cfl/fiordland/issues Bug reports]

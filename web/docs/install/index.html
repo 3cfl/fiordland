@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install Fiordland &middot; Fiordland Linux</title>
+<meta name="description" content="Make a USB stick, boot it and run the installer.">
+<meta name="theme-color" content="#131313">
+<meta property="og:title" content="Install Fiordland">
+<meta property="og:description" content="Make a USB stick, boot it and run the installer.">
+<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=3">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/assets/site.css?v=17">
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="mark" href="/"><img src="/assets/logos/tux.svg" alt="" width="18" height="21">Fiordland</a>
+    <nav>
+      <a href="/#features">Features</a>
+      <a href="/compare/">Compare</a>
+      <a href="/docs/" aria-current="page">Docs</a>
+      <a href="/wiki/">Wiki</a>
+      <a href="/forum/">Forum</a>
+      <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    </nav>
+    <a class="btn sm" data-iso href="/iso/fiordland-latest.iso">Download</a>
+  </div>
+</header>
+
+<main class="wrap main-pad">
+  <p class="eyebrow"><a href="/docs/">Docs</a></p>
+  <h1 class="page">Install Fiordland</h1>
+  <p class="lede">Make a USB stick, boot it and run the installer.</p>
+  <section class="msec">
+    <h2 class="h3">What you need</h2>
+    <ul class="dlist"><li>A 64-bit PC. UEFI is recommended; older BIOS machines work too.</li><li>4 GB of RAM at least, 8 GB or more is better.</li><li>30 GB of free disk. <strong>The installer erases the whole disk you pick.</strong> Back up anything you want to keep.</li><li>A USB stick of 4 GB or more, and an internet connection during the install.</li></ul>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Install</h2>
+    <ol class="msteps">
+      <li><h3>Download the ISO</h3><p>Get it from the <a href="/">home page</a>. The SHA-256 checksum is listed under the download button. On Linux, check it with:</p><pre class="term">sha256sum fiordland-*.iso</pre></li>
+      <li><h3>Write it to a USB stick</h3><p>On Windows use <a href="https://rufus.ie">Rufus</a> and pick <em>DD image mode</em> when it asks. On macOS or Windows, <a href="https://etcher.balena.io">balenaEtcher</a> also works. On Linux:</p><pre class="term">sudo dd if=fiordland-*.iso of=/dev/sdX bs=4M status=progress oflag=sync</pre><p>Replace <code>sdX</code> with the USB stick. <code>lsblk</code> lists your drives. Picking the wrong one erases it.</p></li>
+      <li><h3>Boot from the stick</h3><p>Restart and press the boot menu key while the logo shows. It is usually F12, F11, F8, Esc or F2. Turn off <strong>Secure Boot</strong> in the firmware settings first; Fiordland's boot files are not signed yet.</p></li>
+      <li><h3>Run the installer</h3><p>The live desktop opens the installer by itself. Pick your language, keyboard, timezone, the disk, your account and a desktop. KDE Plasma is the default and the easiest switch from Windows. The review page lets you change the graphics driver and kernel before anything is written.</p></li>
+      <li><h3>Restart</h3><p>Packages download fresh, so the install takes 5 to 20 minutes. Remove the USB stick when the computer restarts.</p></li>
+    </ol>
+  </section>
+  <section class="msec">
+    <h2 class="h3">If something goes wrong</h2>
+    <ul class="dlist"><li>The disk does not show up: in the firmware settings, change SATA mode from RAID or Intel RST to AHCI.</li><li>Black screen after the boot menu: pick <strong>Fiordland Linux (safe graphics)</strong>.</li><li>Anything else: see the <a href="/wiki/Troubleshooting">Troubleshooting</a> page on the wiki.</li></ul>
+  </section>
+  <nav class="dpager" aria-label="Docs pages"><span></span><a class="dp nx" href="/docs/first-steps/"><span>Next</span>First steps</a></nav>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span class="mark">Fiordland</span>
+    <a href="/docs/">Docs</a>
+    <a href="/wiki/">Wiki</a>
+    <a href="/forum/">Forum</a>
+    <a href="/mirrors/">Mirrors</a>
+    <a href="/repo/x86_64/">Repo</a>
+    <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    <a href="https://apollo44.lat">apollo44.lat</a>
+    <a href="https://ivy.rest">ivy.rest</a>
+    <span class="credit">Tux by <a href="https://isc.tamu.edu/~lewing/linux/">Larry Ewing</a>, Simon Budig and Garrett LeSage, made with The GIMP.</span>
+  </div>
+</footer>
+<script src="/assets/js/site.js?v=4" defer></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{{DISPLAYTITLE:tawaki}}
+'''tawaki''' is Fiordland's package manager. It looks up a name in the Arch repos, on Flathub and in the AUR at the same time, and installs from the cleanest source. Source code: [https://github.com/3cfl/tawaki github.com/3cfl/tawaki].
+
+== Commands ==
+{| class="wikitable"
+! Command !! Short !! What it does
+|-
+| <code>tawaki install firefox</code> || <code>i</code> || Install an app
+|-
+| <code>tawaki remove firefox</code> || <code>r</code>, <code>rm</code> || Remove an app, wherever it came from
+|-
+| <code>tawaki update</code> || <code>u</code>, <code>up</code> || Update everything: system, Flatpaks and AUR
+|-
+| <code>tawaki search obs</code> || <code>s</code> || Search all sources
+|-
+| <code>tawaki list</code> || <code>ls</code> || List what you installed with tawaki
+|-
+| <code>tawaki install foo --from aur</code> || || Force a source (<code>pacman</code>, <code>flatpak</code>, <code>aur</code>)
+|}
+
+The shell also has two shortcuts: <code>i</code> for <code>tawaki install</code> and <code>up</code> for <code>tawaki update</code>.
+
+If you type a command that is not installed, the terminal tells you which package has it, for example <code>tawaki install btop</code>.
+
+== Which source wins ==
+By default: Arch repos first, then Flathub, then the AUR. If the Flathub version would need a large runtime you do not have yet, tawaki picks a prebuilt repo or AUR package instead and tells you how much download it saved.
+
+Change the order in <code>~/.config/tawaki/config.toml</code>:
+<pre>
+priority = ["pacman", "flatpak", "aur"]
+aur_helper = "auto"
+flatpak_scope = "user"
+flatpak_remote = "flathub"
+prefer_light = true
+</pre>
+
+== About the AUR ==
+The AUR is made of user-submitted build scripts. They are not reviewed by Arch or Fiordland. Prefer repo and Flathub packages, and only install AUR packages you trust.
+
+[[Category:Guides]]

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Updates &middot; Fiordland Linux</title>
+<meta name="description" content="Keep the system current and what to do when an update goes wrong.">
+<meta name="theme-color" content="#131313">
+<meta property="og:title" content="Updates">
+<meta property="og:description" content="Keep the system current and what to do when an update goes wrong.">
+<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=3">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/assets/site.css?v=17">
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="mark" href="/"><img src="/assets/logos/tux.svg" alt="" width="18" height="21">Fiordland</a>
+    <nav>
+      <a href="/#features">Features</a>
+      <a href="/compare/">Compare</a>
+      <a href="/docs/" aria-current="page">Docs</a>
+      <a href="/wiki/">Wiki</a>
+      <a href="/forum/">Forum</a>
+      <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    </nav>
+    <a class="btn sm" data-iso href="/iso/fiordland-latest.iso">Download</a>
+  </div>
+</header>
+
+<main class="wrap main-pad">
+  <p class="eyebrow"><a href="/docs/">Docs</a></p>
+  <h1 class="page">Updates</h1>
+  <p class="lede">Keep the system current and what to do when an update goes wrong.</p>
+  <section class="msec">
+    <h2 class="h3">Update</h2>
+<pre class="term">tawaki update</pre>
+    <p>Run it every week or two. Fiordland is a rolling release: there are no big version upgrades, just regular small ones.</p>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Before updating</h2>
+    <ul class="dlist"><li>Close games and apps that are running.</li><li>Keep the laptop plugged in.</li><li>Read what the update prints. Messages that start with <code>==&gt;</code> or <code>warning:</code> sometimes ask you to do something.</li></ul>
+  </section>
+  <section class="msec">
+    <h2 class="h3">After a kernel update</h2>
+    <p>Restart when it finishes. Until then, new USB devices and some drivers may not load.</p>
+  </section>
+  <section class="msec">
+    <h2 class="h3">When an update goes wrong</h2>
+    <p>A snapshot is taken before every update. See <a href="/docs/snapshots/">Snapshots and rollback</a>. If the desktop does not start, pick <strong>Arch kernel</strong> or <strong>safe graphics</strong> in the boot menu first.</p>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Clean up</h2>
+    <p>Old package downloads are cleared every week automatically, keeping the last three versions. To remove packages nothing uses any more:</p>
+    <pre class="term">sudo pacman -Rns $(pacman -Qdtq)</pre>
+  </section>
+  <nav class="dpager" aria-label="Docs pages"><a class="dp" href="/docs/apps/"><span>Previous</span>Installing apps</a><a class="dp nx" href="/docs/snapshots/"><span>Next</span>Snapshots and rollback</a></nav>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span class="mark">Fiordland</span>
+    <a href="/docs/">Docs</a>
+    <a href="/wiki/">Wiki</a>
+    <a href="/forum/">Forum</a>
+    <a href="/mirrors/">Mirrors</a>
+    <a href="/repo/x86_64/">Repo</a>
+    <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    <a href="https://apollo44.lat">apollo44.lat</a>
+    <a href="https://ivy.rest">ivy.rest</a>
+    <span class="credit">Tux by <a href="https://isc.tamu.edu/~lewing/linux/">Larry Ewing</a>, Simon Budig and Garrett LeSage, made with The GIMP.</span>
+  </div>
+</footer>
+<script src="/assets/js/site.js?v=4" defer></script>
+</body>
+</html>

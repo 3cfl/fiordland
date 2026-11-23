@@ -1,0 +1,35 @@
+This page covers installing Fiordland on a PC. The short version is in the [https://fiordland.apollo44.lat/docs/install/ official install guide]; this page collects extra details and hardware notes.
+
+== Requirements ==
+* 64-bit x86 PC (x86_64). UEFI recommended, legacy BIOS works too.
+* 4 GB RAM minimum, 8 GB or more recommended.
+* 30 GB disk minimum. The installer erases the disk you pick.
+* A USB stick of 4 GB or more.
+
+== Make the USB stick ==
+# Download the ISO from the [https://fiordland.apollo44.lat website].
+# Check it: the SHA-256 is shown on the download page. On Linux: <code>sha256sum fiordland-*.iso</code>.
+# Write it:
+#* Windows: [https://rufus.ie Rufus] (pick ''DD image mode'' if asked) or [https://etcher.balena.io balenaEtcher].
+#* macOS: balenaEtcher.
+#* Linux: <code>sudo dd if=fiordland-*.iso of=/dev/sdX bs=4M status=progress oflag=sync</code> (replace <code>sdX</code> with the USB stick, not your disk).
+
+== Boot it ==
+* Restart and open the boot menu. The key is usually F12, F11, F8, Esc or F2 (it often shows briefly on screen).
+* Turn off '''Secure Boot''' in the firmware settings. Fiordland's boot files are not signed yet.
+* On some laptops you also need to switch the SATA mode from RAID/Intel RST to AHCI, or the disk will not show up. Back up Windows first if you dual boot.
+
+== The installer ==
+The live session starts in KDE Plasma and opens the installer. You can also try the system first and start '''Install Fiordland''' from the menu later.
+
+You pick language, keyboard, timezone, the disk, your account, and a desktop. On the review page you can change the graphics driver and the kernel. The install takes 5 to 20 minutes depending on your internet speed, since packages are downloaded fresh.
+
+== After installing ==
+* Remove the USB stick when the computer restarts.
+* Read [[tawaki]] to install apps.
+* Run <code>tawaki update</code> once a week or so.
+
+== Dual boot ==
+The installer currently uses a whole disk. To keep Windows, install Fiordland on a second disk.
+
+[[Category:Guides]]

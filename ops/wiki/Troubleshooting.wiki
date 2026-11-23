@@ -1,0 +1,32 @@
+Common problems and fixes. If yours is not here, ask on the [https://fiordland.apollo44.lat/forum/ forum] and add the answer here once it is solved.
+
+== The live USB does not boot ==
+* Disable Secure Boot in the firmware settings.
+* Rewrite the stick in DD mode (Rufus asks when you start writing).
+* Try another USB port, ideally a USB 2 port on the back of a desktop.
+
+== Black screen after the boot menu ==
+Choose '''Fiordland Linux (safe graphics)''' from the boot menu. This turns off the graphics driver so you can get to a desktop and fix it. With NVIDIA cards, check that the driver installed:
+<pre>pacman -Q | grep nvidia</pre>
+
+== No Wi-Fi ==
+* Check the card is seen: <code>nmcli device</code>.
+* Check it is not blocked: <code>rfkill list</code>, then <code>rfkill unblock wifi</code>.
+* Some Broadcom cards need <code>broadcom-wl</code>: connect with a cable or phone USB tethering, then <code>tawaki install broadcom-wl-dkms linux-cachyos-headers linux-headers</code> and reboot.
+
+== No sound ==
+* Open the volume settings and check the right output device is selected.
+* <code>wpctl status</code> lists devices. Laptops with newer Intel audio use <code>sof-firmware</code>, which is installed by default.
+
+== Printer not found ==
+Network printers are found automatically. If one is not, open the printer settings and add it by its IP address. Many printers work with the generic "IPP Everywhere" driver. For older HP printers, <code>tawaki install hplip</code>.
+
+== The firewall blocks something ==
+Fiordland enables ufw, which blocks incoming connections. To allow one, for example KDE Connect:
+<pre>sudo ufw allow 1714:1764/udp
+sudo ufw allow 1714:1764/tcp</pre>
+
+== An update broke something ==
+See [[Snapshots]].
+
+[[Category:Guides]]

@@ -1,0 +1,20 @@
+== Is Fiordland free? ==
+Yes. Free of charge and open source (GPL-3.0).
+
+== Is it Arch? ==
+It uses the Arch Linux repositories, so most Arch guides apply. It adds its own installer, package manager, defaults and a repo for its own packages. Please do not report Fiordland-specific problems to Arch.
+
+== How is it different from CachyOS or EndeavourOS? ==
+See the [https://fiordland.apollo44.lat/compare/ comparison page].
+
+== Can I use pacman, flatpak and paru directly? ==
+Yes. tawaki is a front end; everything underneath is standard.
+
+== Does it run games? ==
+Yes. 32-bit libraries (multilib) and Vulkan drivers are set up by the installer. Install Steam with <code>tawaki install steam</code>.
+
+== How do I update? ==
+<code>tawaki update</code> in a terminal. It updates the system, Flatpaks and AUR packages in one go.
+
+== Where do I report bugs? ==
+On [https://github.com/3cfl/fiordland/issues GitHub], or on the forum if you are not sure it is a bug.
