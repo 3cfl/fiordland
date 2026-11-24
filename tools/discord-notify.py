@@ -5,7 +5,7 @@ import sys
 import urllib.error
 import urllib.request
 
-REPOS = [r.strip() for r in os.environ.get("FIORD_REPOS", "3cfl/fiordland,3cfl/tawaki,3cfl/rawaru").split(",") if r.strip()]
+REPOS = [r.strip() for r in os.environ.get("FIORD_REPOS", "3cfl/fiordland,3cfl/tawaki,3cfl/rawaru,3cfl/kuaka").split(",") if r.strip()]
 NAME = os.environ.get("DISCORD_NAME", "GitHub")
 AVATAR = os.environ.get("DISCORD_AVATAR", "https://fiordland.apollo44.lat/assets/github.png")
 HOOK = os.environ.get("DISCORD_WEBHOOK", "")
@@ -149,15 +149,19 @@ def main():
     state = load()
     if "repos" not in state:
         state = {"repos": {"3cfl/fiordland": state} if state else {}}
-    i = state.get("next", 0) % len(REPOS)
-    repo = REPOS[i]
-    state["next"] = i + 1
-    st = state["repos"].setdefault(repo, {})
+    state.pop("next", None)
+    failed = False
     try:
-        poll(repo, st)
+        for repo in REPOS:
+            try:
+                poll(repo, state["repos"].setdefault(repo, {}))
+            except (urllib.error.URLError, OSError, ValueError) as e:
+                print(f"{repo}: {e}", file=sys.stderr)
+                failed = True
     finally:
         save(state)
-
+    if failed:
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
