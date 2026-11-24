@@ -5,7 +5,7 @@ Named after the Fiordland penguin, the tawaki.</p>
 
 <p align="center"><a href="https://fiordlandlinux.org">fiordlandlinux.org</a></p>
 
-<p align="center"><a href="https://donate.stripe.com/8x25kFfe96fn0WL6X12wU00"><img src=".github/donate.svg" alt="Donate to Fiordland"></a></p>
+<p align="center"><a href="https://donate.stripe.com/8x25kFfe96fn0WL6X12wU00"><img src=".github/donate.svg" alt="Donate to Fiordland"></a> <a href="https://discord.gg/gy4ANH2Q9V"><img src=".github/discord.svg" alt="Join the Fiordland Discord"></a></p>
 
 <p align="center"><img src="web/assets/shots/hyprland.webp" alt="Hyprland with crest, the Fiordland shell, showing its dashboard over kitty and Thunar"></p>
 
