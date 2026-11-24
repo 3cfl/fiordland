@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -uo pipefail
+CONF=/etc/pacman.conf
+STATE=/var/lib/fiordland/migrations
+LOG=/var/log/fiordland-migrate.log
+KEY=F3B607488DB35A47
+MIRROR=https://mirror.cachyos.org/repo/x86_64/cachyos
+exec >>"$LOG" 2>&1
+
+retry() {
+  sed -i '/^0005-gaming$/d' "$STATE" 2>/dev/null
+  echo "$(date -Is) gaming packages not installed: $1. Retrying on the next update."
+  exit 1
+}
+
+pacman -Q fiordland-gaming >/dev/null 2>&1 && exit 0
+for _ in $(seq 240); do
+  [ -e /var/lib/pacman/db.lck ] || break
+  sleep 5
+done
+[ -e /var/lib/pacman/db.lck ] && retry "pacman stayed busy"
+
+if ! grep -q '^\[multilib\]' "$CONF"; then
+  if grep -q '^#\[multilib\]' "$CONF"; then
+    sed -i '/^#\[multilib\]/{s/^#//;n;s/^#Include/Include/}' "$CONF"
+  else
+    printf '\n[multilib]\nInclude = /etc/pacman.d/mirrorlist\n' >> "$CONF"
+  fi
+  [ -f /etc/fiordland/channel ] && fiordland-channel "$(cat /etc/fiordland/channel)" >/dev/null
+fi
+
+if ! grep -q '^\[cachyos\]' "$CONF"; then
+  pacman-key --recv-keys "$KEY" --keyserver hkps://keyserver.ubuntu.com || retry "could not fetch the CachyOS key"
+  pacman-key --lsign-key "$KEY" || retry "could not sign the CachyOS key"
+  pacman -Sy --noconfirm || retry "could not sync"
+  kr=$(curl -fsL "$MIRROR/" | grep -o 'cachyos-keyring-[^"]*-any\.pkg\.tar\.zst' | sort -V | tail -1)
+  ml=$(curl -fsL "$MIRROR/" | grep -o 'cachyos-mirrorlist-[^"]*-any\.pkg\.tar\.zst' | sort -V | tail -1)
+  [ -n "$kr" ] && [ -n "$ml" ] || retry "could not reach the CachyOS mirror"
+  pacman -U --noconfirm --needed "$MIRROR/$kr" "$MIRROR/$ml" || retry "could not install the CachyOS keyring"
+  printf '\n[cachyos]\nInclude = /etc/pacman.d/cachyos-mirrorlist\n' >> "$CONF"
+fi
+
+pacman -Sy --noconfirm || retry "could not sync"
+pkgs=(fiordland-gaming)
+pacman -T vulkan-driver >/dev/null || pkgs+=(vulkan-swrast)
+pacman -T lib32-vulkan-driver >/dev/null || pkgs+=(lib32-vulkan-swrast)
+pacman -Su --noconfirm --needed "${pkgs[@]}" || retry "pacman failed"
+echo "$(date -Is) gaming packages installed"

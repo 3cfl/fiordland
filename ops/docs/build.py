@@ -133,6 +133,7 @@ C["first-steps"] = "\n".join([
  sec("Install your apps", p("Use the package manager from the terminal:") + "\n    " + term("tawaki install firefox steam discord") + "\n" + p('<code>i</code> is a shortcut for <code>tawaki install</code>. More in <a href="/docs/apps/">Installing apps</a>.')),
  sec("Already set up for you", ul([
   "Graphics drivers for your GPU, Vulkan and 32-bit libraries for Steam and Wine.",
+  "Steam, proton-cachyos, wine-cachyos, umu-launcher, gamemode, MangoHud and gamescope.",
   "Flathub, so Flatpak apps work straight away.",
   "Printing, with network printers found automatically.",
   "A firewall (ufw) that blocks incoming connections.",

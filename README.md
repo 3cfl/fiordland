@@ -53,9 +53,13 @@ prefer_light = true
 
 ## Kernel and drivers
 
-Installs default to the [CachyOS](https://cachyos.org) kernel (`linux-cachyos`), pulled from CachyOS's baseline `[cachyos]` repo, which sits after the Arch repos so only CachyOS-only packages come from it. The stock Arch `linux` kernel stays installed as a second boot entry. Pick "Arch kernel" in the installer to skip CachyOS entirely.
+Installs default to the [CachyOS](https://cachyos.org) kernel (`linux-cachyos`), pulled from CachyOS's baseline `[cachyos]` repo, which sits after the Arch repos so only CachyOS-only packages come from it. The stock Arch `linux` kernel stays installed as a second boot entry. Pick "Arch kernel" in the installer to skip the CachyOS kernel.
 
 The installer detects the GPU: NVIDIA Turing and newer get `nvidia-open` (plus `linux-cachyos-nvidia-open`), older NVIDIA cards use nouveau, Intel and AMD get the matching Vulkan and VA-API drivers. Multilib is enabled for Steam and Wine.
+
+## Gaming
+
+Every install comes with the `fiordland-gaming` meta package: Steam, proton-cachyos, wine-cachyos, umu-launcher, protontricks, winetricks, gamemode, MangoHud and gamescope. Existing installs get it in the background after updating to fiordland-base 0.9.1. Remove it with `sudo pacman -Rns fiordland-gaming`.
 
 ## crest
 

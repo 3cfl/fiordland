@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+CONF=/etc/pacman.conf
+STABLE=/etc/pacman.d/fiordland-stable
+ROLLING=/etc/pacman.d/mirrorlist
+STATE=/etc/fiordland/channel
+
+usage() {
+  cat <<USAGE
+usage: fiordland-channel [stable | rolling]
+
+stable   Arch packages from a tested snapshot, moved forward every two weeks
+         after Fiordland's install, update and boot tests pass. Security fixes
+         arrive sooner. This is the default.
+rolling  Arch packages the day Arch releases them. Newer, less tested.
+
+Without an argument, prints the current channel.
+USAGE
+  exit "${1:-0}"
+}
+
+current() {
+  if awk '/^\[(core|extra|multilib)\]/{s=1;next} /^\[/{s=0} s&&/^Include/' "$CONF" | grep -q "$STABLE"; then
+    echo stable
+  else
+    echo rolling
+  fi
+}
+
+set_channel() {
+  local list=$1
+  local tmp
+  tmp=$(mktemp)
+  awk -v list="$list" '
+    /^\[(core|extra|multilib)\]/ { s = 1; print; next }
+    /^\[/ { s = 0 }
+    s && /^Include *=/ { print "Include = " list; next }
+    { print }
+  ' "$CONF" > "$tmp"
+  cat "$tmp" > "$CONF"
+  rm -f "$tmp"
+}
+
+case ${1:-} in
+  "") current ;;
+  -h|--help) usage ;;
+  stable|rolling)
+    [ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
+    [ "$1" = stable ] && set_channel "$STABLE" || set_channel "$ROLLING"
+    mkdir -p "${STATE%/*}"
+    echo "$1" > "$STATE"
+    echo "Fiordland is now on the $1 channel. Run tawaki update to sync."
+    ;;
+  *) usage 2 ;;
+esac

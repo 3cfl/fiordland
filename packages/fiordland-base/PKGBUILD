@@ -1,5 +1,5 @@
 pkgname=fiordland-base
-pkgver=0.9.0
+pkgver=0.9.1
 pkgrel=1
 pkgdesc="Fiordland Linux release, core packages and system migrations"
 arch=('any')
@@ -15,6 +15,9 @@ package() {
   install -Dm755 "$f/fiordland-migrate" "$pkgdir/usr/bin/fiordland-migrate"
   install -Dm644 "$f/fiordland-migrate.hook" "$pkgdir/usr/share/libalpm/hooks/90-fiordland-migrate.hook"
   install -Dm644 "$f/os-release.hook" "$pkgdir/usr/share/libalpm/hooks/90-fiordland-os-release.hook"
+  install -Dm755 "$f/fiordland-channel" "$pkgdir/usr/bin/fiordland-channel"
+  install -Dm644 "$f/fiordland-stable-mirrorlist" "$pkgdir/etc/pacman.d/fiordland-stable"
+  install -Dm755 "$f/install-gaming" "$pkgdir/usr/lib/fiordland/install-gaming"
   install -Dm755 -t "$pkgdir/usr/lib/fiordland/migrations" "$f"/migrations/*.sh
   install -Dm644 -t "$pkgdir/usr/share/fiordland/news" "$f"/news/*.txt
 }

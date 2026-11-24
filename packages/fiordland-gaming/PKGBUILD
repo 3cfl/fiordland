@@ -1,0 +1,12 @@
+pkgname=fiordland-gaming
+pkgver=1.0
+pkgrel=1
+pkgdesc="Fiordland gaming packages"
+arch=('any')
+url="https://fiordlandlinux.org"
+license=('MIT')
+depends=('cachyos-gaming-meta' 'steam' 'gamemode' 'lib32-gamemode' 'mangohud' 'lib32-mangohud' 'gamescope')
+
+package() {
+  :
+}
