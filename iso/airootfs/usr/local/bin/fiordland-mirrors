@@ -3,6 +3,6 @@ out=/etc/pacman.d/mirrorlist
 tmp=$(mktemp)
 timeout 45 reflector --protocol https --age 6 --completion-percent 100 --latest 60 --sort rate --fastest 6 --threads 30 --download-timeout 3 --save "$tmp" || { rm -f "$tmp"; exit 0; }
 grep -q '^Server' "$tmp" || { rm -f "$tmp"; exit 0; }
-echo 'Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch' >> "$tmp"
+echo "Server = https://geo.mirror.pkgbuild.com/\$repo/os/\$arch" >> "$tmp"
 install -m644 "$tmp" "$out"
 rm -f "$tmp"

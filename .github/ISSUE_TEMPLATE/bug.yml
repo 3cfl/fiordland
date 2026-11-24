@@ -1,0 +1,93 @@
+name: Bug report
+description: Something in Fiordland does not work as it should
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search the [existing issues](https://github.com/Fiordland-Linux/fiordland/issues) and the [Troubleshooting](https://fiordlandlinux.org/wiki/Troubleshooting) page first. For a security problem, use a [private advisory](https://github.com/Fiordland-Linux/fiordland/security/advisories/new) instead.
+  - type: input
+    id: version
+    attributes:
+      label: Fiordland version
+      description: The `PRETTY_NAME` line from `cat /etc/os-release`, and the date of the ISO if you installed from one.
+      placeholder: Fiordland Linux 0.9.0
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Where does it happen?
+      options:
+        - Live ISO or boot menu
+        - rawaru installer
+        - tawaki
+        - crest shell
+        - Package repository or updates
+        - Snapshots or rollback
+        - Docs or website
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: desktop
+    attributes:
+      label: Desktop or window manager
+      description: What you picked in the installer, for example KDE Plasma, Hyprland with crest or niri.
+    validations:
+      required: true
+  - type: dropdown
+    id: machine
+    attributes:
+      label: Real hardware or virtual machine?
+      options:
+        - Real hardware
+        - QEMU or KVM
+        - Another virtual machine
+        - Container
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Hardware or VM details
+      description: Paste the output of `inxi -Fxz`. It hides serial numbers and IP addresses. For a VM, say which program and how it is set up.
+      render: text
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What you did, in order.
+      placeholder: |
+        1. Open ...
+        2. Click ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+      description: Include the exact error text. Copy it, do not retype it. Screenshots help.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: For example the output of `journalctl -b -p err --no-pager | tail -50`.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you send
+      options:
+        - label: I searched the existing issues.
+          required: true
+        - label: I removed passwords, Wi-Fi keys and other secrets from anything I pasted.
+          required: true

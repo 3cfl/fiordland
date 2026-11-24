@@ -1,0 +1,47 @@
+name: Feature request
+description: Suggest an improvement or a new feature
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search the [existing issues](https://github.com/Fiordland-Linux/fiordland/issues) first. Questions about how to do something belong on the [Help desk](https://fiordlandlinux.org/wiki/Help_desk).
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - ISO or live session
+        - rawaru installer
+        - tawaki
+        - crest shell
+        - Packages or repository
+        - Snapshots or rollback
+        - Build or CI
+        - Docs or website
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does it solve?
+      description: Describe what you are trying to do and what gets in the way today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contributing
+      options:
+        - label: I would like to work on this myself.

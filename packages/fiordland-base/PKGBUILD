@@ -3,6 +3,7 @@ pkgver=0.9.1
 pkgrel=2
 pkgdesc="Fiordland Linux release, core packages and system migrations"
 arch=('any')
+url='https://fiordlandlinux.org'
 license=('MIT')
 depends=('base' 'linux-firmware' 'btrfs-progs' 'dosfstools' 'networkmanager' 'sudo' 'zram-generator'
          'snapper' 'snap-pac' 'pacman-contrib' 'flatpak' 'tawaki' 'fiordland-keyring' 'xdg-user-dirs'

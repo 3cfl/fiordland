@@ -1,0 +1,99 @@
+# Contributing to Fiordland
+
+Thanks for helping. This page covers the repo layout, how to build and test, and the conventions the project follows. For a security problem, do not open an issue: see [SECURITY.md](SECURITY.md).
+
+## Where things live
+
+| Path | What it is |
+| --- | --- |
+| `crest/` | The Hyprland shell (Quickshell + a C++ plugin), forked from Caelestia. |
+| `packages/` | PKGBUILDs for everything Fiordland ships. `packages/aur/` holds the bundled AUR packages crest needs. |
+| `iso/` | The archiso profile for the live ISO. |
+| `flavors/` | Overlays on the ISO profile, selected with `FLAVOR=` (currently `xfce`). |
+| `container/` | The Fiordland XFCE container image. |
+| `web/` | The website. `web/docs/` is generated, see below. |
+| `ops/` | Server-side scripts: docs generator, mirrors, stable channel, wiki seed pages, bot setup. |
+| `bot/` | The Discord bot and its tests. |
+| `tools/` | Build helpers, the lint and release checks, and VM control. |
+| `docs/` | Guides for users and maintainers. |
+
+[tawaki](https://github.com/Fiordland-Linux/tawaki) (the package manager), [rawaru](https://github.com/Fiordland-Linux/rawaru) (the installer) and [kuaka](https://github.com/Fiordland-Linux/kuaka) (the update app) and [weka](https://github.com/Fiordland-Linux/weka) (the Desktops app) live in their own repos. Changes to them go there; this repo only packages their tagged releases.
+
+## Setup
+
+You can lint and run the tests on any Linux with `git`, `curl`, `python3`, `shellcheck`, `yamllint` and `pytest`, plus `check-jsonschema` from PyPI:
+
+```
+pipx install check-jsonschema
+```
+
+Building packages and the ISO needs an Arch-based host with `archiso`, `devtools` and `base-devel`.
+
+## Check your change
+
+```
+tools/lint.sh
+bash ops/mirrors/test_sync.sh
+bash tools/test_release_check.sh
+python3 -m pytest bot
+```
+
+`tools/lint.sh` runs shellcheck on every shell script (except `iso/profiledef.sh`, which archiso sources) and every PKGBUILD, yamllint, the GitHub schemas for workflows and issue forms, and a JSON syntax check. CI runs the same commands, so a green run locally is a green run there.
+
+`tools/release-check.sh` compares the versions in `packages/tawaki`, `packages/rawaru`, `packages/kuaka` and `packages/weka` with the newest tag of each repo and checks that the pinned `sha256sums` match the tagged archive. It needs network access and fails when a PKGBUILD is behind a new tag. `tools/namcap.sh` runs `namcap` on PKGBUILDs or built packages and prints what it finds. It needs an Arch host. CI runs it for information; its findings do not fail the build.
+
+## Build
+
+```
+./build.sh              build all packages and the ISO into out/
+SKIP_AUR=1 ./build.sh   skip the chroot builds of crest and its AUR dependencies
+REBUILD=1 ./build.sh    rebuild packages even when the published ones match
+FLAVOR=xfce ./build.sh  build a flavor from flavors/
+```
+
+`build.sh` reuses a package from `https://fiordlandlinux.org/repo/x86_64` when the file for the PKGBUILD's current version is already published. Bump `pkgrel` (or `pkgver`) when you change what a package installs, or your change will not reach the ISO. Without the signing key it builds an unsigned repo and says so. Release signing happens on the build machine only; see [docs/signing-key.md](docs/signing-key.md).
+
+Without `SKIP_AUR=1`, `tools/aurbuild.sh` builds crest and its AUR dependencies in a clean chroot with `makechrootpkg`. Create the chroot once with `mkarchroot chroot/root base-devel`.
+
+## Test in a VM
+
+```
+./vm.sh --share         boot the newest ISO in out/ with the repo shared into the guest
+./vm.sh --headless      no window or audio
+./vm.sh --fresh         start from an empty disk and fresh UEFI variables
+./vm.sh --bios          boot with legacy BIOS instead of UEFI
+./vm.sh --disk          boot the installed disk, not the ISO
+```
+
+`tools/vmctl.py` drives a running VM through its QMP and guest agent sockets in `vm/`. `exec` runs a command in the guest through the guest agent. The other operations can be chained: `shot FILE`, `click X Y`, `move X Y`, `key COMBO`, `type TEXT`, `sleep SECONDS`, `size` and `quit`. `shot` needs ImageMagick (`magick`) on the host.
+
+```
+python3 tools/vmctl.py exec 'uname -r'
+python3 tools/vmctl.py click 800 450 type hello key ret shot screen.png
+```
+
+`ops/stable/test.sh YYYY/MM/DD` installs into a headless VM from an Arch archive snapshot, updates, and checks that the system boots.
+
+## Packages
+
+- `tawaki`, `rawaru`, `kuaka` and `weka` build from tagged GitHub releases. After a new tag: set `pkgver`, set `pkgrel=1`, run `updpkgsums`, then `tools/release-check.sh`.
+- Changes to the base system go in `fiordland-base` as a migration: a script in `packages/fiordland-base/files/migrations/` named `NNNN-name.sh`. `fiordland-migrate` runs it once, as root, after the pacman transaction, and tries again on the next update if it fails. Write migrations so running them twice is harmless.
+- A new release number is a new `pkgver` for `fiordland-base`, with release notes in `files/news/<version>.txt`. `tawaki update` prints them.
+- Keep `web/docs/*.html` in sync with the generator. After editing `ops/docs/build.py`, run `python3 ops/docs/build.py web 17`, where `17` is the stylesheet version the committed pages already use.
+
+## Conventions
+
+- Shell scripts start with `#!/usr/bin/env bash` and `set -euo pipefail`, quote their variables, and pass `shellcheck` with no warnings. Shellcheck options live in `.shellcheckrc`.
+- No comments in code. Names and structure carry the meaning, and the commit message carries the reason.
+- Keep functions small and do not leave dead code behind.
+- Commit messages are short, lowercase and plain. Start with the area when it helps: `site:`, `container:`, `ci:`, `xfce:`. Look at `git log` and match it.
+- One logical change per pull request. If you fix something unrelated while you are there, say so in the description.
+- Every command in the docs must exist in the code. When behaviour changes, change the docs in the same pull request.
+
+## Pull requests
+
+1. Fork the repo and branch from `main`.
+2. Run the checks above and say in the description what you ran and what you could not test.
+3. Fill in the pull request template. Link the issue it closes.
+
+Bug reports, feature requests and real-hardware reports each have an issue form. Questions go on the wiki [Help desk](https://fiordlandlinux.org/wiki/Help_desk).

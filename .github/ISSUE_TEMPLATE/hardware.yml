@@ -1,0 +1,90 @@
+name: Hardware report
+description: Tell us how Fiordland runs on a real machine, even if everything works
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reports from real hardware are collected in [#3](https://github.com/Fiordland-Linux/fiordland/issues/3). Fill this in for one machine. If something is broken, also open a [bug report](https://github.com/Fiordland-Linux/fiordland/issues/new?template=bug.yml) and link it here.
+
+        Back up anything important before installing on a real disk.
+  - type: input
+    id: machine
+    attributes:
+      label: Machine
+      description: Make and model, or the motherboard for a desktop.
+      placeholder: Lenovo ThinkPad T14 Gen 3
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: CPU, GPU and firmware
+      description: Paste the output of `inxi -Fxz`. It hides serial numbers and IP addresses.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Fiordland version
+      description: The `PRETTY_NAME` line from `cat /etc/os-release`, and the date of the ISO.
+    validations:
+      required: true
+  - type: dropdown
+    id: boot
+    attributes:
+      label: Firmware mode
+      options:
+        - UEFI
+        - Legacy BIOS
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How you installed
+      options:
+        - Erase the disk
+        - Install alongside Windows
+        - Choose partitions
+        - Live session only
+    validations:
+      required: true
+  - type: input
+    id: desktop
+    attributes:
+      label: Desktop or window manager
+    validations:
+      required: true
+  - type: dropdown
+    id: kernel
+    attributes:
+      label: Kernel
+      options:
+        - CachyOS kernel
+        - Arch kernel
+        - Live session only
+    validations:
+      required: true
+  - type: checkboxes
+    id: worked
+    attributes:
+      label: What worked
+      options:
+        - label: Wi-Fi during the install
+        - label: Graphics driver (say which in the notes)
+        - label: Dual boot with Windows
+        - label: Suspend and resume
+        - label: Brightness and volume keys
+        - label: Battery reporting
+        - label: Multiple monitors, high-DPI or fractional scaling
+        - label: Everything I tried
+  - type: textarea
+    id: broken
+    attributes:
+      label: What did not work
+      description: Link the bug issues you opened. Photos or screenshots of anything broken help.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes

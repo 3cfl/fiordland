@@ -3,6 +3,7 @@ pkgver=1.0
 pkgrel=19
 pkgdesc="Fiordland Linux desktop defaults and branding"
 arch=('any')
+url='https://fiordlandlinux.org'
 license=('MIT')
 depends=('fiordland-base' 'inter-font' 'ttf-jetbrains-mono' 'fastfetch' 'papirus-icon-theme' 'dconf' 'ttf-nerd-fonts-symbols' 'kuaka' 'weka')
 makedepends=('python' 'papirus-icon-theme')
@@ -29,7 +30,7 @@ package() {
   install -Dm755 "$f/fiordland-dots" "$pkgdir/usr/bin/fiordland-dots"
   install -Dm755 "$f/fiordland-rollback" "$pkgdir/usr/bin/fiordland-rollback"
   install -Dm644 "$f/hypr/hyprland.lua" "$pkgdir/usr/share/fiordland/hyprland.lua"
-  install -Dm644 /dev/stdin "$pkgdir/etc/profile.d/fiordland.sh" <<< 'export XDG_CONFIG_DIRS="/usr/share/fiordland/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}"'
+  install -Dm644 /dev/stdin "$pkgdir/etc/profile.d/fiordland.sh" <<< "export XDG_CONFIG_DIRS=\"/usr/share/fiordland/xdg:\${XDG_CONFIG_DIRS:-/etc/xdg}\""
   install -Dm644 "$f/speed/reflector.conf" "$pkgdir/usr/share/fiordland/reflector.conf"
   install -Dm644 "$f/speed/reflector-dropin.conf" "$pkgdir/usr/lib/systemd/system/reflector.service.d/fiordland.conf"
   install -Dm644 "$f/speed/pkgfile-update-dropin.conf" "$pkgdir/usr/lib/systemd/system/pkgfile-update.timer.d/fiordland.conf"

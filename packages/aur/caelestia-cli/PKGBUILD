@@ -26,7 +26,8 @@ build() {
 package() {
     cd "${srcdir}/${_archive}"
     python -m installer --destdir="$pkgdir" dist/*.whl
-    local site=$(python -c 'import site; print(site.getsitepackages()[0])')
+    local site
+    site=$(python -c 'import site; print(site.getsitepackages()[0])')
     install -Dm644 "$srcdir/fiordland-dark.txt" "$pkgdir$site/caelestia/data/schemes/fiordland/default/dark.txt"
     install -Dm644 ./completions/caelestia.fish "$pkgdir"/usr/share/fish/vendor_completions.d/caelestia.fish
 }

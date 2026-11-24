@@ -46,7 +46,11 @@ case ${1:-} in
   -h|--help) usage ;;
   stable|rolling)
     [ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
-    [ "$1" = stable ] && set_channel "$STABLE" || set_channel "$ROLLING"
+    if [ "$1" = stable ]; then
+      set_channel "$STABLE"
+    else
+      set_channel "$ROLLING"
+    fi
     mkdir -p "${STATE%/*}"
     echo "$1" > "$STATE"
     echo "Fiordland is now on the $1 channel. Run tawaki update to sync."

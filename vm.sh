@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
 
-iso=$(ls -t out/*.iso 2>/dev/null | head -1 || true)
+iso=$(find out -maxdepth 1 -name '*.iso' -printf '%T@ %p\n' 2>/dev/null | sort -rn | cut -d' ' -f2- | head -1 || true)
 mkdir -p vm
 [[ -f vm/disk.qcow2 ]] || qemu-img create -q -f qcow2 vm/disk.qcow2 30G
 [[ -f vm/vars.fd ]] || cp /usr/share/edk2/x64/OVMF_VARS.4m.fd vm/vars.fd

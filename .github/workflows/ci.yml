@@ -12,9 +12,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - run: sudo apt-get update && sudo apt-get install -y shellcheck
-      - run: git ls-files -z '*.sh' ':!iso/profiledef.sh' | xargs -0 shellcheck -S warning -e SC2054
+      - run: sudo apt-get update && sudo apt-get install -y shellcheck yamllint python3-venv
+      - run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install check-jsonschema==0.39.0 pytest==9.2.0
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+      - run: tools/lint.sh
       - run: bash ops/mirrors/test_sync.sh
+      - run: bash tools/test_release_check.sh
+      - run: python3 -m pytest -q bot
       - run: python3 -m py_compile ops/docs/build.py && mkdir -p "$RUNNER_TEMP/site" && python3 ops/docs/build.py "$RUNNER_TEMP/site" 0
   packages:
     runs-on: ubuntu-latest
@@ -27,7 +33,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - run: pacman -Syu --noconfirm --needed git
+      - run: pacman -Syu --noconfirm --needed git namcap
       - run: |
           useradd -m b
           echo 'b ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/b
@@ -36,3 +42,17 @@ jobs:
         run: |
           bash -c 'source PKGBUILD; [ ${#makedepends[@]} -eq 0 ] || pacman -S --noconfirm --needed "${makedepends[@]}"'
           su b -c 'makepkg -d --noconfirm --skippgpcheck'
+      - working-directory: packages/${{ matrix.pkg }}
+        run: $GITHUB_WORKSPACE/tools/namcap.sh ./*.pkg.tar.zst
+  namcap:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: pacman -Syu --noconfirm --needed namcap
+      - run: |
+          useradd -m b
+          chown -R b .
+      - run: su b -c 'find packages -name PKGBUILD -print0 | xargs -0 tools/namcap.sh'

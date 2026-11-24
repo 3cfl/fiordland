@@ -28,7 +28,7 @@ curl -fsI "https://archive.archlinux.org/repos/$snapshot/core/os/x86_64/core.db"
 repo-add -q "$work/repo/build.db.tar.gz" "$work/repo/"*.pkg.tar.zst
 
 repos() {
-  printf '[fiordland]\nSigLevel = Required\nServer = https://fiordlandlinux.org/repo/$arch\n\n'
+  printf "[fiordland]\nSigLevel = Required\nServer = https://fiordlandlinux.org/repo/\$arch\n\n"
   for r in core extra multilib; do printf '[%s]\nInclude = %s\n\n' "$r" "$1"; done
 }
 options='[options]
@@ -53,8 +53,9 @@ NoExtract = usr/share/backgrounds/xfce/xfce-x.svg
 
 sudo install -d -m755 -o root -g root "$root"
 sudo install -d -m755 /var/cache/fiordland-container
+mapfile -t pkgs < <(grep -v '^$' packages)
 for try in 1 2 3 4; do
-  sudo pacstrap -c -G -M -C "$work/pacman.conf" "$root" $(grep -v '^$' packages) && break
+  sudo pacstrap -c -G -M -C "$work/pacman.conf" "$root" "${pkgs[@]}" && break
   [ "$try" = 4 ] && exit 1
   sleep 10
 done

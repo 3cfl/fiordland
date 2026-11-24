@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Fiordland-Linux/fiordland/security/advisories/new
+    about: Report security problems privately. Do not open a public issue. See SECURITY.md.
+  - name: Question or help
+    url: https://fiordlandlinux.org/wiki/Help_desk
+    about: Ask on the wiki Help desk. Issues are for bugs and feature requests.

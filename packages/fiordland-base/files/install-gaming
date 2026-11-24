@@ -35,7 +35,9 @@ if ! grep -q '^\[cachyos\]' "$CONF"; then
   pacman -Sy --noconfirm || retry "could not sync"
   kr=$(curl -fsL "$MIRROR/" | grep -o 'cachyos-keyring-[^"]*-any\.pkg\.tar\.zst' | sort -V | tail -1)
   ml=$(curl -fsL "$MIRROR/" | grep -o 'cachyos-mirrorlist-[^"]*-any\.pkg\.tar\.zst' | sort -V | tail -1)
-  [ -n "$kr" ] && [ -n "$ml" ] || retry "could not reach the CachyOS mirror"
+  if [ -z "$kr" ] || [ -z "$ml" ]; then
+    retry "could not reach the CachyOS mirror"
+  fi
   pacman -U --noconfirm --needed "$MIRROR/$kr" "$MIRROR/$ml" || retry "could not install the CachyOS keyring"
   printf '\n[cachyos]\nInclude = /etc/pacman.d/cachyos-mirrorlist\n' >> "$CONF"
 fi

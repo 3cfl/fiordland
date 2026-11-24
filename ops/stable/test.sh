@@ -34,7 +34,12 @@ check() {
   log "boot check: $1"
   boot --disk
   sleep 45
-  vmc 'f=$(systemctl --failed --no-legend --plain | grep -v "^$" || true); echo "kernel $(uname -r)"; echo "failed: ${f:-none}"; loginctl list-sessions --no-legend | grep -q tester || { echo "no desktop session"; exit 1; }; [ -z "$f" ]'
+  local script
+  script=$(cat <<'REMOTE'
+f=$(systemctl --failed --no-legend --plain | grep -v "^$" || true); echo "kernel $(uname -r)"; echo "failed: ${f:-none}"; loginctl list-sessions --no-legend | grep -q tester || { echo "no desktop session"; exit 1; }; [ -z "$f" ]
+REMOTE
+)
+  vmc "$script"
 }
 
 install_at "$base"
