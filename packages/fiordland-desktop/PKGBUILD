@@ -1,6 +1,6 @@
 pkgname=fiordland-desktop
 pkgver=1.0
-pkgrel=16
+pkgrel=17
 pkgdesc="Fiordland Linux desktop defaults and branding"
 arch=('any')
 license=('MIT')
