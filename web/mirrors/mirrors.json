@@ -1,5 +1,5 @@
 {
   "mirrors": [
-    {"name": "Fiordland", "url": "https://fiordland.apollo44.lat", "location": "United States", "sponsor": "Apollo", "primary": true, "country": "US", "continent": "NA"}
+    {"name": "Fiordland", "url": "https://fiordlandlinux.org", "location": "United States", "sponsor": "Apollo", "primary": true, "country": "US", "continent": "NA"}
   ]
 }

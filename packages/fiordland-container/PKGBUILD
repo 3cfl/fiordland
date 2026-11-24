@@ -3,7 +3,7 @@ pkgver=0.9.0
 pkgrel=1
 pkgdesc="Fiordland Linux release files for containers, without kernel, bootloader or snapshots"
 arch=('any')
-url='https://fiordland.apollo44.lat'
+url='https://fiordlandlinux.org'
 license=('MIT')
 depends=('base' 'sudo' 'tawaki' 'fiordland-keyring' 'pacman-contrib' 'xdg-user-dirs' 'xdg-utils'
          'pipewire' 'pipewire-pulse' 'wireplumber')

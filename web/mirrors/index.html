@@ -8,11 +8,11 @@
 <meta name="theme-color" content="#131313">
 <meta property="og:title" content="Fiordland mirrors">
 <meta property="og:description" content="Servers that carry the Fiordland package repo and ISOs.">
-<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=5">
+<meta property="og:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
 <meta property="og:site_name" content="Fiordland Linux">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://fiordland.apollo44.lat/assets/og.png?v=5">
+<meta name="twitter:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
@@ -58,7 +58,7 @@ Server = https://MIRROR/repo/$arch</pre>
     <h2 class="h3">Host a mirror</h2>
     <p>You need about 10 GB of disk, a hostname with HTTPS, and a connection that can handle ISO downloads of 3 GB each. Sync once an hour.</p>
     <ol class="msteps">
-      <li><h3>Get the script</h3><pre class="term" id="m-get">curl -O https://fiordland.apollo44.lat/mirrors/sync.sh</pre></li>
+      <li><h3>Get the script</h3><pre class="term" id="m-get">curl -O https://fiordlandlinux.org/mirrors/sync.sh</pre></li>
       <li><h3>Run the first sync</h3><pre class="term" id="m-run">bash sync.sh /srv/mirror/fiordland</pre><p>It downloads the repo and ISOs, checks every file against a SHA256 manifest, and removes files the primary no longer has.</p></li>
       <li><h3>Sync every hour</h3><pre class="term" id="m-cron">0 * * * * /bin/bash /path/to/sync.sh /srv/mirror/fiordland</pre></li>
       <li><h3>Serve it over HTTPS</h3><pre class="term" id="m-web">mirror.example.org {

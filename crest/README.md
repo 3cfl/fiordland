@@ -1,6 +1,6 @@
 # crest
 
-The desktop shell of [Fiordland Linux](https://fiordland.apollo44.lat), built on [Quickshell](https://quickshell.org).
+The desktop shell of [Fiordland Linux](https://fiordlandlinux.org), built on [Quickshell](https://quickshell.org).
 
 crest is a fork of [Caelestia shell](https://github.com/caelestia-dots/shell) v2.5.0 by the Caelestia contributors, licensed under GPL-3.0. Thanks to them for the foundation.
 

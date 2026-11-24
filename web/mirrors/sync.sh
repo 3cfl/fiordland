@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-SRC="${FIORDLAND_SRC:-https://fiordland.apollo44.lat}"
+SRC="${FIORDLAND_SRC:-https://fiordlandlinux.org}"
 DEST="${1:?usage: fiordland-mirror-sync /path/to/mirror}"
 SKIP_ISO="${FIORDLAND_SKIP_ISO:-0}"
 

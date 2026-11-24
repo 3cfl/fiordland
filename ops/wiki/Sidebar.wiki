@@ -4,8 +4,8 @@
 ** randompage-url|randompage
 ** Special:SpecialPages|Special pages
 * Fiordland
-** https://fiordland.apollo44.lat|Website
-** https://fiordland.apollo44.lat/docs/|Docs
+** https://fiordlandlinux.org|Website
+** https://fiordlandlinux.org/docs/|Docs
 ** Help desk|Help desk
 ** https://github.com/3cfl/fiordland|Source
 * SEARCH

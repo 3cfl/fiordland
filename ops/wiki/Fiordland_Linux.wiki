@@ -22,5 +22,5 @@
 * Enabled out of the box: NetworkManager, Bluetooth, printing (CUPS with network printer discovery), firewall (ufw), firmware updates (fwupd), power profiles, mirror ranking, package cache cleanup, early out-of-memory handling (systemd-oomd).
 
 == Links ==
-* [https://fiordland.apollo44.lat Website]
+* [https://fiordlandlinux.org Website]
 * [https://github.com/3cfl/fiordland Source]

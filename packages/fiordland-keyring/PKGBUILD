@@ -3,7 +3,7 @@ pkgver=1
 pkgrel=1
 pkgdesc='Fiordland Linux package signing key'
 arch=('any')
-url='https://fiordland.apollo44.lat'
+url='https://fiordlandlinux.org'
 license=('GPL-3.0-or-later')
 install=fiordland-keyring.install
 

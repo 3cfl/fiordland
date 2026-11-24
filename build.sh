@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
 root=$PWD
 
-PUBLISHED=${PUBLISHED:-https://fiordland.apollo44.lat/repo/x86_64}
+PUBLISHED=${PUBLISHED:-https://fiordlandlinux.org/repo/x86_64}
 export PUBLISHED
 [ -n "${SKIP_AUR:-}" ] || tools/aurbuild.sh
 for pkg in packages/*/; do

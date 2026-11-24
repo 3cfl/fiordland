@@ -1,7 +1,7 @@
 __NOTOC__ __NOEDITSECTION__
 Welcome to the '''Fiordland Wiki''', the community knowledge base for [[Fiordland Linux]]. Anyone with an account can edit.
 
-<div class="fl-note">New to Linux? Start with the official [https://fiordland.apollo44.lat/docs/ docs]: installing, first steps, installing apps, updates and snapshots. Questions go on the [[Help desk]].</div>
+<div class="fl-note">New to Linux? Start with the official [https://fiordlandlinux.org/docs/ docs]: installing, first steps, installing apps, updates and snapshots. Questions go on the [[Help desk]].</div>
 
 == Start here ==
 <div class="fl-cards">
@@ -27,6 +27,6 @@ Ask a question. Every page also has a Discussion tab for talking about that page
 * See [[Fiordland Wiki:Style guide]] before writing a new page.
 
 == Elsewhere ==
-* [https://fiordland.apollo44.lat Website and downloads]
+* [https://fiordlandlinux.org Website and downloads]
 * [https://github.com/3cfl/fiordland Source code] · [https://github.com/3cfl/tawaki tawaki] · [https://github.com/3cfl/rawaru rawaru]
 * [https://github.com/3cfl/fiordland/issues Bug reports]

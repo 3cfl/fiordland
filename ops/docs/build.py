@@ -37,11 +37,11 @@ def page(title, desc, cur, body, eyebrow):
 <meta name="theme-color" content="#131313">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{html.escape(desc)}">
-<meta property="og:image" content="https://fiordland.apollo44.lat/assets/og.png?v=5">
+<meta property="og:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
 <meta property="og:site_name" content="Fiordland Linux">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://fiordland.apollo44.lat/assets/og.png?v=5">
+<meta name="twitter:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>

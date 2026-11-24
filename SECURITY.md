@@ -34,7 +34,7 @@ In scope:
 - `fiordland-desktop`, `fiordland-keyring` and the other packages in this repository
 - The live ISO and the defaults it installs (services, firewall, sudo, polkit, sysctl)
 - Package signing, the repository database and the mirror sync script
-- `fiordland.apollo44.lat`: the site, docs, wiki, `/repo` and `/iso`
+- `fiordlandlinux.org`: the site, docs, wiki, `/repo` and `/iso`
 
 Out of scope:
 
@@ -54,14 +54,14 @@ Good-faith research that follows these rules will not be pursued legally.
 ## Supported versions
 
 Fiordland is rolling. Only the current packages in `[fiordland]` and the latest ISO at
-[fiordland.apollo44.lat/iso](https://fiordland.apollo44.lat/iso/) are supported.
+[fiordlandlinux.org/iso](https://fiordlandlinux.org/iso/) are supported.
 
 ## Package signing
 
 Packages and the repository database are signed with:
 
 ```
-Fiordland Build Key <build@fiordland.apollo44.lat>
+Fiordland Build Key <build@fiordlandlinux.org>
 11DC 7CDC CFD3 CB71 196E  BEF1 FD69 DE77 164F 4200
 ```
 

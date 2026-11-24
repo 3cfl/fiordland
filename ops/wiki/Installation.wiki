@@ -1,4 +1,4 @@
-This page covers installing Fiordland on a PC. The short version is in the [https://fiordland.apollo44.lat/docs/install/ official install guide]; this page collects extra details and hardware notes.
+This page covers installing Fiordland on a PC. The short version is in the [https://fiordlandlinux.org/docs/install/ official install guide]; this page collects extra details and hardware notes.
 
 == Requirements ==
 * 64-bit x86 PC (x86_64). UEFI recommended, legacy BIOS works too.
@@ -7,7 +7,7 @@ This page covers installing Fiordland on a PC. The short version is in the [http
 * A USB stick of 4 GB or more.
 
 == Make the USB stick ==
-# Download the ISO from the [https://fiordland.apollo44.lat website].
+# Download the ISO from the [https://fiordlandlinux.org website].
 # Check it: the SHA-256 is shown on the download page. On Linux: <code>sha256sum fiordland-*.iso</code>.
 # Write it:
 #* Windows: [https://rufus.ie Rufus] (pick ''DD image mode'' if asked) or [https://etcher.balena.io balenaEtcher].

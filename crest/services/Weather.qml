@@ -172,7 +172,7 @@ Singleton {
 
         const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=geocodejson&accept-language=${lang}`;
         const nominatimHeaders = {
-            "User-Agent": `crest/${CUtils.version} (+https://fiordland.apollo44.lat)`
+            "User-Agent": `crest/${CUtils.version} (+https://fiordlandlinux.org)`
         };
 
         Requests.get(nominatimUrl, text => {

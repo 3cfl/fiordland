@@ -8,7 +8,7 @@ docker run -d --shm-size=2g -p 8080:8080 -e PASSWORD=changeme ghcr.io/3cfl/fiord
 
 Open `http://host:8080` and log in as `fiord` with the password.
 
-Also published as a rootfs tarball: https://fiordland.apollo44.lat/iso/container/fiordland-xfce-latest.tar.zst (`.sha256` beside it).
+Also published as a rootfs tarball: https://fiordlandlinux.org/iso/container/fiordland-xfce-latest.tar.zst (`.sha256` beside it).
 
 ## GPU encoding
 

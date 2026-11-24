@@ -3,7 +3,7 @@
 Every package and the `[fiordland]` database are signed by:
 
 ```
-Fiordland Build Key <build@fiordland.apollo44.lat>
+Fiordland Build Key <build@fiordlandlinux.org>
 11DC 7CDC CFD3 CB71 196E  BEF1 FD69 DE77 164F 4200
 ```
 

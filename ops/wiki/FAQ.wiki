@@ -5,7 +5,7 @@ Yes. Free of charge and open source (GPL-3.0).
 It uses the Arch Linux repositories, so most Arch guides apply. It adds its own installer, package manager, defaults and a repo for its own packages. Please do not report Fiordland-specific problems to Arch.
 
 == How is it different from CachyOS or EndeavourOS? ==
-See the [https://fiordland.apollo44.lat/compare/ comparison page].
+See the [https://fiordlandlinux.org/compare/ comparison page].
 
 == Can I use pacman and flatpak directly? ==
 Yes. tawaki is a front end; everything underneath is standard. No AUR helper is installed: tawaki builds AUR packages with <code>makepkg</code> and shows the build script first. If you install paru or yay yourself, tawaki uses it.
@@ -17,7 +17,7 @@ Yes. 32-bit libraries (multilib) and Vulkan drivers are set up by the installer.
 <code>tawaki update</code> in a terminal. It updates the system, Flatpaks and AUR packages in one go.
 
 == Do I need to reinstall when a new ISO comes out? ==
-No. New releases (beta to 1.0, 1.0 to 2.0) come through <code>tawaki update</code>. Package changes and system settings from the new ISO are applied to existing installs automatically. The ISO is only for new installs. See [https://fiordland.apollo44.lat/docs/updates/ Updates] in the docs.
+No. New releases (beta to 1.0, 1.0 to 2.0) come through <code>tawaki update</code>. Package changes and system settings from the new ISO are applied to existing installs automatically. The ISO is only for new installs. See [https://fiordlandlinux.org/docs/updates/ Updates] in the docs.
 
 == Where do I report bugs? ==
 On [https://github.com/3cfl/fiordland/issues GitHub], or on the [[Help desk]] if you are not sure it is a bug.

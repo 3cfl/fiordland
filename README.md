@@ -3,7 +3,7 @@
 <p align="center">Arch-based, fast and stable, with its own installer, package manager and shell.<br>
 Named after the Fiordland penguin, the tawaki.</p>
 
-<p align="center"><a href="https://fiordland.apollo44.lat">fiordland.apollo44.lat</a></p>
+<p align="center"><a href="https://fiordlandlinux.org">fiordlandlinux.org</a></p>
 
 <p align="center"><img src="web/assets/shots/hyprland.webp" alt="Hyprland with crest, the Fiordland shell, showing its dashboard over kitty and Thunar"></p>
 
@@ -79,7 +79,7 @@ SKIP_AUR=1 ./build.sh skip the chroot builds of crest and its AUR deps
 ./vm.sh --share       boot the ISO in QEMU
 ```
 
-Installed systems use the package repo at `https://fiordland.apollo44.lat/repo/x86_64`.
+Installed systems use the package repo at `https://fiordlandlinux.org/repo/x86_64`.
 
 ## Security
 

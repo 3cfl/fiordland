@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")/../.."
 cand=${1:?usage: test.sh YYYY/MM/DD [BASE_YYYY/MM/DD]}
-base=${2:-$(curl -fsS https://fiordland.apollo44.lat/stable/date 2>/dev/null || echo "$cand")}
+base=${2:-$(curl -fsS https://fiordlandlinux.org/stable/date 2>/dev/null || echo "$cand")}
 vmc() { python3 tools/vmctl.py exec "$1"; }
 log() { printf '\n== %s\n' "$*"; }
 

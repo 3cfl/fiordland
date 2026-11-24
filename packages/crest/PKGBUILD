@@ -3,7 +3,7 @@ pkgver=2.5.0
 pkgrel=4
 pkgdesc="Fiordland desktop shell, based on Caelestia"
 arch=('x86_64')
-url='https://fiordland.apollo44.lat'
+url='https://fiordlandlinux.org'
 license=('GPL-3.0-only')
 depends=('caelestia-cli' 'quickshell' 'glibc' 'gcc-libs'
          'ddcutil' 'brightnessctl'
