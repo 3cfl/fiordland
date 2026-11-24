@@ -71,7 +71,8 @@ h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
 
 .bento{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .c-tawaki{grid-column:span 2}
-.c-rawaru{grid-row:span 3}
+.c-rawaru{grid-row:span 4}
+.c-kuaka{grid-column:span 2}
 .c-wide{grid-column:span 3}
 .peek{margin:auto 0 0;border-top:1px solid var(--line);width:100%}
 .c-rawaru .card-in{flex:none}
@@ -111,7 +112,7 @@ h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
 
 @media (max-width:860px){
   .bento{grid-template-columns:1fr 1fr}
-  .c-tawaki,.c-wide{grid-column:span 2}
+  .c-tawaki,.c-wide,.c-kuaka{grid-column:span 2}
   .c-rawaru{grid-row:auto;grid-column:span 2}
   .steps{grid-template-columns:1fr}
 }
@@ -120,7 +121,7 @@ h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
   .nav-in{justify-content:space-between}
   .hero{padding-top:128px}
   .bento{grid-template-columns:1fr}
-  .c-tawaki,.c-wide,.c-rawaru{grid-column:auto}
+  .c-tawaki,.c-wide,.c-rawaru,.c-kuaka{grid-column:auto}
   .sec{margin-top:96px}
   .cmp-teaser .arrow{display:none}
   .foot-in .mark{width:100%}
