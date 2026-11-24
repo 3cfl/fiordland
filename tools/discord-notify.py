@@ -71,6 +71,12 @@ def embed(repo, ev):
     t, p = ev["type"], ev["payload"]
     if t == "PullRequestEvent":
         pr = p["pull_request"]
+        if "title" not in pr:
+            try:
+                with urllib.request.urlopen(api(repo, f"pulls/{pr['number']}"), timeout=20) as r:
+                    pr = json.load(r)
+            except (urllib.error.URLError, ValueError):
+                pr = {**pr, "title": "", "html_url": f"https://github.com/{repo}/pull/{pr['number']}"}
         action = p["action"]
         if action == "closed" and pr.get("merged"):
             action = "merged"
@@ -80,6 +86,12 @@ def embed(repo, ev):
                 "description": (pr.get("body") or "")[:400], "color": COLOURS[action]}
     if t == "IssuesEvent":
         issue = p["issue"]
+        if "title" not in issue:
+            try:
+                with urllib.request.urlopen(api(repo, f"issues/{issue['number']}"), timeout=20) as r:
+                    issue = json.load(r)
+            except (urllib.error.URLError, ValueError):
+                issue = {**issue, "title": "", "html_url": f"https://github.com/{repo}/issues/{issue['number']}"}
         if p["action"] not in ("opened", "reopened", "closed"):
             return None
         return {"title": f"Issue #{issue['number']} {p['action']}: {issue['title']}"[:256], "url": issue["html_url"],
