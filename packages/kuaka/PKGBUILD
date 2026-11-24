@@ -1,0 +1,35 @@
+pkgname=kuaka
+pkgver=0.1.1
+pkgrel=2
+pkgdesc="The Fiordland Linux update app"
+arch=('x86_64')
+url="https://github.com/3cfl/kuaka"
+license=('GPL-3.0-only')
+depends=('tawaki>=0.2.0' 'snapper' 'polkit' 'gcc-libs' 'glibc'
+         'fontconfig' 'freetype2' 'libxkbcommon' 'libxkbcommon-x11' 'wayland' 'libglvnd'
+         'libx11' 'libxcursor' 'libxrandr' 'libxi')
+optdepends=('flatpak: Flathub app updates')
+makedepends=('cargo')
+options=('!lto' '!debug')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+sha256sums=('34cb55b168bf6a123fc68960e3ccaafe8736c1d3629a87a32f0fc847a92926bd')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  CARGO_TARGET_DIR="$srcdir/target" cargo build --release --frozen
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  install -Dm755 "$srcdir/target/release/kuaka" "$pkgdir/usr/bin/kuaka"
+  install -Dm755 dist/kuaka-helper "$pkgdir/usr/lib/kuaka/kuaka-helper"
+  install -Dm644 dist/lat.apollo44.kuaka.policy "$pkgdir/usr/share/polkit-1/actions/lat.apollo44.kuaka.policy"
+  install -Dm644 dist/kuaka.desktop "$pkgdir/usr/share/applications/kuaka.desktop"
+  install -Dm644 dist/kuaka-tray.desktop "$pkgdir/etc/xdg/autostart/kuaka-tray.desktop"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
