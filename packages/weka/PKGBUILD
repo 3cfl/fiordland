@@ -7,7 +7,7 @@ url="https://github.com/Fiordland-Linux/weka"
 license=('GPL-3.0-only')
 depends=('python' 'pyside6' 'qt6-wayland' 'polkit' 'pacman' 'inter-font' 'ttf-jetbrains-mono')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('SKIP')
+sha256sums=('e196e678abb8dbbb88998fd9d38c5e31f23d7b0bc988d164f2c4b624e708d8f9')
 
 package() {
   local s="$srcdir/$pkgname-$pkgver"
