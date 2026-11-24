@@ -62,14 +62,14 @@ h1{font-size:clamp(40px,7vw,76px);line-height:1.04;font-weight:700;letter-spacin
 .h2{font-size:clamp(28px,4vw,40px);line-height:1.1;font-weight:700;letter-spacing:-.03em;color:var(--text);margin-bottom:36px}
 h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
 
-.card{--x:50%;--y:50%;--near:0;--hot:0;position:relative;display:flex;flex-direction:column;border-radius:18px;background:var(--s1);border:1px solid var(--line);overflow:hidden;isolation:isolate}
+.card{--x:50%;--y:50%;--near:0;--hot:0;position:relative;min-width:0;display:flex;flex-direction:column;border-radius:18px;background:var(--s1);border:1px solid var(--line);overflow:hidden;isolation:isolate}
 .card::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(260px circle at var(--x) var(--y),rgba(142,197,255,.14),transparent 70%);opacity:var(--hot);transition:opacity .25s}
 .card::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:radial-gradient(200px circle at var(--x) var(--y),var(--accent),transparent 70%);opacity:var(--near);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 .card-in{padding:26px;display:flex;flex-direction:column;flex:1}
 .card p{font-size:15px}
 .ico{font-size:22px;color:var(--accent);margin-bottom:14px;line-height:1}
 
-.bento{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.bento{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .c-tawaki{grid-column:span 2}
 .c-rawaru{grid-row:span 4}
 .c-kuaka{grid-column:span 2}
@@ -111,7 +111,7 @@ h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
 .foot-in .rb{color:var(--muted)}
 
 @media (max-width:860px){
-  .bento{grid-template-columns:1fr 1fr}
+  .bento{grid-template-columns:repeat(2,minmax(0,1fr))}
   .c-tawaki,.c-wide,.c-kuaka{grid-column:span 2}
   .c-rawaru{grid-row:auto;grid-column:span 2}
   .steps{grid-template-columns:1fr}
@@ -120,7 +120,7 @@ h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
   .nav nav{display:none}
   .nav-in{justify-content:space-between}
   .hero{padding-top:128px}
-  .bento{grid-template-columns:1fr}
+  .bento{grid-template-columns:minmax(0,1fr)}
   .c-tawaki,.c-wide,.c-rawaru,.c-kuaka{grid-column:auto}
   .sec{margin-top:96px}
   .cmp-teaser .arrow{display:none}
