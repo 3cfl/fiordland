@@ -53,4 +53,4 @@ Follow `RESTORE.txt` in the backup, then run `./build.sh` and confirm `repo-add`
    ```
 
 4. Rebuild and re-sign every package and the database with the new key, and rebuild the ISO.
-5. Publish a GitHub security advisory on `3cfl/fiordland`.
+5. Publish a GitHub security advisory on `Fiordland-Linux/fiordland`.

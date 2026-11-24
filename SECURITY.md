@@ -4,9 +4,9 @@
 
 Report security problems privately through GitHub:
 **Security → Report a vulnerability** on the affected repository
-([fiordland](https://github.com/3cfl/fiordland/security/advisories/new),
-[tawaki](https://github.com/3cfl/tawaki/security/advisories/new),
-[rawaru](https://github.com/3cfl/rawaru/security/advisories/new)).
+([fiordland](https://github.com/Fiordland-Linux/fiordland/security/advisories/new),
+[tawaki](https://github.com/Fiordland-Linux/tawaki/security/advisories/new),
+[rawaru](https://github.com/Fiordland-Linux/rawaru/security/advisories/new)).
 
 Do not open a public issue, wiki page or talk page for a vulnerability. If GitHub is not an option, message `u5sk` on Discord and ask for a private channel; do not send details in the first message.
 

@@ -23,4 +23,4 @@
 
 == Links ==
 * [https://fiordlandlinux.org Website]
-* [https://github.com/3cfl/fiordland Source]
+* [https://github.com/Fiordland-Linux/fiordland Source]

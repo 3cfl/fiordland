@@ -28,5 +28,5 @@ Ask a question. Every page also has a Discussion tab for talking about that page
 
 == Elsewhere ==
 * [https://fiordlandlinux.org Website and downloads]
-* [https://github.com/3cfl/fiordland Source code] · [https://github.com/3cfl/tawaki tawaki] · [https://github.com/3cfl/rawaru rawaru]
-* [https://github.com/3cfl/fiordland/issues Bug reports]
+* [https://github.com/Fiordland-Linux/fiordland Source code] · [https://github.com/Fiordland-Linux/tawaki tawaki] · [https://github.com/Fiordland-Linux/rawaru rawaru]
+* [https://github.com/Fiordland-Linux/fiordland/issues Bug reports]

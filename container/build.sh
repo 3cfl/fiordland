@@ -92,7 +92,7 @@ podman import \
   --change 'ENV NVIDIA_VISIBLE_DEVICES=all' \
   --change 'CMD ["/usr/local/bin/fiordland-selkies"]' \
   --change 'EXPOSE 8080' \
-  --change "LABEL org.opencontainers.image.source=https://github.com/3cfl/fiordland" \
+  --change "LABEL org.opencontainers.image.source=https://github.com/Fiordland-Linux/fiordland" \
   --change "LABEL org.opencontainers.image.version=$date" \
   --change "LABEL lat.apollo44.fiordland.snapshot=$snapshot" \
   --change "LABEL lat.apollo44.fiordland.selkies=$selkies" \

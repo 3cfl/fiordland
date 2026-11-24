@@ -7,7 +7,7 @@ from pathlib import Path
 ISO_JSON = Path("/srv/fiordland/iso/latest.json")
 REPO_DB = Path("/srv/fiordland/repo/x86_64/fiordland.db.tar.gz")
 SITE = "https://fiordlandlinux.org"
-REPO = "3cfl/fiordland"
+REPO = "Fiordland-Linux/fiordland"
 QUERY = re.compile(r"^[\w.+@-]{1,64}$")
 
 _cache = {"mtime": None, "rows": []}

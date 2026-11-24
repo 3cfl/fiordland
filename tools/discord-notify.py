@@ -5,7 +5,7 @@ import sys
 import urllib.error
 import urllib.request
 
-REPOS = [r.strip() for r in os.environ.get("FIORD_REPOS", "3cfl/fiordland,3cfl/tawaki,3cfl/rawaru,3cfl/kuaka").split(",") if r.strip()]
+REPOS = [r.strip() for r in os.environ.get("FIORD_REPOS", "Fiordland-Linux/fiordland,Fiordland-Linux/tawaki,Fiordland-Linux/rawaru,Fiordland-Linux/kuaka").split(",") if r.strip()]
 NAME = os.environ.get("DISCORD_NAME", "GitHub")
 AVATAR = os.environ.get("DISCORD_AVATAR", "https://fiordlandlinux.org/assets/github.png")
 HOOK = os.environ.get("DISCORD_WEBHOOK", "")

@@ -3,7 +3,7 @@ import sys, pathlib, html
 WEB = pathlib.Path(sys.argv[1])
 V = sys.argv[2]
 
-NAV = [("/#features", "Features"), ("/compare/", "Compare"), ("/docs/", "Docs"), ("/wiki/", "Wiki"), ("https://github.com/3cfl/fiordland", "GitHub")]
+NAV = [("/#features", "Features"), ("/compare/", "Compare"), ("/docs/", "Docs"), ("/wiki/", "Wiki"), ("https://github.com/Fiordland-Linux/fiordland", "GitHub")]
 
 def nav(cur):
     out = []
@@ -19,7 +19,7 @@ FOOT = """<footer class="foot">
     <a href="/wiki/">Wiki</a>
     <a href="/mirrors/">Mirrors</a>
     <a href="/repo/x86_64/">Repo</a>
-    <a href="https://github.com/3cfl/fiordland">GitHub</a>
+    <a href="https://github.com/Fiordland-Linux/fiordland">GitHub</a>
     <a href="https://apollo44.lat">apollo44.lat</a>
     <a href="https://ivy.rest">ivy.rest</a>
     <span class="credit">Tux by <a href="https://isc.tamu.edu/~lewing/linux/">Larry Ewing</a>, Simon Budig and Garrett LeSage, made with The GIMP.</span>
@@ -192,7 +192,7 @@ C["help"] = "\n".join([
  sec("Where to ask", ul([
   '<a href="/wiki/">Wiki</a>: guides and fixes written by users. Search it first.',
   '<a href="/wiki/Help_desk">Help desk</a>: ask a question on the wiki. Every wiki page also has a Discussion tab.',
-  '<a href="https://github.com/3cfl/fiordland/issues">GitHub issues</a>: bugs in Fiordland, tawaki or the installer.',
+  '<a href="https://github.com/Fiordland-Linux/fiordland/issues">GitHub issues</a>: bugs in Fiordland, tawaki or the installer.',
   '<a href="https://wiki.archlinux.org">Arch Wiki</a>: Fiordland uses the Arch repos, so most of it applies.',
  ])),
  sec("What to include", ul([
@@ -213,7 +213,7 @@ idx = f"""  <h1 class="page">Documentation</h1>
   <div class="dgrid">
 {cards}
   </div>
-  <p class="note">Found a mistake? These pages live in <a href="https://github.com/3cfl/fiordland/tree/main/web/docs">the repo</a>.</p>"""
+  <p class="note">Found a mistake? These pages live in <a href="https://github.com/Fiordland-Linux/fiordland/tree/main/web/docs">the repo</a>.</p>"""
 
 (WEB / "docs").mkdir(exist_ok=True)
 (WEB / "docs/index.html").write_text(page("Documentation", "Official guides for installing and using Fiordland Linux.", "/docs/", idx, "Docs"))

@@ -3,7 +3,7 @@
 A Fiordland XFCE desktop streamed to the browser with [Selkies](https://github.com/selkies-project/selkies). Built from a pinned Arch archive snapshot, so every pull of a tag is the same tested image.
 
 ```
-docker run -d --shm-size=2g -p 8080:8080 -e PASSWORD=changeme ghcr.io/3cfl/fiordland-xfce:latest
+docker run -d --shm-size=2g -p 8080:8080 -e PASSWORD=changeme ghcr.io/Fiordland-Linux/fiordland-xfce:latest
 ```
 
 Open `http://host:8080` and log in as `fiord` with the password.
@@ -15,7 +15,7 @@ Also published as a rootfs tarball: https://fiordlandlinux.org/iso/container/fio
 NVIDIA (NVENC) is picked up automatically when the GPU is handed to the container:
 
 ```
-docker run -d --gpus all --shm-size=2g -p 8080:8080 -e PASSWORD=changeme ghcr.io/3cfl/fiordland-xfce:latest
+docker run -d --gpus all --shm-size=2g -p 8080:8080 -e PASSWORD=changeme ghcr.io/Fiordland-Linux/fiordland-xfce:latest
 ```
 
 This needs the NVIDIA Container Toolkit on the host. `NVIDIA_DRIVER_CAPABILITIES=all` is set in the image. AMD VA-API is in Mesa and is used with `--device /dev/dri`; Intel needs `intel-media-driver`, which is not included. The desktop user is added to the groups that own the GPU device nodes at start. Without a GPU it falls back to x264 on the CPU.

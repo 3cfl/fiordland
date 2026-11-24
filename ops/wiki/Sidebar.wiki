@@ -7,6 +7,6 @@
 ** https://fiordlandlinux.org|Website
 ** https://fiordlandlinux.org/docs/|Docs
 ** Help desk|Help desk
-** https://github.com/3cfl/fiordland|Source
+** https://github.com/Fiordland-Linux/fiordland|Source
 * SEARCH
 * TOOLBOX

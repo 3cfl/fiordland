@@ -1,5 +1,5 @@
 {{DISPLAYTITLE:tawaki}}
-'''tawaki''' is Fiordland's package manager. It looks up a name in the Arch repos, on Flathub and in the AUR at the same time, and installs from the cleanest source. Source code: [https://github.com/3cfl/tawaki github.com/3cfl/tawaki].
+'''tawaki''' is Fiordland's package manager. It looks up a name in the Arch repos, on Flathub and in the AUR at the same time, and installs from the cleanest source. Source code: [https://github.com/Fiordland-Linux/tawaki github.com/Fiordland-Linux/tawaki].
 
 == Commands ==
 {| class="wikitable"

@@ -23,8 +23,8 @@ Named after the Fiordland penguin, the tawaki.</p>
 | Path | What it is |
 |------|------------|
 | `crest/` | Fiordland's own Hyprland shell, one of the options in the installer. Top bar, dashboard, launcher, notifications, lock screen, settings. Quickshell + a C++ plugin, forked from Caelestia. |
-| [tawaki](https://github.com/3cfl/tawaki) | Package manager in Rust, in its own repo. One command that picks the cleanest source: pacman, then Flathub, then AUR. |
-| [rawaru](https://github.com/3cfl/rawaru) | Graphical installer, in its own repo (PySide6 + QML). Pick from 11 desktops and 13 window managers, with optional dotfiles (crest, Noctalia, Dux, Caelestia, end-4, HyDE, ML4W, JaKooLit, iNiR). Btrfs with snapper snapshots, zram, systemd-boot or GRUB, GPU driver detection, CachyOS or Arch kernel. |
+| [tawaki](https://github.com/Fiordland-Linux/tawaki) | Package manager in Rust, in its own repo. One command that picks the cleanest source: pacman, then Flathub, then AUR. |
+| [rawaru](https://github.com/Fiordland-Linux/rawaru) | Graphical installer, in its own repo (PySide6 + QML). Pick from 11 desktops and 13 window managers, with optional dotfiles (crest, Noctalia, Dux, Caelestia, end-4, HyDE, ML4W, JaKooLit, iNiR). Btrfs with snapper snapshots, zram, systemd-boot or GRUB, GPU driver detection, CachyOS or Arch kernel. |
 | `packages/` | PKGBUILDs for everything above (tawaki and rawaru build from their tagged GitHub releases), plus `fiordland-desktop` (theme, icons, configs, defaults). |
 | `iso/` | archiso profile for the live ISO. |
 | `web/` | The website. |
