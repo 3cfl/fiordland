@@ -1,6 +1,6 @@
 pkgname=fiordland-base
 pkgver=0.9.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Fiordland Linux release, core packages and system migrations"
 arch=('any')
 license=('MIT')
@@ -20,4 +20,5 @@ package() {
   install -Dm755 "$f/install-gaming" "$pkgdir/usr/lib/fiordland/install-gaming"
   install -Dm755 -t "$pkgdir/usr/lib/fiordland/migrations" "$f"/migrations/*.sh
   install -Dm644 -t "$pkgdir/usr/share/fiordland/news" "$f"/news/*.txt
+  install -Dm644 "$f/firefox-policies.json" "$pkgdir/usr/lib/firefox/distribution/policies.json"
 }

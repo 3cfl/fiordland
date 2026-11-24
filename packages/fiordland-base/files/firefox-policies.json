@@ -1,0 +1,11 @@
+{
+  "policies": {
+    "Homepage": {
+      "URL": "https://fiordlandlinux.org",
+      "Locked": false,
+      "StartPage": "homepage"
+    },
+    "OverrideFirstRunPage": "https://fiordlandlinux.org",
+    "OverridePostUpdatePage": ""
+  }
+}
