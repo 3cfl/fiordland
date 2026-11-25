@@ -8,7 +8,7 @@ CachyOS is a fast, well-run Arch distribution, and Fiordland uses its kernel and
 - **System changes arrive with updates.** Fixes to an installed system (service defaults, timeouts, snapshot limits) ship as numbered migrations in `fiordland-base`. Each runs once, after the update or at boot, and is written to be safe twice. You never need to reinstall to get a newer ISO's defaults.
 - **Snapshots you can boot and keep.** Every install is Btrfs with snapper. Each package update takes a snapshot, older snapshots show up in the GRUB menu, and `sudo fiordland-rollback` makes the one you booted permanent.
 - **One package manager for three sources.** tawaki installs from pacman, Flathub or the AUR, picks the cleanest source, and avoids pulling a large Flatpak runtime when a native package exists.
-- **Its own desktop and shell.** crest (a Hyprland shell), the rawaru installer with 11 desktops and 13 window managers, kuaka for updates and weka to switch desktops.
+- **Its own tools.** The rawaru installer with 11 desktops and 13 window managers, kuaka for updates and weka to switch desktops.
 - **Settings that pick themselves on weak hardware.** `fiordland-tune` detects machines with less than 4 GB of memory, two CPU threads or no GPU acceleration and uses lighter memory settings on its own. You can switch to `low-end`, `balanced` or `performance` by hand.
 - **Plain bug reports.** `fiordland report` writes the details a bug report needs to one file in your home folder, with your user and host names replaced. Nothing is uploaded.
 
