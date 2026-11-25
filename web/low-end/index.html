@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linux for old and low-end PCs &middot; Fiordland Linux</title>
+<meta name="description" content="Fiordland Linux tunes itself for old laptops and low-end PCs: a low-end installer option, automatic memory tuning and light desktops.">
+<meta name="theme-color" content="#131313">
+<link rel="canonical" href="https://fiordlandlinux.org/low-end/">
+<meta property="og:url" content="https://fiordlandlinux.org/low-end/">
+<meta property="og:title" content="Fiordland on old and low-end PCs">
+<meta property="og:description" content="Fiordland Linux tunes itself for old laptops and low-end PCs: a low-end installer option, automatic memory tuning and light desktops.">
+<meta property="og:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
+<meta property="og:site_name" content="Fiordland Linux">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/assets/site.css?v=17">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Fiordland Linux","item":"https://fiordlandlinux.org/"},{"@type":"ListItem","position":2,"name":"Low-end PCs","item":"https://fiordlandlinux.org/low-end/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the best Linux distro for a low-end PC?","acceptedAnswer":{"@type":"Answer","text":"Fiordland Linux is built to run well on low-end PCs as well as high-end ones. Its installer has a Low-end PC switch, and fiordland-tune automatically uses lighter memory settings on machines with less than 4 GB of RAM, two CPU threads or no GPU acceleration."}},{"@type":"Question","name":"Does Fiordland run on old CPUs?","acceptedAnswer":{"@type":"Answer","text":"Yes. Fiordland uses Arch's generic x86-64 packages and the linux-fiord kernel is built for the x86-64 baseline, so it runs on any 64-bit x86 PC. Distributions that only ship x86-64-v3 builds need a CPU with AVX2."}},{"@type":"Question","name":"How much RAM does Fiordland need?","acceptedAnswer":{"@type":"Answer","text":"4 GB is recommended and 8 GB or more is better. On machines with less memory, Fiordland switches to its low-end profile, which sizes zram swap to match memory and keeps write-back buffers small."}},{"@type":"Question","name":"Which desktop should I pick on an old laptop?","acceptedAnswer":{"@type":"Answer","text":"Xfce, LXQt, MATE or LXDE are good full desktops for older hardware. Openbox, IceWM, Fluxbox, i3, labwc and Sway are lighter still. The installer marks the light options when the Low-end PC switch is on."}}]}</script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="mark" href="/"><img src="/assets/logos/tux.svg" alt="" width="18" height="21">Fiordland</a>
+    <nav>
+      <a href="/#features">Features</a>
+      <a href="/compare/">Compare</a>
+      <a href="/docs/">Docs</a>
+      <a href="/wiki/">Wiki</a>
+      <a href="https://github.com/Fiordland-Linux/fiordland">GitHub</a>
+      <a href="https://donate.stripe.com/8x25kFfe96fn0WL6X12wU00">Donate</a>
+      <a href="https://discord.gg/gy4ANH2Q9V">Discord</a>
+    </nav>
+    <a class="btn sm" data-iso href="/iso/fiordland-latest.iso">Download</a>
+  </div>
+</header>
+
+<main class="wrap main-pad">
+  <p class="eyebrow">Low-end PCs</p>
+  <h1 class="page">Fiordland on old and low-end PCs</h1>
+  <p class="lede">Fiordland is meant for a ten-year-old laptop as much as a new gaming desktop. The same install adapts to the machine it lands on.</p>
+
+  <section class="msec">
+    <h2 class="h3">What happens on a weak machine</h2>
+  <ul class="dlist">
+    <li><strong>A Low-end PC switch in the installer.</strong> It leaves out the gaming packages and 32-bit graphics drivers, and points you to the light desktops.</li>
+    <li><strong>Automatic tuning.</strong> <code>fiordland-tune</code> checks the hardware at boot. With less than 4 GB of memory, two CPU threads or no GPU acceleration it picks the low-end profile: zram swap as large as memory with zstd compression, small write-back buffers so the disk never stalls the desktop, and no proactive memory compaction.</li>
+    <li><strong>Runs on any 64-bit CPU.</strong> Packages are Arch's generic x86-64 builds and the linux-fiord kernel targets the x86-64 baseline, so CPUs without AVX2 are fine.</li>
+    <li><strong>A responsive kernel.</strong> linux-fiord uses the BORE scheduler, a 1000 Hz timer and full preemption, and keeps transparent huge pages on <code>madvise</code> so 4 to 8 GB machines don't waste memory.</li>
+    <li><strong>Out-of-memory protection.</strong> systemd-oomd stops a runaway app before the whole system freezes.</li>
+  </ul>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Light desktops</h2>
+  <p>Full desktops that stay light: Xfce, LXQt, MATE and LXDE. Lighter still: Openbox, IceWM, Fluxbox, i3, labwc and Sway. You can switch later with weka, without reinstalling.</p>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Change it by hand</h2>
+  <p><code>sudo fiordland-tune apply low-end</code>, <code>balanced</code> or <code>performance</code> picks a profile, <code>sudo fiordland-tune apply auto</code> goes back to detecting it, and <code>fiordland-tune status</code> shows what is in use.</p>
+  </section>
+  <section class="msec">
+    <h2 class="h3">Requirements</h2>
+  <ul class="dlist">
+    <li>Any 64-bit x86 PC.</li>
+    <li>4 GB of RAM recommended, 8 GB or more is better.</li>
+    <li>30 GB of disk.</li>
+  </ul>
+  </section>
+  <p class="note"><a href="/docs/install/">How to install</a> &middot; <a href="/why/">Why Fiordland</a></p>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span class="mark">Fiordland</span>
+    <a href="/docs/">Docs</a>
+    <a href="/why/">Why Fiordland</a>
+    <a href="/low-end/">Low-end PCs</a>
+    <a href="/wiki/">Wiki</a>
+    <a href="/mirrors/">Mirrors</a>
+    <a href="/repo/x86_64/">Repo</a>
+    <a href="https://github.com/Fiordland-Linux/fiordland">GitHub</a>
+      <a href="https://donate.stripe.com/8x25kFfe96fn0WL6X12wU00">Donate</a>
+    <a href="https://apollo44.lat">apollo44.lat</a>
+    <a href="https://ivy.rest">ivy.rest</a>
+    <span class="credit">Tux by <a href="https://isc.tamu.edu/~lewing/linux/">Larry Ewing</a>, Simon Budig and Garrett LeSage, made with The GIMP.</span>
+  </div>
+</footer>
+<script src="/assets/js/site.js?v=4" defer></script>
+</body>
+</html>
