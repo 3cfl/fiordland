@@ -26,7 +26,7 @@ Row {
             readonly property bool first: index === 0
             readonly property bool last: index === root.options.length - 1
             readonly property real outer: height / 2
-            readonly property real inner: selected ? height / 2 : Style.rSm
+            property real inner: selected ? height / 2 : Style.rSm
 
             implicitWidth: Math.max(root.size * 1.3, content.implicitWidth + 32)
             implicitHeight: root.size
