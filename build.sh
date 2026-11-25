@@ -7,7 +7,7 @@ PUBLISHED=${PUBLISHED:-https://fiordlandlinux.org/repo/x86_64}
 export PUBLISHED
 [ -n "${SKIP_AUR:-}" ] || tools/aurbuild.sh
 for pkg in packages/*/; do
-  case "$pkg" in packages/aur/|packages/crest/) continue ;; esac
+  case "$pkg" in packages/aur/|packages/crest/|packages/crest-greeter/) continue ;; esac
   (
     cd "$pkg"
     rm -f ./*.pkg.tar.zst

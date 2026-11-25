@@ -1,37 +1,30 @@
 pkgname=crest
-pkgver=2.5.0
-pkgrel=4
-pkgdesc="Fiordland desktop shell, based on Caelestia"
-arch=('x86_64')
+epoch=1
+pkgver=2.0.0
+pkgrel=1
+pkgdesc="Fiordland desktop shell for Hyprland, written in QML for Quickshell"
+arch=('any')
 url='https://fiordlandlinux.org'
 license=('GPL-3.0-only')
-depends=('caelestia-cli' 'quickshell' 'glibc' 'gcc-libs'
-         'ddcutil' 'brightnessctl'
-         'libcava' 'networkmanager' 'lm_sensors' 'aubio' 'libpipewire' 'libqalculate' 'power-profiles-daemon'
-         'ttf-material-symbols-variable' 'inter-font' 'ttf-cascadia-code-nerd'
-         'qt6-base' 'qt6-declarative' 'qt6-imageformats' 'qt6-m3shapes-git'
-         'swappy' 'bash')
-optdepends=('fprintd: fingerprint unlock for the lock screen')
-makedepends=('cmake' 'ninja' 'qt6-shadertools')
-provides=('caelestia-shell')
+depends=('quickshell' 'qt6-declarative' 'qt6-imageformats' 'qt6-svg' 'hyprland'
+         'matugen' 'hyprsunset' 'brightnessctl' 'wl-clipboard'
+         'networkmanager' 'bluez' 'upower' 'power-profiles-daemon' 'pipewire'
+         'ttf-material-symbols-variable' 'inter-font' 'ttf-jetbrains-mono'
+         'bash' 'coreutils' 'findutils' 'systemd')
+optdepends=('fprintd: fingerprint unlock for the lock screen'
+            'noto-fonts-emoji: colour emoji in the launcher')
 conflicts=('caelestia-shell' 'caelestia-shell-git')
+replaces=('caelestia-shell')
 source=("crest-$pkgver.tar.gz")
 sha256sums=('SKIP')
-options=('!debug')
-
-build() {
-  cd crest
-  cmake -B build -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/ \
-    -DVERSION=$pkgver \
-    -DGIT_REVISION=fiordland \
-    -DDISTRIBUTOR="Fiordland Linux"
-  cmake --build build
-}
 
 package() {
   cd crest
-  DESTDIR="$pkgdir" cmake --install build
+  install -d "$pkgdir/etc/xdg/quickshell/crest"
+  cp -r --no-preserve=ownership,mode assets components config modules services theme utils shell.qml \
+    "$pkgdir/etc/xdg/quickshell/crest/"
+  find "$pkgdir/etc/xdg/quickshell/crest" -type d -exec chmod 755 {} +
+  find "$pkgdir/etc/xdg/quickshell/crest" -type f -exec chmod 644 {} +
+  install -Dm644 README.md "$pkgdir/usr/share/doc/crest/README.md"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

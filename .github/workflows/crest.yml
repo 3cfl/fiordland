@@ -27,7 +27,8 @@ jobs:
       - name: hyprland import probe
         continue-on-error: true
         run: |
-          cat /usr/lib/qt6/qml/Quickshell/Hyprland/qmldir
+          find /usr/lib/qt6/qml/Quickshell/Hyprland
+          for f in /usr/lib/qt6/qml/Quickshell/Hyprland/*/qmldir; do echo "== $f"; cat "$f"; done
           printf 'import QtQuick\nimport Quickshell.Hyprland\nItem { property var x: Hyprland.focusedMonitor }\n' > "$RUNNER_TEMP/t.qml"
           /usr/lib/qt6/bin/qmllint -I /usr/lib/qt6/qml "$RUNNER_TEMP/t.qml" || true
           QT_LOGGING_RULES='qt.qml.import*=true' /usr/lib/qt6/bin/qmllint -I /usr/lib/qt6/qml "$RUNNER_TEMP/t.qml" 2>&1 | tail -30 || true
@@ -44,3 +45,32 @@ jobs:
           path: render-out
           retention-days: 3
           if-no-files-found: warn
+  package:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: pacman -Syu --noconfirm --needed namcap
+      - name: source tarballs
+        run: |
+          ver=$(awk -F= '$1=="pkgver"{print $2}' packages/crest/PKGBUILD)
+          tar --exclude=tests -czf "packages/crest/crest-$ver.tar.gz" crest
+          ver=$(awk -F= '$1=="pkgver"{print $2}' packages/crest-greeter/PKGBUILD)
+          tar --exclude=tests -czf "packages/crest-greeter/crest-greeter-$ver.tar.gz" crest-greeter crest/theme crest/components crest/assets/wallpaper.webp crest/LICENSE
+      - name: makepkg
+        run: |
+          useradd -m b
+          chown -R b .
+          su b -c 'cd packages/crest && makepkg -d --noconfirm'
+          su b -c 'cd packages/crest-greeter && makepkg -d --noconfirm'
+      - name: contents
+        run: |
+          bsdtar -tf packages/crest-greeter/crest-greeter-*.pkg.tar.zst | grep -qx 'usr/bin/crest-greeter'
+          bsdtar -tf packages/crest-greeter/crest-greeter-*.pkg.tar.zst | grep -qx 'usr/share/crest-greeter/shell.qml'
+          bsdtar -tf packages/crest-greeter/crest-greeter-*.pkg.tar.zst | grep -q '^etc/greetd' && exit 1
+          bsdtar -tf packages/crest/crest-*.pkg.tar.zst | grep -qx 'etc/xdg/quickshell/crest/shell.qml'
+          bash -n packages/crest-greeter/crest-greeter
+          tools/namcap.sh packages/crest/*.pkg.tar.zst packages/crest-greeter/*.pkg.tar.zst
