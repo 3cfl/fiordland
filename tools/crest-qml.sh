@@ -23,6 +23,8 @@ assemble() {
   else
     cp -r "$root/crest-greeter/." "$dest/"
     cp -r "$root/crest/theme" "$root/crest/components" "$dest/"
+    mkdir -p "$dest/assets"
+    cp "$root/crest/assets/wallpaper.webp" "$dest/assets/wallpaper.webp"
   fi
 }
 
