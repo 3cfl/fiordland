@@ -1,0 +1,29 @@
+pkgname=fiordland-tune
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Fiordland hardware profiles: low-end, balanced and performance tuning"
+arch=('x86_64')
+url='https://fiordlandlinux.org'
+license=('GPL-3.0-or-later')
+depends=('glibc' 'gcc-libs' 'systemd')
+makedepends=('cargo')
+optdepends=('scx-scheds: sched_ext CPU schedulers (fiordland-tune scx)'
+            'power-profiles-daemon: power profile switching'
+            'btrfs-progs: Btrfs swap files (fiordland-tune swapfile)')
+
+build() {
+  cd "$startdir/../../tools/fiordland-tune"
+  CARGO_TARGET_DIR="$srcdir/target" cargo build --release --locked --offline
+}
+
+check() {
+  cd "$startdir/../../tools/fiordland-tune"
+  CARGO_TARGET_DIR="$srcdir/target" cargo test --release --locked --offline
+}
+
+package() {
+  install -Dm755 "$srcdir/target/release/fiordland-tune" "$pkgdir/usr/bin/fiordland-tune"
+  install -Dm644 "$startdir/fiordland-tune.service" "$pkgdir/usr/lib/systemd/system/fiordland-tune.service"
+  install -d "$pkgdir/usr/lib/systemd/system/multi-user.target.wants"
+  ln -s ../fiordland-tune.service "$pkgdir/usr/lib/systemd/system/multi-user.target.wants/fiordland-tune.service"
+}
