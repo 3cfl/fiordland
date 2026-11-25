@@ -1,0 +1,10 @@
+handle /stable/date {
+	header Content-Type text/plain
+	header Cache-Control "no-cache"
+	respond "2026/11/16
+" 200
+}
+@stablefile path_regexp ^/stable(/(core|extra|multilib)/os/x86_64/[A-Za-z0-9@._+:-]+)$
+handle @stablefile {
+	redir https://archive.archlinux.org/repos/2026/11/16{re.stablefile.1} 302
+}

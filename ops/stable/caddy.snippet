@@ -1,3 +1,4 @@
-	handle /stable/* {
-		reverse_proxy 127.0.0.1:8091
-	}
+		import /etc/caddy/fiordland-stable.caddy
+		handle /stable/* {
+			respond 404
+		}

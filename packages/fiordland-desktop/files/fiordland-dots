@@ -71,6 +71,16 @@ until curl -fsI --max-time 5 https://github.com >/dev/null 2>&1; do
   sleep 5
 done
 read -rp "Press Enter to start, or Ctrl+C to skip. "
+if [[ $(cat /etc/fiordland/channel 2>/dev/null) == stable ]]; then
+  echo "${dim}Syncing system packages with the stable channel first${reset}"
+  if ! sudo pacman -Syuu; then
+    echo
+    echo "${bold}Could not sync system packages.${reset} Run ${blue}tawaki update${reset}, then ${blue}fiordland-dots $id${reset} to try again."
+    read -rp "Press Enter to close. "
+    exit 1
+  fi
+  echo
+fi
 if run; then
   echo
   echo "${bold}Done.${reset} Log out and back in, or restart, to load the new setup."
