@@ -83,6 +83,7 @@ ShellRoot {
         Perf.lowEnd;
         Scheme.mode;
         Emoji.load();
+        console.log(`render: icon theme ${Quickshell.env("QS_ICON_THEME")} firefox ${Quickshell.hasThemeIcon("firefox")} kitty ${Quickshell.hasThemeIcon("kitty")}`);
         Qt.callLater(next);
     }
 
