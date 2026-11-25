@@ -8,7 +8,7 @@ Report security problems privately through GitHub:
 [tawaki](https://github.com/Fiordland-Linux/tawaki/security/advisories/new),
 [rawaru](https://github.com/Fiordland-Linux/rawaru/security/advisories/new)).
 
-Do not open a public issue, wiki page or talk page for a vulnerability. If GitHub is not an option, message `u5sk` on Discord and ask for a private channel; do not send details in the first message.
+Do not open a public issue, wiki page or talk page for a vulnerability. If GitHub is not an option, email fiordlandlinux@gmail.com or message `u5sk` on Discord and ask for a private channel; do not send details in the first message.
 
 A useful report includes:
 
