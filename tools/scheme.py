@@ -1,4 +1,4 @@
-import json, sys, types
+import sys, types
 sys.path.insert(0, "/usr/lib/python3.14/site-packages")
 from caelestia.utils.material.generator import gen_scheme, hex_to_hct
 
@@ -16,7 +16,5 @@ for k in blue:
     if "tertiary" in k or "Tertiary" in k:
         c[k] = soft[k]
 c["surfaceTint"] = blue["surfaceTint"]
-json.dump({"name": "fiordland", "flavour": "default", "mode": "dark", "variant": "fidelity", "colours": c},
-          open("packages/fiordland-desktop/files/crest/scheme.json", "w"), indent=4)
 open("packages/aur/caelestia-cli/fiordland-dark.txt", "w").write("".join(f"{k} {v}\n" for k, v in c.items()))
 print({k: c[k] for k in ("background", "surfaceContainer", "onSurface", "primary", "primaryContainer", "secondary", "tertiary", "term4")})

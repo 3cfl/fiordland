@@ -1,6 +1,6 @@
 pkgname=fiordland-desktop
 pkgver=1.0
-pkgrel=21
+pkgrel=22
 pkgdesc="Fiordland Linux desktop defaults and branding"
 arch=('any')
 url='https://fiordlandlinux.org'
@@ -19,7 +19,6 @@ package() {
   install -Dm644 "$f/kde/kdeglobals" "$pkgdir/usr/share/fiordland/xdg/kdeglobals"
   install -Dm644 "$f/kitty.conf" "$pkgdir/usr/share/fiordland/xdg/kitty/kitty.conf"
   install -Dm644 "$f/kitty/user.conf" "$pkgdir/etc/skel/.config/kitty/kitty.conf"
-  install -Dm644 "$f/crest/scheme.json" "$pkgdir/etc/skel/.local/state/caelestia/scheme.json"
   for v in 3.0 4.0; do
     install -Dm644 "$f/gtk/settings.ini" "$pkgdir/usr/share/fiordland/xdg/gtk-$v/settings.ini"
     install -Dm644 "$f/gtk/gtk.css" "$pkgdir/etc/skel/.config/gtk-$v/gtk.css"
