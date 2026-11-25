@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+set -euo pipefail
+. /usr/lib/fiordland/lib.sh
+GRUB=/etc/default/grub
+PREBUILT=(nvidia nvidia-open nvidia-lts nvidia-open-lts linux-cachyos-nvidia linux-cachyos-nvidia-open)
+DKMS=(nvidia-dkms nvidia-open-dkms)
+
+usage() {
+  cat <<USAGE
+usage: fiordland kernel [fiord | default]
+
+Without an argument, shows the installed kernels and which one boots first.
+fiord     install linux-fiord, Fiordland's tuned kernel, and boot it first.
+          The other kernels stay in the boot menu.
+default   boot the CachyOS kernel (or Arch's) first again. linux-fiord stays
+          installed; remove it with: sudo pacman -Rns linux-fiord linux-fiord-headers
+USAGE
+  exit "${1:-0}"
+}
+
+top_level() {
+  sed -n 's/^GRUB_TOP_LEVEL="\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' "$GRUB" 2>/dev/null | tail -1
+}
+
+show() {
+  local k
+  echo "running   $(uname -r)"
+  for k in /boot/vmlinuz-*; do
+    [ -e "$k" ] && echo "installed ${k#/boot/vmlinuz-}"
+  done
+  echo "first     $(top_level | sed 's#^/boot/vmlinuz-##; s#^$#(newest)#')"
+  if pacman -Q linux-fiord >/dev/null 2>&1; then
+    echo "linux-fiord is installed."
+  elif pacman -Si linux-fiord >/dev/null 2>&1; then
+    echo "linux-fiord is available: sudo fiordland kernel fiord"
+  fi
+}
+
+has_any() {
+  local p
+  for p in "$@"; do
+    pacman -Q "$p" >/dev/null 2>&1 && return 0
+  done
+  return 1
+}
+
+needs_root() {
+  [ "$(id -u)" -eq 0 ] || exec sudo /usr/lib/fiordland/kernel "$@"
+}
+
+set_first() {
+  [ -f "$GRUB" ] || { echo "no $GRUB, is GRUB the boot loader?" >&2; exit 1; }
+  backup "$GRUB" >/dev/null
+  if [ -n "$1" ]; then
+    set_conf "$GRUB" GRUB_TOP_LEVEL "\"$1\""
+  else
+    unset_conf "$GRUB" GRUB_TOP_LEVEL
+  fi
+  grub_regen || { echo "grub-mkconfig failed, the old boot menu is still in place" >&2; exit 1; }
+}
+
+case ${1:-} in
+  "") show ;;
+  -h|--help) usage ;;
+  fiord)
+    needs_root "$@"
+    pacman -Si linux-fiord >/dev/null 2>&1 || { echo "linux-fiord is not in the Fiordland repo yet." >&2; exit 1; }
+    pkgs=(linux-fiord linux-fiord-headers)
+    for p in "${PREBUILT[@]}"; do
+      if pacman -Q "$p" >/dev/null 2>&1 && ! has_any "${DKMS[@]}"; then
+        echo "The NVIDIA driver here ($p) is built for one kernel only. Switch to nvidia-open-dkms first, then run this again." >&2
+        exit 1
+      fi
+    done
+    pacman -S --needed --noconfirm "${pkgs[@]}"
+    [ -e /boot/vmlinuz-linux-fiord ] || { echo "linux-fiord did not install a kernel image" >&2; exit 1; }
+    [ -e /boot/initramfs-linux-fiord.img ] || { echo "no initramfs for linux-fiord, keeping the current default" >&2; exit 1; }
+    set_first /boot/vmlinuz-linux-fiord
+    echo "linux-fiord boots first from the next restart. Undo: sudo fiordland kernel default"
+    ;;
+  default)
+    needs_root "$@"
+    if [ -e /boot/vmlinuz-linux-cachyos ]; then
+      set_first /boot/vmlinuz-linux-cachyos
+    else
+      set_first ""
+    fi
+    echo "The default kernel boots first from the next restart."
+    ;;
+  *) usage 2 ;;
+esac
