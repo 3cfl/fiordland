@@ -3,16 +3,20 @@ set -uo pipefail
 DIR=/usr/lib/fiordland/migrations
 STATE=/var/lib/fiordland/migrations
 LOG=/var/log/fiordland-migrate.log
+LOCK=/run/fiordland-migrate.lock
+INSTALLER_COVERS=0005
 
 usage() {
   cat <<USAGE
-usage: fiordland-migrate [--list | --stamp | --os-release]
+usage: fiordland-migrate [--list | --stamp | --os-release | --boot]
 
 Applies Fiordland system changes that ship after install. pacman runs it
-automatically; running it by hand is safe, each change applies once.
+automatically, and so does every boot; running it by hand is safe, each
+change applies once.
   --list        show which changes are applied
-  --stamp       mark every change as applied (used by the installer)
+  --stamp       mark the changes the installer already makes as applied
   --os-release  only refresh /usr/lib/os-release
+  --boot        the boot-time run: finishes a change even during shutdown
 USAGE
   exit "${1:-0}"
 }
@@ -31,7 +35,7 @@ done_list() {
 
 names() {
   local f
-  for f in "$DIR"/*.sh; do
+  for f in "$DIR"/[0-9][0-9][0-9][0-9]-*.sh; do
     [ -e "$f" ] && basename "$f" .sh
   done
 }
@@ -46,8 +50,13 @@ case ${1:-} in
     exit 0 ;;
   --stamp)
     mkdir -p "${STATE%/*}"
-    names > "$STATE"
+    touch "$STATE"
+    for n in $(names); do
+      [[ ${n%%-*} > $INSTALLER_COVERS ]] && continue
+      grep -qx "$n" "$STATE" || echo "$n" >> "$STATE"
+    done
     exit 0 ;;
+  --boot) trap '' TERM ;;
   "") ;;
   *) usage 2 ;;
 esac
@@ -57,6 +66,10 @@ os_release
 installed || exit 0
 mkdir -p "${STATE%/*}"
 touch "$STATE"
+if [ -d "${LOCK%/*}" ]; then
+  exec 9>"$LOCK"
+  flock 9
+fi
 for n in $(names); do
   grep -qx "$n" "$STATE" && continue
   echo "  applying $n"
