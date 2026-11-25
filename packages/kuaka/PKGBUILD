@@ -1,18 +1,20 @@
 pkgname=kuaka
-pkgver=0.1.1
-pkgrel=2
+pkgver=1.0.0
+pkgrel=1
 pkgdesc="The Fiordland Linux update app"
 arch=('x86_64')
 url="https://github.com/Fiordland-Linux/kuaka"
 license=('GPL-3.0-only')
-depends=('tawaki>=0.2.0' 'snapper' 'polkit' 'gcc-libs' 'glibc'
+depends=('tawaki>=1.0.0' 'pacman-contrib' 'snapper' 'polkit' 'gcc-libs' 'glibc'
          'fontconfig' 'freetype2' 'libxkbcommon' 'libxkbcommon-x11' 'wayland' 'libglvnd'
          'libx11' 'libxcursor' 'libxrandr' 'libxi')
-optdepends=('flatpak: Flathub app updates')
+optdepends=('flatpak: Flathub app updates'
+            'ttf-material-symbols-variable: full icon set'
+            'snap-pac: snapshots around every pacman transaction')
 makedepends=('cargo')
 options=('!lto' '!debug')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('34cb55b168bf6a123fc68960e3ccaafe8736c1d3629a87a32f0fc847a92926bd')
+sha256sums=('aa62c6342a347e8f2000940bc71b12ee0af92f5812c7cef88802fe69e1303dab')
 
 prepare() {
   cd "$pkgname-$pkgver"

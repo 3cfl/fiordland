@@ -1,5 +1,5 @@
 pkgname=weka
-pkgver=1.0.3
+pkgver=1.1.0
 pkgrel=1
 pkgdesc="Swap Fiordland desktops and window managers cleanly"
 arch=('any')
@@ -7,11 +7,11 @@ url="https://github.com/Fiordland-Linux/weka"
 license=('GPL-3.0-only')
 depends=('python' 'pyside6' 'qt6-wayland' 'polkit' 'pacman' 'inter-font' 'ttf-jetbrains-mono')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('2cdb8a072042b8bcd4992d94677286636b0e4a122f609a1e9ecfa7e56a752a9f')
+sha256sums=('2fa9efa9759895e1cd898f798ef2826ee485082aeec675f901cd803c504611df')
 
 package() {
   local s="$srcdir/$pkgname-$pkgver"
-  install -Dm644 "$s/backend.py" "$s/plan.py" "$s/desktops.py" "$s/userconf.py" -t "$pkgdir/usr/lib/weka/"
+  install -Dm644 "$s/backend.py" "$s/plan.py" "$s/desktops.py" "$s/userconf.py" "$s/system.py" -t "$pkgdir/usr/lib/weka/"
   install -Dm755 "$s/weka.py" "$pkgdir/usr/lib/weka/weka.py"
   install -Dm755 "$s/weka-helper" "$pkgdir/usr/lib/weka/weka-helper"
   install -Dm644 "$s"/qml/* -t "$pkgdir/usr/lib/weka/qml/"
