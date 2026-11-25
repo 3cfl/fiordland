@@ -24,12 +24,6 @@ jobs:
         run: |
           matugen image crest/assets/wallpaper.webp -t scheme-expressive -m dark --json hex --dry-run --source-color-index 0 > "$RUNNER_TEMP/scheme.json"
           grep -q '"primary_container"' "$RUNNER_TEMP/scheme.json"
-      - name: icon theme check
-        continue-on-error: true
-        run: |
-          grep -n NoExtract /etc/pacman.conf || true
-          ls /usr/share/icons
-          ls /usr/share/icons/Papirus/64x64/apps | grep -c . || true
       - run: tools/crest-qml.sh unit
       - run: tools/crest-qml.sh lint
       - run: tools/crest-qml.sh render "$GITHUB_WORKSPACE/render-out"
