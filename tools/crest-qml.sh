@@ -59,6 +59,18 @@ overlay() {
   while IFS= read -r -d '' f; do
     sed -i '/^prefer /d' "$f"
   done < <(find "$dest/Quickshell" -name qmldir -print0)
+  local hypr="$dest/Quickshell/Hyprland" sub
+  [ -d "$hypr" ] || return 0
+  for sub in "$hypr"/_*/; do
+    for f in "$sub"*.qmltypes; do
+      [ -e "$f" ] || continue
+      sed -E 's#"Quickshell\.Hyprland\._[A-Za-z]+/#"Quickshell.Hyprland/#g' "$f" > "$hypr/$(basename "$f")"
+      printf 'typeinfo %s\n' "$(basename "$f")" >> "$hypr/qmldir"
+    done
+  done
+  sed -i '/^import Quickshell\.Hyprland\._/d' "$hypr/qmldir"
+  echo ":: hyprland overlay qmldir"
+  cat "$hypr/qmldir"
 }
 
 lint() {

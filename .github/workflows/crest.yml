@@ -64,5 +64,5 @@ jobs:
           bsdtar -tf packages/crest-greeter/crest-greeter-*.pkg.tar.zst | grep -qx 'usr/share/crest-greeter/shell.qml'
           bsdtar -tf packages/crest-greeter/crest-greeter-*.pkg.tar.zst | grep -q '^etc/greetd' && exit 1
           bsdtar -tf packages/crest/crest-*.pkg.tar.zst | grep -qx 'etc/xdg/quickshell/crest/shell.qml'
-          bash -n packages/crest-greeter/crest-greeter
+          bash -n packages/crest-greeter/crest-greeter.sh
           tools/namcap.sh packages/crest/*.pkg.tar.zst packages/crest-greeter/*.pkg.tar.zst
