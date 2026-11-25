@@ -13,13 +13,30 @@ Singleton {
         { id: "firefox", name: "Firefox", genericName: "Web Browser", icon: "firefox", comment: "Browse the web", keywords: [] },
         { id: "kitty", name: "kitty", genericName: "Terminal", icon: "kitty", comment: "Fast GPU terminal", keywords: ["shell"] },
         { id: "thunar", name: "Thunar", genericName: "File Manager", icon: "org.xfce.thunar", comment: "Browse your files", keywords: [] },
-        { id: "files", name: "Files", genericName: "File Manager", icon: "org.gnome.Nautilus", comment: "Access and organise files", keywords: [] },
+        { id: "mousepad", name: "Mousepad", genericName: "Text Editor", icon: "org.xfce.mousepad", comment: "Write plain text", keywords: ["notes"] },
         { id: "crest-settings", name: "Settings", genericName: "crest settings", icon: "preferences-system", comment: "Appearance, bar and wallpaper", keywords: [] },
         { id: "kuaka", name: "kuaka", genericName: "Updates", icon: "system-software-update", comment: "Keep Fiordland up to date", keywords: [] },
         { id: "tawaki", name: "tawaki", genericName: "Software", icon: "system-software-install", comment: "Find and install apps", keywords: [] }
     ]
-    readonly property var entries: Config.demo ? demoApps : DesktopEntries.applications.values.filter(e => !e.noDisplay)
+    readonly property var entries: Config.demo ? demoApps : dedupe(DesktopEntries.applications.values)
     readonly property var usage: Config.launcher.usage ?? {}
+
+    function dedupe(list: var): var {
+        const seen = {};
+        const out = [];
+        for (const e of list) {
+            if (!e || e.noDisplay)
+                continue;
+            const cmd = (e.command ?? []).filter(a => !/^%[a-zA-Z]$/.test(a)).join(" ");
+            const keys = [`id:${e.id}`, cmd ? `cmd:${cmd}` : `name:${e.name}`];
+            if (keys.some(k => seen[k]))
+                continue;
+            for (const k of keys)
+                seen[k] = true;
+            out.push(e);
+        }
+        return out;
+    }
 
     function query(text: string, limit: int): var {
         const fields = [[e => e.name, 1], [e => e.genericName, 0.75], [e => e.keywords, 0.6], [e => e.comment, 0.35]];
