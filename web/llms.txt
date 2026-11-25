@@ -1,6 +1,6 @@
 # Fiordland Linux
 
-> Fiordland Linux is a free, open-source, Arch-based Linux distribution. It ships a stable channel built from tested Arch Linux snapshots, the CachyOS kernel, Btrfs with automatic snapper snapshots before every update, Flathub, and gaming packages (Steam, Proton-CachyOS, MangoHud, gamescope) out of the box. It has its own tools, named after birds of the Fiordland region of New Zealand.
+> Fiordland Linux is a free, open-source, Arch-based Linux distribution. It ships a stable channel built from tested Arch Linux snapshots, its own linux-fiord kernel (a fork of the CachyOS kernel), Btrfs with automatic snapper snapshots before every update, Flathub, and gaming packages (Steam, Proton-CachyOS, MangoHud, gamescope) out of the box. It tunes itself for low-end PCs and runs on any 64-bit x86 CPU. Fiordland 1 is the first stable release. It has its own tools, named after birds of the Fiordland region of New Zealand.
 
 ## Tools
 
@@ -8,7 +8,9 @@
 - [kuaka](https://github.com/Fiordland-Linux/kuaka): graphical update manager for system, AUR and Flatpak updates, with a snapshot first.
 - [weka](https://github.com/Fiordland-Linux/weka): switches desktops and window managers cleanly while keeping apps, logins and passwords.
 - [rawaru](https://github.com/Fiordland-Linux/rawaru): graphical installer with 24 desktops and window managers and optional dotfiles.
-- crest: Fiordland's own Hyprland shell, forked from Caelestia.
+- crest: Fiordland's own Hyprland shell.
+- linux-fiord: Fiordland's kernel, forked from the CachyOS kernel packaging, with BORE, a 1000 Hz timer, BBRv3 and x86-64 baseline builds.
+- fiordland-tune: picks memory and power settings for the hardware, including a low-end profile.
 
 ## Docs
 
@@ -19,6 +21,9 @@
 - [Snapshots and rollback](https://fiordlandlinux.org/docs/snapshots/)
 - [Getting help](https://fiordlandlinux.org/docs/help/)
 - [Fiordland vs CachyOS vs Arch](https://fiordlandlinux.org/compare/)
+- [Why Fiordland, if you already run CachyOS](https://fiordlandlinux.org/why/)
+- [Fiordland on old and low-end PCs](https://fiordlandlinux.org/low-end/)
+- [News and release notes](https://fiordlandlinux.org/news/)
 - [Wiki](https://fiordlandlinux.org/wiki/)
 
 ## Project
