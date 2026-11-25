@@ -13,7 +13,7 @@ Singleton {
     readonly property string system: "/usr/share/fiordland/wallpaper.png"
     property bool systemExists: false
     readonly property string fallback: systemExists ? system : bundled
-    readonly property string current: Config.demo ? bundled : (Config.wallpaper.path || fallback)
+    readonly property string current: Config.demo ? bundled : (Config.wallpaper.path.startsWith("/") ? Config.wallpaper.path : fallback)
     readonly property bool isDefault: current === bundled || current === system
     readonly property var folders: {
         const home = Config.home;
@@ -36,7 +36,7 @@ Singleton {
     readonly property bool scanning: scanner.running
 
     function set(path: string): void {
-        if (!path || path.indexOf("\n") >= 0)
+        if (!path || !path.startsWith("/") || path.indexOf("\n") >= 0)
             return;
         Config.wallpaper.path = path === root.fallback ? "" : path;
     }
