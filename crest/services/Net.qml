@@ -10,7 +10,8 @@ Singleton {
     id: root
 
     readonly property bool demo: Config.demo
-    readonly property var devices: demo ? [] : Networking.devices.values
+    readonly property var deviceModel: demo ? null : Networking.devices
+    readonly property var devices: deviceModel ? deviceModel.values : []
     readonly property var wifi: devices.find(d => d.type === DeviceType.Wifi) ?? null
     readonly property var wired: devices.find(d => d.type === DeviceType.Wired && d.connected) ?? null
     readonly property bool wifiEnabled: demo ? demoEnabled : Networking.wifiEnabled

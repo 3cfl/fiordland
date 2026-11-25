@@ -31,20 +31,20 @@ Item {
     Rectangle {
         id: thumb
 
-        readonly property real d: area.pressed ? 28 : (root.checked ? 24 : 16)
+        readonly property real target: area.pressed ? 28 : (root.checked ? 24 : 16)
 
-        width: d
-        height: d
-        radius: d / 2
+        width: target
+        height: width
+        radius: width / 2
         anchors.verticalCenter: parent.verticalCenter
-        x: root.checked ? root.width - 4 - d : 4 + (24 - d) / 2
+        x: root.checked ? root.width - 4 - target : 4 + (24 - target) / 2
         color: root.checked ? Colours.fgPrimary : Colours.outline
 
         Behavior on x {
             SpringFast {}
         }
 
-        Behavior on d {
+        Behavior on width {
             SpringFast {}
         }
 

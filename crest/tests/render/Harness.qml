@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Window
 import Quickshell
+import Quickshell.Io
 import qs.config
 import qs.services
 import qs.theme
@@ -23,6 +24,8 @@ ShellRoot {
     readonly property string out: Quickshell.env("CREST_RENDER_OUT") || "."
     property int index: -1
     property var scene: ({})
+    property var wallJson: null
+    readonly property string schemePath: Quickshell.env("CREST_RENDER_SCHEME") || ""
     readonly property var scenes: [
         { name: "bar", w: 1440, h: 76, comp: barScene },
         { name: "bar-light", w: 1440, h: 76, comp: barScene, light: true },
@@ -40,7 +43,10 @@ ShellRoot {
         { name: "wallpaper", w: 1060, h: 360, comp: wallpaperScene },
         { name: "settings", w: 880, h: 620, comp: settingsScene, page: "appearance" },
         { name: "settings-performance", w: 880, h: 620, comp: settingsScene, page: "performance" },
-        { name: "overview", w: 1440, h: 810, comp: overviewScene }
+        { name: "overview", w: 1440, h: 810, comp: overviewScene },
+        { name: "wallscheme-quicksettings", w: 460, h: 780, comp: qsScene, wall: true },
+        { name: "wallscheme-lock", w: 1280, h: 800, comp: lockScene, wall: true },
+        { name: "wallscheme-bar", w: 1440, h: 76, comp: barScene, wall: true }
     ]
 
     function next(): void {
@@ -52,11 +58,25 @@ ShellRoot {
         }
         scene = scenes[index];
         Config.appearance.mode = scene.light ? "light" : "dark";
+        Scheme.override = scene.wall && root.wallJson ? Scheme.extract(root.wallJson, scene.light ? "light" : "dark") : null;
         win.width = scene.w;
         win.height = scene.h;
         loader.sourceComponent = null;
         loader.sourceComponent = scene.comp;
         settle.restart();
+    }
+
+    FileView {
+        path: root.schemePath
+        blockLoading: true
+        printErrors: false
+        onLoaded: {
+            try {
+                root.wallJson = JSON.parse(text());
+            } catch (e) {
+                console.warn("render: scheme json unreadable");
+            }
+        }
     }
 
     Component.onCompleted: {

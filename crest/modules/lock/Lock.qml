@@ -11,7 +11,7 @@ Scope {
     id: root
 
     Auth {
-        id: auth
+        id: authCtx
 
         active: lock.locked
     }
@@ -36,7 +36,7 @@ Scope {
 
             LockContent {
                 anchors.fill: parent
-                auth: auth
+                auth: authCtx
                 onFinished: Session.locked = false
             }
         }

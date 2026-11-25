@@ -65,7 +65,7 @@ PanelWindow {
     NumberAnimation {
         id: fadeIn
 
-        property Item other: null
+        property Image other: null
 
         property: "opacity"
         to: 1

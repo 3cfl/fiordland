@@ -107,8 +107,6 @@ Scope {
             Item {
                 id: holder
 
-                readonly property Item item: loader.item
-
                 implicitWidth: loader.implicitWidth
                 implicitHeight: loader.implicitHeight
                 x: root.fill ? 0 : root.padL

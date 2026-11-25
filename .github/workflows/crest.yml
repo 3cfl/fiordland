@@ -20,12 +20,23 @@ jobs:
         with:
           persist-credentials: false
       - run: pacman -Syu --noconfirm --needed quickshell qt6-declarative qt6-imageformats qt6-svg matugen inter-font ttf-jetbrains-mono ttf-material-symbols-variable noto-fonts-emoji findutils grep
-      - name: matugen output
-        run: matugen image crest/assets/wallpaper.webp -t scheme-tonal-spot -m dark --json hex --dry-run --source-color-index 0 | tee "$RUNNER_TEMP/scheme.json" | head -c 4000
+      - name: matugen scheme
+        run: |
+          matugen image crest/assets/wallpaper.webp -t scheme-expressive -m dark --json hex --dry-run --source-color-index 0 > "$RUNNER_TEMP/scheme.json"
+          grep -q '"primary_container"' "$RUNNER_TEMP/scheme.json"
+      - name: hyprland import probe
+        continue-on-error: true
+        run: |
+          cat /usr/lib/qt6/qml/Quickshell/Hyprland/qmldir
+          printf 'import QtQuick\nimport Quickshell.Hyprland\nItem { property var x: Hyprland.focusedMonitor }\n' > "$RUNNER_TEMP/t.qml"
+          /usr/lib/qt6/bin/qmllint -I /usr/lib/qt6/qml "$RUNNER_TEMP/t.qml" || true
+          QT_LOGGING_RULES='qt.qml.import*=true' /usr/lib/qt6/bin/qmllint -I /usr/lib/qt6/qml "$RUNNER_TEMP/t.qml" 2>&1 | tail -30 || true
       - run: tools/crest-qml.sh unit
       - run: tools/crest-qml.sh lint
       - run: tools/crest-qml.sh render "$GITHUB_WORKSPACE/render-out"
         if: always()
+        env:
+          CREST_RENDER_SCHEME: ${{ runner.temp }}/scheme.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:

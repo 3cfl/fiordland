@@ -15,6 +15,7 @@ Singleton {
     readonly property string variant: variants.indexOf(Config.appearance.variant) >= 0 ? Config.appearance.variant : "scheme-tonal-spot"
     readonly property bool fromWallpaper: Config.appearance.scheme === "wallpaper" && !Wallpapers.isDefault
     readonly property string key: fromWallpaper ? `${Wallpapers.current}|${variant}` : "fjord"
+    property var override: null
     property var cache: ({})
     property string cachedKey: ""
     property bool stateLoaded: Config.demo
@@ -29,7 +30,7 @@ Singleton {
     Binding {
         target: Colours
         property: "scheme"
-        value: root.cachedKey === root.key && root.key !== "fjord" ? (root.cache[root.mode] ?? null) : null
+        value: root.override ?? (root.cachedKey === root.key && root.key !== "fjord" ? (root.cache[root.mode] ?? null) : null)
     }
 
     onKeyChanged: refresh()

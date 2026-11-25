@@ -121,7 +121,7 @@ Singleton {
         ];
         const made = [];
         for (const s of samples) {
-            const e = entryComp.createObject(root, s);
+            const e = entryComp.createObject(root, s) as Entry;
             e.popup = made.length === 0;
             made.push(e);
         }

@@ -10,7 +10,8 @@ Singleton {
     id: root
 
     readonly property bool demo: Config.demo
-    readonly property var players: demo ? [] : Mpris.players.values
+    readonly property var playerModel: demo ? null : Mpris.players
+    readonly property var players: playerModel ? playerModel.values : []
     property MprisPlayer manual: null
     readonly property MprisPlayer player: {
         if (manual && players.indexOf(manual) >= 0)

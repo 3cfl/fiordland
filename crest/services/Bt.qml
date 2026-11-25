@@ -14,7 +14,8 @@ Singleton {
     readonly property bool available: demo || adapter !== null
     property bool demoEnabled: false
     readonly property bool enabled: demo ? demoEnabled : (adapter?.enabled ?? false)
-    readonly property var devices: demo ? [] : (adapter ? adapter.devices.values : [])
+    readonly property var deviceModel: adapter?.devices ?? null
+    readonly property var devices: demo || !deviceModel ? [] : deviceModel.values
     readonly property var connected: devices.filter(d => d.connected)
     readonly property string label: connected.length === 1 ? connected[0].name : connected.length > 1 ? `${connected.length} devices` : (enabled ? "on" : "off")
 
