@@ -19,14 +19,15 @@ restore_owner() {
 }
 trap restore_owner EXIT
 
-mapfile -t deps < <(bash -c 'source "$1"; printf "%s\n" "${makedepends[@]}"' _ "$pkg/PKGBUILD")
-pacman -Syu --noconfirm --needed git namcap ccache "${deps[@]}"
-
 id b >/dev/null 2>&1 || useradd -m b
 chown -R b: "$pkg"
 as_b() {
   runuser -u b -- env HOME=/home/b "$@"
 }
+
+mapfile -t deps < <(cd "$pkg" && as_b makepkg --printsrcinfo | awk '$1 == "makedepends" { print $3 }')
+[ "${#deps[@]}" -gt 0 ] || { echo "could not read makedepends" >&2; exit 1; }
+pacman -Syu --noconfirm --needed git namcap ccache "${deps[@]}"
 as_b gpg --batch --import "$pkg"/keys/pgp/*.asc
 
 if [ "$mode" = prepare ]; then
