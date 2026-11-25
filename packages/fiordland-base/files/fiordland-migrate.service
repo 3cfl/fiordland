@@ -1,0 +1,16 @@
+[Unit]
+Description=Apply pending Fiordland system updates
+After=local-fs.target
+ConditionPathExists=/etc/snapper/configs/root
+ConditionPathExists=!/run/archiso
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/fiordland-migrate --boot
+TimeoutStartSec=20min
+TimeoutStopSec=3min
+Nice=10
+IOSchedulingClass=idle
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,7 @@
+Fiordland 1
+- Restarting and shutting down no longer hang. Services get 10 seconds to stop (your own apps 5), and if something still blocks, the system restarts anyway after 3 minutes instead of waiting forever.
+- Faster start: the boot no longer waits for the network, and the Btrfs snapshot watcher and mirror refresh run in the background.
+- New fiordland-tune picks lighter settings on its own on PCs with less than 4 GB of memory, two CPU threads or no graphics acceleration. Switch by hand with sudo fiordland-tune apply low-end, balanced or performance. Try the sched_ext schedulers with sudo fiordland-tune scx lavd (needs scx-scheds).
+- One front door: fiordland version, news, tune, report, channel, kernel and dns. fiordland report collects details for a bug report; nothing is uploaded.
+- Now included: firewall on by default, printing with network printer discovery, Bluetooth, firmware updates (fwupd), disk health tools, CJK and emoji fonts, audio and video codecs with hardware decoding, plocate, and monthly Btrfs scrubs. Snapshots from updates are trimmed to the newest 10.
+- Optional: encrypted DNS with sudo fiordland dns tls, a Btrfs swap file with sudo fiordland-tune swapfile 8, and the linux-fiord kernel with sudo fiordland kernel fiord once it reaches the repo.

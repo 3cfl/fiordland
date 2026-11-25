@@ -7,7 +7,7 @@ PUBLISHED=${PUBLISHED:-https://fiordlandlinux.org/repo/x86_64}
 export PUBLISHED
 [ -n "${SKIP_AUR:-}" ] || tools/aurbuild.sh
 for pkg in packages/*/; do
-  case "$pkg" in packages/aur/|packages/crest/) continue ;; esac
+  case "$pkg" in packages/aur/|packages/crest/|packages/crest-greeter/) continue ;; esac
   (
     cd "$pkg"
     rm -f ./*.pkg.tar.zst
@@ -16,7 +16,15 @@ for pkg in packages/*/; do
       n=$(basename "$f")
       curl -fsSL -o "$n" "$PUBLISHED/$n" || { reused=0; break; }
     done
-    if [ "$reused" = 1 ] && [ -z "${REBUILD:-}" ]; then
+    if [ "$pkg" = packages/linux-fiord/ ]; then
+      if [ "$reused" = 1 ] && [ -z "${REBUILD_KERNEL:-}" ]; then
+        echo "reusing published linux-fiord"
+      else
+        echo "building linux-fiord, this takes hours; import keys/pgp/*.asc into gpg first"
+        rm -f ./*.pkg.tar.zst
+        PKGEXT=.pkg.tar.zst makepkg -fs --needed --noconfirm >/dev/null
+      fi
+    elif [ "$reused" = 1 ] && [ -z "${REBUILD:-}" ]; then
       echo "reusing published $(basename "$pkg")"
     else
       rm -f ./*.pkg.tar.zst

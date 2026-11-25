@@ -16,6 +16,9 @@ packages/aur/*/*/
 packages/crest/*.tar.gz
 packages/crest/src/
 packages/crest/pkg/
+packages/crest-greeter/*.tar.gz
+packages/crest-greeter/src/
+packages/crest-greeter/pkg/
 web/deploy/
 packages/*/*.log
 packages/aur/*/*.log

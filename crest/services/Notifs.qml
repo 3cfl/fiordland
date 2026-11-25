@@ -3,170 +3,128 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import Quickshell.Services.Notifications
-import Caelestia
-import Caelestia.Config
-import Caelestia.I18n
-import qs.components.misc
-import qs.services
-import qs.utils
+import qs.config
 
 Singleton {
     id: root
 
-    property list<NotifData> list: []
-    readonly property list<NotifData> notClosed: list.filter(n => !n.closed)
-    readonly property list<NotifData> popups: list.filter(n => n.popup)
-    property alias dnd: props.dnd
-
-    property bool loaded
-
-    function hasFullscreen(): bool {
-        for (const monitor of Hypr.monitors.values) {
-            if (monitor?.activeWorkspace?.toplevels.values.some(t => t.lastIpcObject.fullscreen > 1))
-                return true;
-        }
-        return false;
-    }
-
-    function shouldShowPopup(): bool {
-        if (props.dnd || ShellState.anySidebarOpen())
-            return false;
-        if (GlobalConfig.notifs.fullscreen === NotifsFullscreen.Off && hasFullscreen())
-            return false;
-        return true;
-    }
+    readonly property bool demo: Config.demo
+    property list<Entry> list: []
+    readonly property list<Entry> popups: list.filter(e => e.popup)
+    readonly property int count: list.length
+    property bool dnd: Config.notifications.dnd
+    property bool centreOpen: false
 
     onDndChanged: {
-        if (!GlobalConfig.utilities.toasts.dndChanged)
-            return;
-
-        if (dnd)
-            Toaster.toast(Tr.tr("Do not disturb enabled"), Tr.tr("Popup notifications are now disabled"), "do_not_disturb_on");
-        else
-            Toaster.toast(Tr.tr("Do not disturb disabled"), Tr.tr("Popup notifications are now enabled"), "do_not_disturb_off");
+        if (Config.notifications.dnd !== dnd)
+            Config.notifications.dnd = dnd;
     }
 
-    onListChanged: {
-        if (loaded)
-            saveTimer.restart();
+    function add(e: Entry): void {
+        e.popup = !dnd && !centreOpen;
+        list = [e, ...list];
     }
 
-    Timer {
-        id: saveTimer
-
-        interval: 1000
-        onTriggered: storage.setText(JSON.stringify(root.notClosed.map(n => ({
-                    time: n.time,
-                    id: n.id,
-                    summary: n.summary,
-                    body: n.body,
-                    appIcon: n.appIcon,
-                    appName: n.appName,
-                    image: n.image,
-                    expireTimeout: n.expireTimeout,
-                    urgency: n.urgency,
-                    resident: n.resident,
-                    hasActionIcons: n.hasActionIcons,
-                    actions: n.actions
-                }))))
+    function remove(e: Entry): void {
+        list = list.filter(x => x !== e);
+        e.destroy();
     }
 
-    PersistentProperties {
-        id: props
-
-        property bool dnd
-
-        reloadableId: "notifs"
+    function hidePopup(e: Entry): void {
+        e.popup = false;
+        list = list.slice();
     }
 
-    NotificationServer {
-        id: server
-
-        keepOnReload: false
-        actionsSupported: true
-        bodyHyperlinksSupported: true
-        bodyImagesSupported: true
-        bodyMarkupSupported: true
-        imageSupported: true
-        persistenceSupported: true
-
-        onNotification: notif => {
-            notif.tracked = true;
-
-            const comp = notifComp.createObject(root, {
-                popup: root.shouldShowPopup(),
-                notification: notif
-            });
-            root.list = [comp, ...root.list];
-        }
+    function clear(): void {
+        for (const e of list.slice())
+            e.dismiss();
     }
 
-    FileView {
-        id: storage
+    function hideAllPopups(): void {
+        for (const e of list)
+            e.popup = false;
+        list = list.slice();
+    }
 
-        printErrors: false
-        path: `${Paths.state}/notifs.json`
-        onLoaded: {
-            const data = JSON.parse(text());
-            for (const notif of data) {
-                const properties = Object.assign({}, notif);
+    component Entry: QtObject {
+        id: entry
 
-                if (properties.notificationId === undefined && properties.id !== undefined)
-                    properties.notificationId = properties.id;
+        property Notification notif
+        property string appName: notif?.appName ?? ""
+        property string appIcon: notif?.appIcon ?? ""
+        property string summary: notif?.summary ?? ""
+        property string body: notif?.body ?? ""
+        property string image: notif?.image ?? ""
+        property int urgency: notif?.urgency ?? NotificationUrgency.Normal
+        property var actions: notif?.actions ?? []
+        property int timeout: (notif?.expireTimeout ?? -1) > 0 ? notif.expireTimeout : Config.notifications.timeout
+        property date time: new Date()
+        property bool popup: false
 
-                delete properties.id;
-                root.list.push(notifComp.createObject(root, properties));
-            }
-            root.list.sort((a, b) => b.time - a.time);
-            root.loaded = true;
-        }
-        onLoadFailed: err => {
-            if (err === FileViewError.FileNotFound) {
-                root.loaded = true;
-                Qt.callLater(() => setText("[]"));
+        property Connections conn: Connections {
+            target: entry.notif
+
+            function onClosed(): void {
+                root.remove(entry);
             }
         }
-    }
 
-    CustomShortcut {
-        name: "clearNotifs"
-        description: "Clear all notifications"
-        onPressed: {
-            for (const notif of root.list.slice())
-                notif.close();
-        }
-    }
-
-    IpcHandler {
-        function clear(): void {
-            for (const notif of root.list.slice())
-                notif.close();
+        function dismiss(): void {
+            if (notif)
+                notif.dismiss();
+            else
+                root.remove(entry);
         }
 
-        function isDndEnabled(): bool {
-            return props.dnd;
+        function invoke(action: var): void {
+            action.invoke();
+            if (notif && !notif.resident)
+                notif.dismiss();
         }
-
-        function toggleDnd(): void {
-            props.dnd = !props.dnd;
-        }
-
-        function enableDnd(): void {
-            props.dnd = true;
-        }
-
-        function disableDnd(): void {
-            props.dnd = false;
-        }
-
-        target: "notifs"
     }
 
     Component {
-        id: notifComp
+        id: entryComp
 
-        NotifData {}
+        Entry {}
+    }
+
+    LazyLoader {
+        active: !root.demo
+
+        NotificationServer {
+            id: server
+
+            keepOnReload: false
+            actionsSupported: true
+            bodySupported: true
+            bodyMarkupSupported: false
+            imageSupported: true
+            persistenceSupported: true
+
+            onNotification: n => {
+                n.tracked = true;
+                root.add(entryComp.createObject(root, { notif: n }));
+            }
+        }
+    }
+
+    Component.onCompleted: {
+        if (!demo)
+            return;
+        const now = Date.now();
+        const samples = [
+            { appName: "Firefox", appIcon: "firefox", summary: "Download complete", body: "fiordland-1.0-x86_64.iso finished downloading", time: new Date(now - 60000) },
+            { appName: "Discord", appIcon: "discord", summary: "Aroha", body: "are we still on for the hike up to the lake tomorrow?", time: new Date(now - 420000) },
+            { appName: "kuaka", appIcon: "system-software-update", summary: "Updates ready", body: "14 packages can be updated", time: new Date(now - 3600000) }
+        ];
+        const made = [];
+        for (const s of samples) {
+            const e = entryComp.createObject(root, s) as Entry;
+            e.popup = made.length === 0;
+            made.push(e);
+        }
+        list = made;
     }
 }

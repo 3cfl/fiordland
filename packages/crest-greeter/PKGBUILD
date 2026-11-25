@@ -1,0 +1,30 @@
+pkgname=crest-greeter
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Login screen for greetd in the crest style, running Quickshell inside cage"
+arch=('any')
+url='https://fiordlandlinux.org'
+license=('GPL-3.0-only')
+depends=('greetd' 'cage' 'quickshell' 'qt6-declarative' 'qt6-imageformats' 'qt6-svg'
+         'ttf-material-symbols-variable' 'inter-font' 'bash' 'coreutils' 'findutils' 'grep' 'sed' 'systemd')
+optdepends=('accountsservice: user pictures from /var/lib/AccountsService/icons'
+            'xorg-xinit: start X11 sessions')
+source=("crest-greeter-$pkgver.tar.gz"
+        'crest-greeter.sh'
+        'config.toml.example')
+sha256sums=('SKIP'
+            '5676ff9f1eed251ab9a93aa42df7f17c20f782a583543d096a7f762cf9926ec5'
+            '32bfc3675d68292da9ff8298fd6ef38851da46b9439abdfa84e080c4c8096f55')
+
+package() {
+  local dest="$pkgdir/usr/share/crest-greeter"
+  install -d "$dest/assets"
+  cp -r --no-preserve=ownership,mode crest-greeter/GreeterContent.qml crest-greeter/shell.qml crest-greeter/services "$dest/"
+  cp -r --no-preserve=ownership,mode crest/theme crest/components "$dest/"
+  install -m644 crest/assets/wallpaper.webp "$dest/assets/wallpaper.webp"
+  find "$dest" -type d -exec chmod 755 {} +
+  find "$dest" -type f -exec chmod 644 {} +
+  install -Dm755 "$srcdir/crest-greeter.sh" "$pkgdir/usr/bin/crest-greeter"
+  install -Dm644 "$srcdir/config.toml.example" "$pkgdir/usr/share/doc/crest-greeter/config.toml.example"
+  install -Dm644 crest/LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

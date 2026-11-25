@@ -1,7 +1,9 @@
 NAME="Fiordland Linux"
-PRETTY_NAME="Fiordland Linux"
+PRETTY_NAME="Fiordland 1"
 ID=fiordland
 ID_LIKE=arch
+VERSION="1"
+VERSION_ID=1
 BUILD_ID=rolling
 ANSI_COLOR="38;2;255;204;0"
 LOGO=fiordland

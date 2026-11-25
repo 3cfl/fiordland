@@ -2,65 +2,43 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import Quickshell.Wayland
-import qs.components.misc
+import qs.config
+import qs.services
+import qs.theme
 
 Scope {
-    property alias lock: lock
+    id: root
+
+    Auth {
+        id: authCtx
+
+        active: lock.locked
+    }
+
+    IdleMonitor {
+        enabled: !Config.demo && Config.lock.idleMinutes > 0 && !Session.locked
+        timeout: Math.max(1, Config.lock.idleMinutes) * 60
+        respectInhibitors: true
+        onIsIdleChanged: {
+            if (isIdle)
+                Session.lock();
+        }
+    }
 
     WlSessionLock {
         id: lock
 
-        signal unlock
+        locked: Session.locked
 
-        LockSurface {
-            lock: lock
-            pam: pam
+        WlSessionLockSurface {
+            color: Colours.surfaceContainerLowest
+
+            LockContent {
+                anchors.fill: parent
+                auth: authCtx
+                onFinished: Session.locked = false
+            }
         }
-    }
-
-    Pam {
-        id: pam
-
-        lock: lock
-    }
-
-    Loader {
-        asynchronous: true
-        active: true
-        onLoaded: active = false
-
-        sourceComponent: ScreencopyView {
-            captureSource: Quickshell.screens[0]
-        }
-    }
-
-    CustomShortcut {
-        name: "lock"
-        description: "Lock the current session"
-        onPressed: lock.locked = true
-    }
-
-    CustomShortcut {
-        name: "unlock"
-        description: "Unlock the current session"
-        onPressed: lock.unlock()
-    }
-
-    IpcHandler {
-        function lock(): void {
-            lock.locked = true;
-        }
-
-        function unlock(): void {
-            lock.unlock();
-        }
-
-        function isLocked(): bool {
-            return lock.locked;
-        }
-
-        target: "lock"
     }
 }

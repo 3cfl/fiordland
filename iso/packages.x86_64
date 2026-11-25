@@ -51,6 +51,8 @@ git
 gpart
 gpm
 gptfdisk
+greetd
+greetd-tuigreet
 grml-zsh-config
 grub
 gvfs

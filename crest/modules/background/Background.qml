@@ -3,162 +3,79 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
-import Caelestia.Config
-import qs.components
-import qs.components.containers
 import qs.services
+import qs.theme
 
-Variants {
-    model: Screens.screens.filter(s => GlobalConfig.forScreen(s.name).background.enabled)
+PanelWindow {
+    id: win
 
-    StyledWindow {
-        id: win
+    required property ShellScreen modelData
+    property string shown: ""
 
-        required property ShellScreen modelData
+    screen: modelData
+    color: Colours.surfaceContainerLowest
+    WlrLayershell.namespace: "crest-background"
+    WlrLayershell.layer: WlrLayer.Background
+    exclusionMode: ExclusionMode.Ignore
+    anchors.top: true
+    anchors.bottom: true
+    anchors.left: true
+    anchors.right: true
 
-        screen: modelData
-        name: "background"
-        WlrLayershell.exclusionMode: ExclusionMode.Ignore
-        WlrLayershell.layer: contentItem.Config.background.wallpaperEnabled ? WlrLayer.Background : WlrLayer.Bottom
-        color: contentItem.Config.background.wallpaperEnabled ? "black" : "transparent"
-        surfaceFormat.opaque: false
+    readonly property string target: Wallpapers.current
+    onTargetChanged: swap()
+    Component.onCompleted: swap()
 
-        anchors.top: true
-        anchors.bottom: true
-        anchors.left: true
-        anchors.right: true
+    function swap(): void {
+        const next = a.opacity > 0.5 ? b : a;
+        next.source = target;
+    }
 
-        ShellState.ComponentRef {
-            screen: win.screen
-            slot: "background"
-            component: win
+    Wall {
+        id: a
+    }
+
+    Wall {
+        id: b
+    }
+
+    component Wall: Image {
+        id: img
+
+        anchors.fill: parent
+        sourceSize.width: win.width
+        sourceSize.height: win.height
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
+        cache: false
+        opacity: 0
+
+        onStatusChanged: {
+            if (status !== Image.Ready)
+                return;
+            const other = img === a ? b : a;
+            img.z = 1;
+            other.z = 0;
+            fadeIn.target = img;
+            fadeIn.other = other;
+            fadeIn.restart();
         }
+    }
 
-        Item {
-            id: behindClock
+    NumberAnimation {
+        id: fadeIn
 
-            anchors.fill: parent
+        property Image other: null
 
-            Loader {
-                id: wallpaper
-
-                asynchronous: true
-
-                anchors.fill: parent
-                active: Config.background.wallpaperEnabled
-
-                sourceComponent: Wallpaper {}
-            }
-
-            Visualiser {
-                anchors.fill: parent
-                screen: win.modelData
-                wallpaper: wallpaper
-            }
-        }
-
-        Loader {
-            id: clockLoader
-
-            asynchronous: true
-            active: Config.background.desktopClock.enabled
-
-            anchors.margins: Tokens.padding.extraLargeIncreased
-            anchors.leftMargin: Tokens.padding.extraLargeIncreased + Tokens.sizes.bar.innerWidth + Math.max(Tokens.padding.small, Config.border.thickness)
-
-            state: Config.background.desktopClock.position
-            states: [
-                State {
-                    name: "top-left"
-
-                    AnchorChanges {
-                        target: clockLoader
-                        anchors.top: parent.top
-                        anchors.left: parent.left
-                    }
-                },
-                State {
-                    name: "top-center"
-
-                    AnchorChanges {
-                        target: clockLoader
-                        anchors.top: parent.top
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                },
-                State {
-                    name: "top-right"
-
-                    AnchorChanges {
-                        target: clockLoader
-                        anchors.top: parent.top
-                        anchors.right: parent.right
-                    }
-                },
-                State {
-                    name: "middle-left"
-
-                    AnchorChanges {
-                        target: clockLoader
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: parent.left
-                    }
-                },
-                State {
-                    name: "middle-center"
-
-                    AnchorChanges {
-                        target: clockLoader
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                },
-                State {
-                    name: "middle-right"
-
-                    AnchorChanges {
-                        target: clockLoader
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.right: parent.right
-                    }
-                },
-                State {
-                    name: "bottom-left"
-
-                    AnchorChanges {
-                        target: clockLoader
-                        anchors.bottom: parent.bottom
-                        anchors.left: parent.left
-                    }
-                },
-                State {
-                    name: "bottom-center"
-
-                    AnchorChanges {
-                        target: clockLoader
-                        anchors.bottom: parent.bottom
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                },
-                State {
-                    name: "bottom-right"
-
-                    AnchorChanges {
-                        target: clockLoader
-                        anchors.bottom: parent.bottom
-                        anchors.right: parent.right
-                    }
-                }
-            ]
-
-            transitions: Transition {
-                AnchorAnim {}
-            }
-
-            sourceComponent: DesktopClock {
-                wallpaper: behindClock
-                absX: clockLoader.x
-                absY: clockLoader.y
+        property: "opacity"
+        to: 1
+        duration: Motion.durExtraLong
+        easing.type: Easing.BezierSpline
+        easing.bezierCurve: Motion.standard
+        onFinished: {
+            if (other && other !== target) {
+                other.opacity = 0;
+                other.source = "";
             }
         }
     }

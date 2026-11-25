@@ -1,0 +1,15 @@
+[Unit]
+Description=Fiordland hardware profile
+After=local-fs.target
+ConditionPathExists=!/run/archiso
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/fiordland-tune boot
+NoNewPrivileges=yes
+PrivateNetwork=yes
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

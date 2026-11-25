@@ -1,0 +1,269 @@
+# Maintainer: Fiordland Linux <https://fiordlandlinux.org>
+# Contributor: Peter Jung ptr1337 <admin@ptr1337.dev>
+# Contributor: Vasiliy Stelmachenok <ventureo@cachyos.org>
+# Contributor: Piotr Gorski <piotrgorski@cachyos.org>
+# Contributor: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Contributor: Tobias Powalowski <tpowa@archlinux.org>
+# Contributor: Thomas Baechler <thomas@archlinux.org>
+
+: "${_processor_opt:=generic_v1}"
+: "${_use_llvm_lto:=none}"
+
+pkgbase=linux-fiord
+pkgname=(linux-fiord linux-fiord-headers)
+_major=7.3
+_minor=6
+pkgver=${_major}.${_minor}
+_tagrel=1
+pkgrel=1
+_srcname=cachyos-${_major}.${_minor}-${_tagrel}
+_patchcommit=0551280ade71e606d7df08ca56e4af83c0daf9e5
+_patchsource="https://raw.githubusercontent.com/CachyOS/kernel-patches/${_patchcommit}/${_major}"
+_kernver="${pkgver}-${pkgrel}"
+pkgdesc='Linux kernel and modules for Fiordland, based on linux-cachyos with BORE, BBRv3 and NTSYNC'
+arch=('x86_64')
+url='https://github.com/Fiordland-Linux/fiordland'
+license=('GPL-2.0-only')
+options=('!strip' '!debug' '!lto')
+makedepends=(
+  bc
+  binutils
+  cpio
+  gettext
+  glibc
+  libelf
+  libgcc
+  openssl
+  pahole
+  perl
+  python
+  rust
+  rust-bindgen
+  rust-src
+  tar
+  xxhash
+  xz
+  zlib
+  zstd
+)
+source=(
+  "https://github.com/CachyOS/linux/releases/download/${_srcname}/${_srcname}.tar.gz"
+  "https://github.com/CachyOS/linux/releases/download/${_srcname}/${_srcname}.tar.gz.asc"
+  "0001-bore-cachy.patch::${_patchsource}/sched/0001-bore-cachy.patch"
+  config
+  fiord.config
+  70-linux-fiord.conf
+)
+validpgpkeys=(
+  E18447AC260021D31F3FF6C4C8A2A4774B8B63C4
+  E8B9AA39F054E30E8290D492C3C4820857F654FE
+)
+sha256sums=('fb5ce813b8c55a127dc0ed603572f8253c401839e4537e80eeaf65cb21b86f3f'
+            '87944e72801812e44743eff0bfa82a3062e6b6950a85c62bd8a68403bf737b41'
+            'd2eaa8e8dbf1f56bfb304f8b437a7dc30a65408f90a93701367baf8adc2173b4'
+            '32b3c2004bf8640a1a280f0ceeab7a434765eb4d246cb81911ecff112dde6f50'
+            'dba3b69fc2d3b385bfba0ffe47ae1514ab59b2c287f7b4d0075310d5a9472d96'
+            'fb0b0b97b98245a3f39c7dff824e6bb54499459ca787eed44d0e3819ae5bf1c8')
+b2sums=('67e2a98ad5df5469afae493c34a3f2155932abb94b16c016a8782790bf3a305f91c03b126555294bd4f88d74952bb997f4839b5769980dafbcad08d0579ac7ea'
+        '7e1b794fb06d9edebdf23edfc4cd80e3a5a195a784e623bc9d230bdc7ec11a3bbdfc2ecdd2769f754236b361e441904742e09ae20146929bbc8181c5a5e33a4d'
+        '355a279dea4edf0148cc6499b770bb6d07c55623ea334e6b0db52eba746454d5afafe58bbcf357c9bc53aaa1319a610cd167dba77f6c866835077aed85a2d45c'
+        'e6fc382da6b317f14b0ffe1e22e120ea8c9efa03a95ee58360765629b7b81f89e98f04349134232215ae0ff8aa10c2200a7551a3c3aeb1e5d1fb1e4c5673f0e9'
+        '769ffc84d35bb13c95ad9462e65d724852578fe81e92e0eab6d2b33b745e08ce4ae0315671d7cbc8e97e62271d8e80cb255049345424aaf975347f95e45f4546'
+        '929633bb0a16757a5cb8b5b8891cc39a0eb3b3c21f212ff72112dbfee88f0f424262711654de1d189fa2d082a367f0c9852036e86830beada0e5e11ef430f9ec')
+
+BUILD_FLAGS=()
+_lto_deps=(clang llvm lld)
+case "$_use_llvm_lto" in
+  none) ;;
+  thin|full)
+    makedepends+=("${_lto_deps[@]}")
+    BUILD_FLAGS=(CC=clang LD=ld.lld LLVM=1 LLVM_IAS=1)
+    source+=("dkms-clang.patch::${_patchsource}/misc/dkms-clang.patch")
+    sha256sums+=('6f45ef083841792e88fbadbfefb0630abd738a131f9782333fbc61f8b6712b4b')
+    b2sums+=('c992567bd7dd8553432be496ffa1c17e2f5ebe9c7edb51945cf977e1b742dd6517c210d8843bb82744ca705efd07f8027cd7dde41b50215ebd707a34aa81462e')
+    ;;
+esac
+
+export KBUILD_BUILD_HOST=fiordland
+export KBUILD_BUILD_USER="$pkgbase"
+if [ -n "${SOURCE_DATE_EPOCH:-}" ]; then
+  KBUILD_BUILD_TIMESTAMP="$(date -Rud "@$SOURCE_DATE_EPOCH")"
+else
+  KBUILD_BUILD_TIMESTAMP="$(date -Ru)"
+fi
+export KBUILD_BUILD_TIMESTAMP
+
+_die() {
+  error "$@"
+  exit 1
+}
+
+_check_config() {
+  local key val bad=0
+  while IFS='=' read -r key val; do
+    [ -n "$key" ] || continue
+    if [ "$val" = n ]; then
+      if grep -q -- "^${key}=" .config; then
+        error "$key is still enabled"
+        bad=1
+      fi
+    elif ! grep -qxF -- "${key}=${val}" .config; then
+      error "$key=$val did not stick, got: $(grep -- "^${key}=" .config || echo unset)"
+      bad=1
+    fi
+  done < "$1"
+  [ "$bad" = 0 ] || _die "fiord.config was not applied cleanly"
+}
+
+prepare() {
+  cd "$_srcname"
+
+  echo "-$pkgrel" > localversion.10-pkgrel
+
+  local entry name
+  for entry in "${source[@]}"; do
+    name="${entry%%::*}"
+    name="${name##*/}"
+    [[ $name = *.patch ]] || continue
+    msg2 "Applying $name"
+    patch -Np1 -i "../$name"
+  done
+
+  cp ../config .config
+  scripts/kconfig/merge_config.sh -m .config ../fiord.config
+
+  local march="${_processor_opt^^}"
+  case "$march" in
+    GENERIC_V[1-4])
+      scripts/config -e GENERIC_CPU -d MZEN4 -d X86_NATIVE_CPU --set-val X86_64_VERSION "${march#GENERIC_V}" ;;
+    ZEN4) scripts/config -d GENERIC_CPU -e MZEN4 -d X86_NATIVE_CPU ;;
+    NATIVE) scripts/config -d GENERIC_CPU -d MZEN4 -e X86_NATIVE_CPU ;;
+    *) _die "_processor_opt '$_processor_opt' is not one of generic_v1..generic_v4, zen4, native" ;;
+  esac
+
+  case "$_use_llvm_lto" in
+    none) scripts/config -e LTO_NONE -d LTO_CLANG_THIN -d LTO_CLANG_FULL ;;
+    thin) scripts/config -d LTO_NONE -e LTO_CLANG_THIN -d LTO_CLANG_FULL ;;
+    full) scripts/config -d LTO_NONE -d LTO_CLANG_THIN -e LTO_CLANG_FULL ;;
+    *) _die "_use_llvm_lto '$_use_llvm_lto' is not one of none, thin, full" ;;
+  esac
+
+  scripts/config --set-str DRM_PANIC_SCREEN qr_code -e DRM_PANIC_SCREEN_QR_CODE \
+    --set-str DRM_PANIC_SCREEN_QR_CODE_URL 'https://panic.archlinux.org/panic_report#' \
+    --set-val DRM_PANIC_SCREEN_QR_VERSION 40
+
+  make "${BUILD_FLAGS[@]}" olddefconfig
+  diff -u ../config .config || :
+  _check_config ../fiord.config
+
+  make "${BUILD_FLAGS[@]}" -s kernelrelease > version
+  [ "$(<version)" = "${_kernver}-fiord" ] || _die "unexpected kernel release $(<version)"
+  msg2 "Prepared $pkgbase version $(<version)"
+}
+
+build() {
+  cd "$_srcname"
+  make "${BUILD_FLAGS[@]}" -j"$(nproc)" all
+}
+
+package_linux-fiord() {
+  depends=('coreutils' 'kmod' 'initramfs')
+  optdepends=('wireless-regdb: to set the correct wireless channels of your country'
+              'linux-firmware: firmware images needed for some devices'
+              'scx-scheds: to use sched-ext schedulers')
+  provides=(VIRTUALBOX-GUEST-MODULES WIREGUARD-MODULE KSMBD-MODULE V4L2LOOPBACK-MODULE NTSYNC-MODULE VHBA-MODULE ADIOS-MODULE)
+
+  cd "$_srcname"
+  local modulesdir
+  modulesdir="$pkgdir/usr/lib/modules/$(<version)"
+
+  install -Dm644 "$(make "${BUILD_FLAGS[@]}" -s image_name)" "$modulesdir/vmlinuz"
+  echo "$pkgbase" | install -Dm644 /dev/stdin "$modulesdir/pkgbase"
+
+  ZSTD_CLEVEL=19 make "${BUILD_FLAGS[@]}" -j"$(nproc)" INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 \
+    DEPMOD=/doesnt/exist modules_install
+
+  rm "$modulesdir/build"
+
+  install -Dm644 "$srcdir/70-linux-fiord.conf" "$pkgdir/usr/lib/sysctl.d/70-linux-fiord.conf"
+}
+
+package_linux-fiord-headers() {
+  pkgdesc="Headers and scripts for building modules for the $pkgbase kernel"
+  depends=(binutils glibc libelf libgcc openssl pahole xxhash zlib zstd "$pkgbase=$_kernver")
+  provides=(LINUX-HEADERS)
+  if [ "$_use_llvm_lto" != none ]; then
+    depends+=("${_lto_deps[@]}")
+  fi
+
+  cd "$_srcname"
+  local builddir
+  builddir="$pkgdir/usr/lib/modules/$(<version)/build"
+
+  install -Dt "$builddir" -m644 .config Makefile Module.symvers System.map \
+    localversion.* version vmlinux
+  install -Dt "$builddir/kernel" -m644 kernel/Makefile
+  install -Dt "$builddir/arch/x86" -m644 arch/x86/Makefile
+  cp -t "$builddir" -a scripts
+  ln -srt "$builddir" "$builddir/scripts/gdb/vmlinux-gdb.py"
+
+  install -Dt "$builddir/tools/objtool" tools/objtool/objtool
+  if [ -f tools/bpf/resolve_btfids/resolve_btfids ]; then
+    install -Dt "$builddir/tools/bpf/resolve_btfids" tools/bpf/resolve_btfids/resolve_btfids
+  fi
+
+  cp -t "$builddir" -a include
+  cp -t "$builddir/arch/x86" -a arch/x86/include
+  install -Dt "$builddir/arch/x86/kernel" -m644 arch/x86/kernel/asm-offsets.s
+
+  install -Dt "$builddir/drivers/md" -m644 drivers/md/*.h
+  install -Dt "$builddir/net/mac80211" -m644 net/mac80211/*.h
+  install -Dt "$builddir/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
+  install -Dt "$builddir/drivers/media/usb/dvb-usb" -m644 drivers/media/usb/dvb-usb/*.h
+  install -Dt "$builddir/drivers/media/dvb-frontends" -m644 drivers/media/dvb-frontends/*.h
+  install -Dt "$builddir/drivers/media/tuners" -m644 drivers/media/tuners/*.h
+  install -Dt "$builddir/drivers/iio/common/hid-sensors" -m644 drivers/iio/common/hid-sensors/*.h
+
+  find . -name 'Kconfig*' -exec install -Dm644 {} "$builddir/{}" \;
+
+  if compgen -G "rust/*.rmeta" >/dev/null; then
+    install -Dt "$builddir/rust" -m644 rust/*.rmeta
+  fi
+  if compgen -G "rust/*.so" >/dev/null; then
+    install -Dt "$builddir/rust" rust/*.so
+  fi
+  if [ -d rust/kernel ]; then
+    local gen
+    while IFS= read -r -d '' gen; do
+      install -Dm644 "$gen" "$builddir/$gen"
+    done < <(find rust -type f -name 'generated_*.rs' -print0)
+  fi
+
+  make "${BUILD_FLAGS[@]}" INSTALL_MOD_PATH="$pkgdir/usr" vdso_install link=
+
+  local a
+  for a in "$builddir"/arch/*/; do
+    [[ $a = */x86/ ]] && continue
+    rm -r "$a"
+  done
+
+  rm -r "$builddir/Documentation"
+  rm -rf "$builddir/scripts/sbom"
+  find -L "$builddir" -type l -printf 'Removing %P\n' -delete
+  find "$builddir" -type f -name '*.o' -printf 'Removing %P\n' -delete
+
+  local file
+  while IFS= read -r -d '' file; do
+    case "$(file -Sib "$file")" in
+      application/x-sharedlib\;*) strip -v --strip-unneeded "$file" ;;
+      application/x-archive\;*) strip -v --strip-debug "$file" ;;
+      application/x-executable\;*) strip -v --strip-all "$file" ;;
+      application/x-pie-executable\;*) strip -v --strip-unneeded "$file" ;;
+    esac
+  done < <(find "$builddir" -type f -perm -u+x ! -name vmlinux -print0)
+
+  strip -v --strip-debug "$builddir/vmlinux"
+
+  mkdir -p "$pkgdir/usr/src"
+  ln -sr "$builddir" "$pkgdir/usr/src/$pkgbase"
+}
