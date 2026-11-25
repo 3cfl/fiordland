@@ -29,7 +29,7 @@ Named after the Fiordland penguin, the tawaki.</p>
 | `iso/` | archiso profile for the live ISO. |
 | `web/` | The website. |
 | `tools/` | Build helpers: chroot builds, colour scheme and wallpaper generators, VM control, lint and release checks. |
-| `docs/` | Guides: [installing](docs/install.md), [tawaki](docs/tawaki.md), [undoing an update](docs/rollback.md), and the [signing key](docs/signing-key.md) for maintainers. |
+| `docs/` | Guides: [installing](docs/install.md), [tawaki](docs/tawaki.md), [undoing an update](docs/rollback.md), the [linux-fiord kernel](docs/kernel.md), and the [signing key](docs/signing-key.md) for maintainers. |
 
 ## tawaki
 
@@ -83,6 +83,7 @@ Needs an Arch-based host with `archiso`, `devtools` and `base-devel`.
 ```
 ./build.sh            build all packages and the ISO into out/
 SKIP_AUR=1 ./build.sh skip the chroot builds of crest and its AUR deps
+REBUILD_KERNEL=1 ./build.sh rebuild linux-fiord even if its version is published
 ./vm.sh --share       boot the ISO in QEMU
 ```
 
