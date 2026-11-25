@@ -69,6 +69,7 @@ overlay() {
     done
   done
   sed -i '/^import Quickshell\.Hyprland\._/d' "$hypr/qmldir"
+  printf '%s\n' 'depends Quickshell' 'depends QtQuick' >> "$hypr/qmldir"
   echo ":: hyprland overlay qmldir"
   cat "$hypr/qmldir"
 }
