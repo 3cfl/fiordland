@@ -1,0 +1,68 @@
+name: crest
+on:
+  pull_request:
+    paths:
+      - crest/**
+      - crest-greeter/**
+      - packages/crest/**
+      - packages/crest-greeter/**
+      - tools/crest-qml.sh
+      - .github/workflows/crest.yml
+permissions:
+  contents: read
+jobs:
+  qml:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: pacman -Syu --noconfirm --needed quickshell qt6-declarative qt6-imageformats qt6-svg matugen inter-font ttf-jetbrains-mono ttf-material-symbols-variable noto-fonts-emoji papirus-icon-theme findutils grep
+      - name: matugen scheme
+        run: |
+          matugen image crest/assets/wallpaper.webp -t scheme-expressive -m dark --json hex --dry-run --source-color-index 0 > "$RUNNER_TEMP/scheme.json"
+          grep -q '"primary_container"' "$RUNNER_TEMP/scheme.json"
+      - run: tools/crest-qml.sh unit
+      - run: tools/crest-qml.sh lint
+      - run: tools/crest-qml.sh render "$GITHUB_WORKSPACE/render-out"
+        if: always()
+        env:
+          CREST_RENDER_SCHEME: ${{ runner.temp }}/scheme.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: crest-render
+          path: render-out
+          retention-days: 3
+          if-no-files-found: warn
+  package:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: pacman -Syu --noconfirm --needed namcap
+      - name: source tarballs
+        run: |
+          ver=$(awk -F= '$1=="pkgver"{print $2}' packages/crest/PKGBUILD)
+          tar --exclude=tests -czf "packages/crest/crest-$ver.tar.gz" crest
+          ver=$(awk -F= '$1=="pkgver"{print $2}' packages/crest-greeter/PKGBUILD)
+          tar --exclude=tests -czf "packages/crest-greeter/crest-greeter-$ver.tar.gz" crest-greeter crest/theme crest/components crest/assets/wallpaper.webp crest/LICENSE
+      - name: makepkg
+        run: |
+          useradd -m b
+          chown -R b .
+          su b -c 'cd packages/crest && makepkg -d --noconfirm'
+          su b -c 'cd packages/crest-greeter && makepkg -d --noconfirm'
+      - name: contents
+        run: |
+          bsdtar -tf packages/crest-greeter/crest-greeter-*.pkg.tar.zst | grep -qx 'usr/bin/crest-greeter'
+          bsdtar -tf packages/crest-greeter/crest-greeter-*.pkg.tar.zst | grep -qx 'usr/share/crest-greeter/shell.qml'
+          bsdtar -tf packages/crest-greeter/crest-greeter-*.pkg.tar.zst | grep -q '^etc/greetd' && exit 1
+          bsdtar -tf packages/crest/crest-*.pkg.tar.zst | grep -qx 'etc/xdg/quickshell/crest/shell.qml'
+          bash -n packages/crest-greeter/crest-greeter.sh
+          tools/namcap.sh packages/crest/*.pkg.tar.zst packages/crest-greeter/*.pkg.tar.zst

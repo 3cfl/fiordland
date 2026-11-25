@@ -6,8 +6,9 @@ Thanks for helping. This page covers the repo layout, how to build and test, and
 
 | Path | What it is |
 | --- | --- |
-| `crest/` | The Hyprland shell (Quickshell + a C++ plugin), forked from Caelestia. |
-| `packages/` | PKGBUILDs for everything Fiordland ships. `packages/aur/` holds the bundled AUR packages crest needs. |
+| `crest/` | The Hyprland shell, plain QML on Quickshell. |
+| `crest-greeter/` | The greetd login screen, which reuses crest's theme and components. |
+| `packages/` | PKGBUILDs for everything Fiordland ships. `packages/aur/` holds bundled AUR packages that the old Caelestia-based crest needed. |
 | `iso/` | The archiso profile for the live ISO. |
 | `flavors/` | Overlays on the ISO profile, selected with `FLAVOR=` (currently `xfce`). |
 | `container/` | The Fiordland XFCE container image. |
@@ -46,14 +47,14 @@ python3 -m pytest bot
 
 ```
 ./build.sh              build all packages and the ISO into out/
-SKIP_AUR=1 ./build.sh   skip the chroot builds of crest and its AUR dependencies
+SKIP_AUR=1 ./build.sh   skip the chroot builds of crest and crest-greeter
 REBUILD=1 ./build.sh    rebuild packages even when the published ones match
 FLAVOR=xfce ./build.sh  build a flavor from flavors/
 ```
 
 `build.sh` reuses a package from `https://fiordlandlinux.org/repo/x86_64` when the file for the PKGBUILD's current version is already published. Bump `pkgrel` (or `pkgver`) when you change what a package installs, or your change will not reach the ISO. Without the signing key it builds an unsigned repo and says so. Release signing happens on the build machine only; see [docs/signing-key.md](docs/signing-key.md).
 
-Without `SKIP_AUR=1`, `tools/aurbuild.sh` builds crest and its AUR dependencies in a clean chroot with `makechrootpkg`. Create the chroot once with `mkarchroot chroot/root base-devel`.
+Without `SKIP_AUR=1`, `tools/aurbuild.sh` builds crest and crest-greeter in a clean chroot (pass package names to build others, such as those in `packages/aur/`) with `makechrootpkg`. Create the chroot once with `mkarchroot chroot/root base-devel`.
 
 ## Test in a VM
 

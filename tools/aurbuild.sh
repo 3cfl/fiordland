@@ -6,7 +6,7 @@ chroot=$root/chroot
 out=$root/packages/aur/out
 mkdir -p "$out"
 
-order=(python-materialyoucolor libcava qt6-m3shapes-git caelestia-cli crest)
+order=(crest crest-greeter)
 [ $# -gt 0 ] && order=("$@")
 
 sudo arch-nspawn "$chroot/root" pacman -Syu --noconfirm >/dev/null
@@ -17,7 +17,12 @@ for p in "${order[@]}"; do
     cd "$root/packages/crest"
     rm -f crest-*.tar.gz
     ver=$(awk -F= '$1=="pkgver"{print $2}' PKGBUILD)
-    tar --exclude=build -czf "crest-$ver.tar.gz" -C "$root" crest
+    tar --exclude=tests -czf "crest-$ver.tar.gz" -C "$root" crest
+  elif [ "$p" = crest-greeter ]; then
+    cd "$root/packages/crest-greeter"
+    rm -f crest-greeter-*.tar.gz
+    ver=$(awk -F= '$1=="pkgver"{print $2}' PKGBUILD)
+    tar --exclude=tests -czf "crest-greeter-$ver.tar.gz" -C "$root" crest-greeter crest/theme crest/components crest/assets/wallpaper.webp crest/LICENSE
   else
     cd "$root/packages/aur/$p"
   fi

@@ -1,223 +1,88 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Io
-import Caelestia.I18n
-import Caelestia.Services
-import qs.components.misc
+import qs.config
 
 Singleton {
     id: root
 
-    readonly property var toplevels: Hyprland.toplevels
-    readonly property var workspaces: Hyprland.workspaces
-    readonly property var monitors: Hyprland.monitors
-    readonly property bool usingLua: Hyprland.usingLua
-
-    readonly property HyprlandToplevel activeToplevel: {
-        const t = Hyprland.activeToplevel;
-        return t?.workspace?.name.startsWith("special:") || Hyprland.focusedWorkspace?.toplevels.values.length > 0 ? t : null;
-    }
-    readonly property HyprlandWorkspace focusedWorkspace: Hyprland.focusedWorkspace
-    readonly property HyprlandMonitor focusedMonitor: Hyprland.focusedMonitor
-    readonly property int activeWsId: focusedWorkspace?.id ?? 1
-
-    readonly property HyprKeyboard keyboard: extras.devices.keyboards.find(kb => kb.main) ?? null
-    readonly property bool capsLock: keyboard?.capsLock ?? false
-    readonly property bool numLock: keyboard?.numLock ?? false
-    readonly property string defaultKbLayout: keyboard?.layout.split(",")[0] ?? "??"
-    readonly property string kbLayoutFull: keyboard?.activeKeymap ?? Tr.trCtx("Unknown", "keyboard layout")
-    readonly property string kbLayout: kbMap.get(kbLayoutFull) ?? "??"
-    readonly property var kbMap: new Map()
-
-    readonly property alias extras: extras
-    readonly property alias options: extras.options
-    readonly property alias devices: extras.devices
-
-    property string lastSpecialWorkspace: ""
-
-    signal configReloaded
-
-    function dispatch(request: string): void {
-        Hyprland.dispatch(request);
-    }
-
-    function focusWorkspace(ws: var): void {
-        dispatch(usingLua ? `hl.dsp.focus({ workspace = "${ws}" })` : `workspace ${ws}`);
-    }
-
-    function toggleSpecial(name: string): void {
-        dispatch(usingLua ? `hl.dsp.workspace.toggle_special("${name}")` : `togglespecialworkspace ${name}`);
-    }
-
-    function cycleSpecialWorkspace(direction: string): void {
-        const openSpecials = workspaces.values.filter(w => w.name.startsWith("special:") && w.lastIpcObject.windows > 0);
-
-        if (openSpecials.length === 0)
-            return;
-
-        const activeSpecial = focusedMonitor.lastIpcObject.specialWorkspace.name ?? "";
-
-        if (!activeSpecial) {
-            if (lastSpecialWorkspace) {
-                const workspace = workspaces.values.find(w => w.name === lastSpecialWorkspace);
-                if (workspace && workspace.lastIpcObject.windows > 0) {
-                    focusWorkspace(lastSpecialWorkspace);
-                    return;
-                }
-            }
-            focusWorkspace(openSpecials[0].name);
-            return;
+    readonly property bool demo: Config.demo
+    readonly property bool lua: !demo && Hyprland.usingLua
+    readonly property int activeId: demo ? 2 : (Hyprland.focusedWorkspace?.id ?? 1)
+    readonly property var workspaces: demo ? [] : Hyprland.workspaces.values
+    readonly property var toplevels: demo ? [] : Hyprland.toplevels.values
+    readonly property var occupied: {
+        if (demo)
+            return { "1": 2, "2": 3, "4": 1 };
+        const map = {};
+        for (const ws of workspaces) {
+            if (ws.id > 0)
+                map[String(ws.id)] = ws.toplevels.values.length;
         }
+        return map;
+    }
+    readonly property bool fullscreen: !demo && (Hyprland.focusedWorkspace?.hasFullscreen ?? false)
+    readonly property string activeTitle: demo ? "kitty" : (Hyprland.activeToplevel?.title ?? "")
 
-        const currentIndex = openSpecials.findIndex(w => w.name === activeSpecial);
-        let nextIndex = 0;
-
-        if (currentIndex !== -1) {
-            if (direction === "next")
-                nextIndex = (currentIndex + 1) % openSpecials.length;
-            else
-                nextIndex = (currentIndex - 1 + openSpecials.length) % openSpecials.length;
-        }
-
-        focusWorkspace(openSpecials[nextIndex].name);
+    function workspace(id: int): void {
+        const n = Math.round(id);
+        if (demo || !(n >= 1 && n <= 99))
+            return;
+        Hyprland.dispatch(lua ? `hl.dsp.focus({ workspace = "${n}" })` : `workspace ${n}`);
     }
 
-    function monitorNames(): list<string> {
-        return monitors.values.map(e => e.name);
+    function relative(step: int): void {
+        if (demo)
+            return;
+        const s = step > 0 ? "+1" : "-1";
+        Hyprland.dispatch(lua ? `hl.dsp.focus({ workspace = "r${s}" })` : `workspace r${s}`);
     }
 
-    function monitorFor(screen: ShellScreen): HyprlandMonitor {
-        return Hyprland.monitorFor(screen);
+    function focusWindow(address: string): void {
+        if (demo || !/^[0-9a-fA-F]+$/.test(address))
+            return;
+        Hyprland.dispatch(lua ? `hl.dsp.focus({ window = "address:0x${address}" })` : `focuswindow address:0x${address}`);
     }
 
-    function trimWsName(name: string): string {
-        return name.startsWith("special:") ? name.slice("special:".length) : name;
+    function refresh(): void {
+        if (!demo)
+            Hyprland.refreshToplevels();
     }
 
-    function toplevelsForWs(ws: int, ignoredTags = []): list<HyprlandToplevel> {
-        return toplevels.values.filter(t => t.workspace && t.workspace.id === ws && !isToplevelIgnored(t, ignoredTags));
+    function exit(): void {
+        if (!demo)
+            Hyprland.dispatch(lua ? "hl.dsp.exit()" : "exit");
     }
 
-    function isToplevelIgnored(toplevel: HyprlandToplevel, ignoredTags = []): bool {
-        const ipc = toplevel?.lastIpcObject;
-        if (!ipc?.class || !ipc.mapped)
-            return true;
-
-        return ipc.tags?.some(tag => ignoredTags.includes(tag.replace(/\*$/, ""))) ?? false;
-    }
-
-    function reloadDynamicConfs(): void {
-        if (usingLua) {
-            extras.batchMessage(['eval hl.bind("Caps_Lock", hl.dsp.global("crest:refreshDevices"), { locked = true, non_consuming = true, ignore_mods = true, release = true })', 'eval hl.bind("Num_Lock", hl.dsp.global("crest:refreshDevices"), { locked = true, non_consuming = true, ignore_mods = true, release = true })']);
+    function apply(luaChunks: list<string>, keywords: list<string>): void {
+        if (demo)
+            return;
+        if (lua) {
+            for (const chunk of luaChunks)
+                Quickshell.execDetached(["hyprctl", "eval", chunk]);
         } else {
-            extras.batchMessage(["keyword bindlni ,Caps_Lock,global,caelestia:refreshDevices", "keyword bindlni ,Num_Lock,global,caelestia:refreshDevices"]);
+            Quickshell.execDetached(["hyprctl", "--batch", keywords.map(k => `keyword ${k}`).join(";")]);
         }
     }
 
-    onUsingLuaChanged: reloadDynamicConfs()
-    Component.onCompleted: reloadDynamicConfs()
-
-    Connections {
-        function onRawEvent(event: HyprlandEvent): void {
-            const n = event.name;
-            if (n.endsWith("v2"))
-                return;
-
-            if (n === "configreloaded") {
-                root.configReloaded();
-                root.reloadDynamicConfs();
-            } else if (["workspace", "moveworkspace", "activespecial", "focusedmon"].includes(n)) {
-                Hyprland.refreshWorkspaces();
-                Hyprland.refreshMonitors();
-            } else if (["openwindow", "closewindow", "movewindow"].includes(n)) {
-                Hyprland.refreshToplevels();
-                Hyprland.refreshWorkspaces();
-            } else if (n.includes("mon")) {
-                Hyprland.refreshMonitors();
-            } else if (n.includes("workspace")) {
-                Hyprland.refreshWorkspaces();
-            } else if (n.includes("window") || n.includes("group") || ["pin", "fullscreen", "changefloatingmode", "minimize"].includes(n)) {
-                Hyprland.refreshToplevels();
-            }
-        }
-
-        target: Hyprland
+    function hex(c: color): string {
+        const h = v => Math.round(v * 255).toString(16).padStart(2, "0");
+        return h(c.r) + h(c.g) + h(c.b);
     }
 
-    Connections {
-        function onLastIpcObjectChanged(): void {
-            const specialName = root.focusedMonitor.lastIpcObject.specialWorkspace.name;
-
-            if (specialName && specialName.startsWith("special:")) {
-                root.lastSpecialWorkspace = specialName;
-            }
-        }
-
-        target: root.focusedMonitor
+    function setBorders(active: color, accent: color, inactive: color): void {
+        const a = hex(active);
+        const b = hex(accent);
+        const i = hex(inactive);
+        apply([`hl.config({ general = { col = { active_border = { colors = { "rgba(${a}ee)", "rgba(${b}ee)" }, angle = 45 }, inactive_border = "rgba(${i}aa)" } } })`], [`general:col.active_border rgba(${a}ee) rgba(${b}ee) 45deg`, `general:col.inactive_border rgba(${i}aa)`]);
     }
 
-    FileView {
-        id: kbLayoutFile
-
-        path: Quickshell.env("CAELESTIA_XKB_RULES_PATH") || "/usr/share/X11/xkb/rules/base.lst"
-        onLoaded: {
-            const layoutMatch = text().match(/! layout\n([\s\S]*?)\n\n/);
-            if (layoutMatch) {
-                const lines = layoutMatch[1].split("\n");
-                for (const line of lines) {
-                    if (!line.trim() || line.trim().startsWith("!"))
-                        continue;
-
-                    const match = line.match(/^\s*([a-z]{2,})\s+([a-zA-Z() ]+)$/);
-                    if (match)
-                        root.kbMap.set(match[2], match[1]);
-                }
-            }
-
-            const variantMatch = text().match(/! variant\n([\s\S]*?)\n\n/);
-            if (variantMatch) {
-                const lines = variantMatch[1].split("\n");
-                for (const line of lines) {
-                    if (!line.trim() || line.trim().startsWith("!"))
-                        continue;
-
-                    const match = line.match(/^\s*([a-zA-Z0-9_-]+)\s+([a-z]{2,}): (.+)$/);
-                    if (match)
-                        root.kbMap.set(match[3], match[2]);
-                }
-            }
-        }
-    }
-
-    IpcHandler {
-        function refreshDevices(): void {
-            extras.refreshDevices();
-        }
-
-        function cycleSpecialWorkspace(direction: string): void {
-            root.cycleSpecialWorkspace(direction);
-        }
-
-        function listSpecialWorkspaces(): string {
-            return root.workspaces.values.filter(w => w.name.startsWith("special:") && w.lastIpcObject.windows > 0).map(w => w.name).join("\n");
-        }
-
-        target: "hypr"
-    }
-
-    CustomShortcut {
-        name: "refreshDevices"
-        description: "Reload devices"
-        onPressed: extras.refreshDevices()
-        onReleased: extras.refreshDevices()
-    }
-
-    HyprExtras {
-        id: extras
-
-        usingLua: Hyprland.usingLua
+    function setLowEnd(on: bool): void {
+        const v = on ? "false" : "true";
+        const n = on ? "0" : "1";
+        apply([`hl.config({ decoration = { blur = { enabled = ${v} }, shadow = { enabled = ${v} } }, animations = { enabled = ${v} } })`], [`decoration:blur:enabled ${n}`, `decoration:shadow:enabled ${n}`, `animations:enabled ${n}`]);
     }
 }
