@@ -1,0 +1,16 @@
+pkgname=fiordland-dev
+pkgver=1.0
+pkgrel=1
+pkgdesc="Fiordland developer packages"
+arch=('any')
+url="https://fiordlandlinux.org"
+license=('MIT')
+depends=('base-devel' 'git' 'git-lfs' 'github-cli' 'openssh'
+         'cmake' 'meson' 'ninja' 'clang' 'lldb' 'gdb' 'valgrind' 'strace'
+         'python' 'python-pip' 'python-pipx' 'nodejs' 'npm' 'rustup' 'go' 'jdk-openjdk'
+         'podman' 'podman-compose' 'shellcheck' 'jq' 'ripgrep' 'fd' 'man-db' 'man-pages')
+install=fiordland-dev.install
+
+package() {
+  :
+}

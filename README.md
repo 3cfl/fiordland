@@ -64,6 +64,10 @@ The installer detects the GPU: NVIDIA Turing and newer get `nvidia-open` (plus `
 
 Every install comes with the `fiordland-gaming` meta package: Steam, proton-cachyos, wine-cachyos, umu-launcher, protontricks, winetricks, gamemode, MangoHud and gamescope. Existing installs get it in the background after updating to fiordland-base 0.9.1. Remove it with `sudo pacman -Rns fiordland-gaming`.
 
+## Development
+
+`fiordland-dev` is an opt-in meta package for programming: base-devel, git, git-lfs, github-cli, cmake, meson, ninja, clang, lldb, gdb, valgrind, strace, Python with pip and pipx, Node.js and npm, rustup, Go, OpenJDK, podman and podman-compose, shellcheck, jq, ripgrep, fd and man pages. Install it with `tawaki install fiordland-dev`, then run `rustup default stable` for Rust.
+
 ## crest
 
 Runs with `qs -c crest`. Settings live in `~/.config/caelestia/shell.json` and in the settings app (Super + I).
