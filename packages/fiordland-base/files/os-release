@@ -1,9 +1,10 @@
 NAME="Fiordland Linux"
-PRETTY_NAME="Fiordland Linux @VERSION@"
+PRETTY_NAME="Fiordland 1"
 ID=fiordland
 ID_LIKE=arch
-VERSION="@VERSION@"
-VERSION_ID=@VERSION@
+VERSION="1 (@VERSION@)"
+VERSION_ID=1
+VERSION_CODENAME=fiordland1
 BUILD_ID=rolling
 ANSI_COLOR="38;2;255;204;0"
 HOME_URL="https://fiordlandlinux.org"

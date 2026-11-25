@@ -1,25 +1,49 @@
 pkgname=fiordland-base
-pkgver=0.9.1
-pkgrel=2
+pkgver=1.0.0
+pkgrel=1
 pkgdesc="Fiordland Linux release, core packages and system migrations"
 arch=('any')
 url='https://fiordlandlinux.org'
 license=('MIT')
 depends=('base' 'linux-firmware' 'btrfs-progs' 'dosfstools' 'networkmanager' 'sudo' 'zram-generator'
-         'snapper' 'snap-pac' 'pacman-contrib' 'flatpak' 'tawaki' 'fiordland-keyring' 'xdg-user-dirs'
-         'xdg-utils' 'pipewire' 'pipewire-pulse' 'wireplumber' 'ntfs-3g' 'exfatprogs' 'udisks2' 'reflector'
-         'grub' 'grub-btrfs' 'inotify-tools' 'os-prober')
+         'snapper' 'snap-pac' 'pacman-contrib' 'flatpak' 'tawaki' 'fiordland-keyring' 'fiordland-tune'
+         'xdg-user-dirs' 'xdg-utils' 'pipewire' 'pipewire-pulse' 'wireplumber' 'ntfs-3g' 'exfatprogs'
+         'udisks2' 'reflector' 'grub' 'grub-btrfs' 'inotify-tools' 'os-prober'
+         'ufw' 'bluez' 'bluez-utils' 'fwupd' 'smartmontools' 'man-db' 'man-pages' 'plocate'
+         'cups' 'cups-filters' 'cups-browsed' 'cups-pk-helper' 'ghostscript' 'avahi' 'nss-mdns'
+         'noto-fonts' 'noto-fonts-cjk' 'noto-fonts-emoji'
+         'ffmpeg' 'gst-plugins-base' 'gst-plugins-good' 'gst-plugins-bad' 'gst-plugins-ugly' 'gst-libav'
+         'gst-plugin-va')
+optdepends=('power-profiles-daemon: power profiles, used by fiordland-tune performance'
+            'system-config-printer: printer settings outside KDE and GNOME'
+            'gutenprint: drivers for many older printers'
+            'foomatic-db: more printer drivers'
+            'hplip: HP printer drivers'
+            'apparmor: AppArmor profiles, see docs/why-fiordland.md for how to turn it on'
+            'scx-scheds: sched_ext CPU schedulers through fiordland-tune scx')
 
 package() {
-  local f="$startdir/files"
+  local f="$startdir/files" p
   sed "s/@VERSION@/$pkgver/" "$f/os-release" | install -Dm644 /dev/stdin "$pkgdir/usr/share/fiordland/os-release"
+  install -Dm755 "$f/fiordland" "$pkgdir/usr/bin/fiordland"
   install -Dm755 "$f/fiordland-migrate" "$pkgdir/usr/bin/fiordland-migrate"
+  install -Dm755 "$f/fiordland-report" "$pkgdir/usr/bin/fiordland-report"
   install -Dm644 "$f/fiordland-migrate.hook" "$pkgdir/usr/share/libalpm/hooks/90-fiordland-migrate.hook"
   install -Dm644 "$f/os-release.hook" "$pkgdir/usr/share/libalpm/hooks/90-fiordland-os-release.hook"
+  install -Dm644 "$f/fiordland-migrate.service" "$pkgdir/usr/lib/systemd/system/fiordland-migrate.service"
+  install -d "$pkgdir/usr/lib/systemd/system/multi-user.target.wants"
+  ln -s ../fiordland-migrate.service "$pkgdir/usr/lib/systemd/system/multi-user.target.wants/fiordland-migrate.service"
   install -Dm755 "$f/fiordland-channel" "$pkgdir/usr/bin/fiordland-channel"
   install -Dm644 "$f/fiordland-stable-mirrorlist" "$pkgdir/etc/pacman.d/fiordland-stable"
   install -Dm755 "$f/install-gaming" "$pkgdir/usr/lib/fiordland/install-gaming"
+  install -Dm755 "$f/kernel" "$pkgdir/usr/lib/fiordland/kernel"
+  install -Dm755 "$f/dns" "$pkgdir/usr/lib/fiordland/dns"
+  install -Dm644 "$f/lib.sh" "$pkgdir/usr/lib/fiordland/lib.sh"
   install -Dm755 -t "$pkgdir/usr/lib/fiordland/migrations" "$f"/migrations/*.sh
   install -Dm644 -t "$pkgdir/usr/share/fiordland/news" "$f"/news/*.txt
   install -Dm644 "$f/firefox-policies.json" "$pkgdir/usr/lib/firefox/distribution/policies.json"
+  cd "$f/system"
+  while IFS= read -r -d '' p; do
+    install -Dm644 "$p" "$pkgdir/usr/lib/${p#./}"
+  done < <(find . -type f -print0)
 }

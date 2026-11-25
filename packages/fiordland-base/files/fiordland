@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<USAGE
+usage: fiordland COMMAND [ARGS]
+
+  version             the Fiordland release and base package
+  news                what changed in the newest release
+  tune [ARGS]         hardware profiles, sched_ext, swap file (fiordland-tune)
+  report              collect system details for a bug report
+  channel [NAME]      show or switch the update channel (stable or rolling)
+  migrate [ARGS]      apply or list Fiordland system updates
+  kernel [NAME]       show kernels, or boot linux-fiord or the default kernel
+  dns [MODE]          DNS mode: tls (encrypted DNS) or default
+USAGE
+  exit "${1:-0}"
+}
+
+[ $# -gt 0 ] || usage
+cmd=$1
+shift
+case $cmd in
+  version)
+    sed -n 's/^PRETTY_NAME="\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' /usr/lib/os-release
+    pacman -Q fiordland-base fiordland-tune 2>/dev/null || true
+    ;;
+  news)
+    f=$(find /usr/share/fiordland/news -name '*.txt' 2>/dev/null | sort -V | tail -1)
+    [ -n "$f" ] && cat "$f"
+    ;;
+  tune) exec /usr/bin/fiordland-tune "$@" ;;
+  report) exec /usr/bin/fiordland-report "$@" ;;
+  channel) exec /usr/bin/fiordland-channel "$@" ;;
+  migrate) exec /usr/bin/fiordland-migrate "$@" ;;
+  kernel) exec /usr/lib/fiordland/kernel "$@" ;;
+  dns) exec /usr/lib/fiordland/dns "$@" ;;
+  -h|--help|help) usage ;;
+  *) usage 2 ;;
+esac

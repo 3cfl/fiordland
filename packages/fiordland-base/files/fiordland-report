@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+case ${1:-} in
+  "") ;;
+  -h|--help)
+    echo "usage: fiordland-report"
+    echo "Collects system details for a bug report into a file in your home folder."
+    echo "Nothing is uploaded. Read the file before you share it."
+    exit 0 ;;
+  *) echo "usage: fiordland-report" >&2; exit 2 ;;
+esac
+
+section() {
+  printf '\n===== %s\n' "$1"
+  shift
+  if command -v "$1" >/dev/null 2>&1; then
+    timeout 20 "$@" 2>&1 | head -n 400
+  else
+    echo "($1 not installed)"
+  fi
+}
+
+collect() {
+  section "os-release" cat /usr/lib/os-release
+  section "fiordland packages" pacman -Q fiordland-base fiordland-desktop fiordland-tune tawaki rawaru kuaka weka
+  section "channel" fiordland-channel
+  section "migrations" fiordland-migrate --list
+  section "migration log" tail -n 40 /var/log/fiordland-migrate.log
+  section "tune" fiordland-tune status
+  section "kernel" uname -a
+  section "cmdline" cat /proc/cmdline
+  section "boot time" systemd-analyze
+  section "slowest units" systemd-analyze blame --no-pager
+  section "failed units" systemctl --failed --no-pager
+  section "previous shutdown" journalctl -b -1 -n 80 --no-pager -o short-monotonic
+  section "stop jobs last boot" journalctl -b -1 --no-pager -g 'stop job|Timed out|Killing process' -o short-monotonic
+  section "errors this boot" journalctl -b -p err -n 150 --no-pager
+  section "pci" lspci -nnk
+  section "usb" lsusb
+  section "memory" free -h
+  section "swap" swapon --show
+  section "zram" zramctl
+  section "disks" lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS,ROTA,SCHED
+  section "btrfs" btrfs filesystem usage -T /
+  section "mounts" findmnt -t btrfs,vfat,ext4,xfs,ntfs3
+  section "snapshots" snapper -c root list
+  section "mkinitcpio" grep -E '^(MODULES|HOOKS|COMPRESSION)=' /etc/mkinitcpio.conf
+  section "grub" grep -E '^GRUB_(CMDLINE|TIMEOUT|TOP_LEVEL|DEFAULT)' /etc/default/grub
+  section "gpu" ls -l /sys/class/drm/ /dev/dri/
+  section "vaapi" vainfo
+  section "audio" wpctl status
+  section "network" nmcli general status
+  section "pacman log" tail -n 60 /var/log/pacman.log
+}
+
+out=$(mktemp --suffix=.txt "${HOME:-/tmp}/fiordland-report-$(date +%Y%m%d)-XXXXXX") || exit 1
+text=$(collect)
+host=$(cat /etc/hostname 2>/dev/null || uname -n)
+user=$(id -un)
+[ -n "$host" ] && text=${text//"$host"/HOSTNAME}
+[ -n "$user" ] && [ "$user" != root ] && text=${text//"$user"/USER}
+printf '%s\n' "$text" > "$out"
+echo "Report written to $out"
+echo "Your user and host names are replaced. Read it before you share it, then attach it to"
+echo "an issue at https://github.com/Fiordland-Linux/fiordland/issues"
