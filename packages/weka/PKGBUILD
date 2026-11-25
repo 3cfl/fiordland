@@ -1,5 +1,5 @@
 pkgname=weka
-pkgver=1.0.1
+pkgver=1.0.2
 pkgrel=1
 pkgdesc="Swap Fiordland desktops and window managers cleanly"
 arch=('any')
@@ -7,7 +7,7 @@ url="https://github.com/Fiordland-Linux/weka"
 license=('GPL-3.0-only')
 depends=('python' 'pyside6' 'qt6-wayland' 'polkit' 'pacman' 'inter-font' 'ttf-jetbrains-mono')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('42455eb3176e837a13c9b46b03446bf6f64739e7bbb74368f7054fc2215fbb95')
+sha256sums=('b58348b3a45d6811d4fe761811e38e3861468bac2c33882ac1ca8f28bec83496')
 
 package() {
   local s="$srcdir/$pkgname-$pkgver"
