@@ -47,7 +47,7 @@ collect() {
   section "snapshots" snapper -c root list
   section "mkinitcpio" grep -E '^(MODULES|HOOKS|COMPRESSION)=' /etc/mkinitcpio.conf
   section "grub" grep -E '^GRUB_(CMDLINE|TIMEOUT|TOP_LEVEL|DEFAULT)' /etc/default/grub
-  section "gpu" sh -c 'for d in /sys/class/drm/card*/device/driver; do readlink -f "$d"; done; ls /dev/dri'
+  section "gpu" ls -l /sys/class/drm/ /dev/dri/
   section "vaapi" vainfo
   section "audio" wpctl status
   section "network" nmcli general status

@@ -52,7 +52,7 @@ case ${1:-} in
     mkdir -p "${STATE%/*}"
     touch "$STATE"
     for n in $(names); do
-      [[ ${n%%-*} > $INSTALLER_COVERS ]] && continue
+      (( 10#${n%%-*} > 10#$INSTALLER_COVERS )) && continue
       grep -qx "$n" "$STATE" || echo "$n" >> "$STATE"
     done
     exit 0 ;;
