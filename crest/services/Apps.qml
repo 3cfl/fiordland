@@ -9,17 +9,26 @@ import "../utils/fuzzy.js" as Fuzzy
 Singleton {
     id: root
 
+    readonly property string demoIcons: "/usr/share/icons/Papirus/64x64/apps/"
     readonly property var demoApps: [
-        { id: "firefox", name: "Firefox", genericName: "Web Browser", icon: "firefox", comment: "Browse the web", keywords: [] },
-        { id: "kitty", name: "kitty", genericName: "Terminal", icon: "kitty", comment: "Fast GPU terminal", keywords: ["shell"] },
-        { id: "thunar", name: "Thunar", genericName: "File Manager", icon: "org.xfce.thunar", comment: "Browse your files", keywords: [] },
-        { id: "mousepad", name: "Mousepad", genericName: "Text Editor", icon: "org.xfce.mousepad", comment: "Write plain text", keywords: ["notes"] },
-        { id: "crest-settings", name: "Settings", genericName: "crest settings", icon: "preferences-system", comment: "Appearance, bar and wallpaper", keywords: [] },
-        { id: "kuaka", name: "kuaka", genericName: "Updates", icon: "system-software-update", comment: "Keep Fiordland up to date", keywords: [] },
-        { id: "tawaki", name: "tawaki", genericName: "Software", icon: "system-software-install", comment: "Find and install apps", keywords: [] }
+        { id: "firefox", name: "Firefox", genericName: "Web Browser", icon: demoIcons + "firefox.svg", comment: "Browse the web", keywords: [] },
+        { id: "kitty", name: "kitty", genericName: "Terminal", icon: demoIcons + "kitty.svg", comment: "Fast GPU terminal", keywords: ["shell"] },
+        { id: "thunar", name: "Thunar", genericName: "File Manager", icon: demoIcons + "org.xfce.thunar.svg", comment: "Browse your files", keywords: [] },
+        { id: "mousepad", name: "Mousepad", genericName: "Text Editor", icon: demoIcons + "org.xfce.mousepad.svg", comment: "Write plain text", keywords: ["notes"] },
+        { id: "crest-settings", name: "Settings", genericName: "crest settings", icon: demoIcons + "preferences-system.svg", comment: "Appearance, bar and wallpaper", keywords: [] },
+        { id: "kuaka", name: "kuaka", genericName: "Updates", icon: demoIcons + "system-software-update.svg", comment: "Keep Fiordland up to date", keywords: [] },
+        { id: "tawaki", name: "tawaki", genericName: "Software", icon: demoIcons + "system-software-install.svg", comment: "Find and install apps", keywords: [] }
     ]
     readonly property var entries: Config.demo ? demoApps : dedupe(DesktopEntries.applications.values)
     readonly property var usage: Config.launcher.usage ?? {}
+
+    function icon(name: string): string {
+        if (!name)
+            return "";
+        if (name.startsWith("/"))
+            return `file://${name}`;
+        return Quickshell.iconPath(name, true);
+    }
 
     function dedupe(list: var): var {
         const seen = {};

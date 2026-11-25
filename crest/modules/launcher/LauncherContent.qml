@@ -270,7 +270,7 @@ Glass {
                             id: icon
 
                             anchors.fill: parent
-                            source: row.modelData.icon ? Quickshell.iconPath(row.modelData.icon, true) : ""
+                            source: Apps.icon(row.modelData.icon ?? "")
                             asynchronous: true
                         }
                     }
