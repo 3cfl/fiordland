@@ -196,102 +196,117 @@ Scope {
         }
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "launcher"
         onPressed: Panels.toggle("launcher")
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "emoji"
         onPressed: Panels.openLauncher(":")
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "quicksettings"
         onPressed: Panels.toggle("quicksettings")
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "notifications"
         onPressed: Panels.toggle("notifications")
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "clearNotifs"
         onPressed: Notifs.clear()
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "session"
         onPressed: Panels.toggle("session")
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "lock"
         onPressed: Session.lock()
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "overview"
         onPressed: Panels.toggle("overview")
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "wallpaper"
         onPressed: Panels.toggle("wallpaper")
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "settings"
         onPressed: Panels.settings = !Panels.settings
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "mediaToggle"
         onPressed: Media.toggle()
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "mediaNext"
         onPressed: Media.next()
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "mediaPrev"
         onPressed: Media.previous()
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "mediaStop"
         onPressed: Media.stop()
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "volumeUp"
         onPressed: Audio.setVolume(Audio.volume + 0.05)
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "volumeDown"
         onPressed: Audio.setVolume(Audio.volume - 0.05)
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "volumeMute"
         onPressed: Audio.toggleMute()
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "brightnessUp"
         onPressed: Brightness.step(1)
     }
 
-    Shortcut {
+    GlobalShortcut {
+        appid: "crest"
         name: "brightnessDown"
         onPressed: Brightness.step(-1)
-    }
-
-    component Shortcut: GlobalShortcut {
-        appid: "crest"
     }
 }
