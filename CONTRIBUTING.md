@@ -12,7 +12,7 @@ Thanks for helping. This page covers the repo layout, how to build and test, and
 | `flavors/` | Overlays on the ISO profile, selected with `FLAVOR=` (currently `xfce`). |
 | `container/` | The Fiordland XFCE container image. |
 | `web/` | The website. `web/docs/` is generated, see below. |
-| `ops/` | Server-side scripts: docs generator, mirrors, stable channel, wiki seed pages, bot setup. |
+| `ops/` | Server-side scripts: docs generator, mirrors, stable channel, wiki seed pages, bot setup, and `ops/site/` for publishing ISOs (`release-iso`) and news (`post-news`). |
 | `bot/` | The Discord bot and its tests. |
 | `tools/` | Build helpers, the lint and release checks, and VM control. |
 | `docs/` | Guides for users and maintainers. |

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT=${FIORDLAND_ROOT:-/srv/fiordland}
+die() { echo "release-iso: $*" >&2; exit 1; }
+
+dry=0
+if [[ ${1:-} == --dry-run ]]; then dry=1; shift; fi
+[[ $# -eq 1 ]] || die "usage: release-iso [--dry-run] <iso file name already uploaded to $ROOT/iso>"
+
+name=$(basename "$1")
+iso="$ROOT/iso/$name"
+[[ $name =~ ^fiordland-([0-9]{4})\.([0-9]{2})\.([0-9]{2})(-[0-9]+)?-x86_64\.iso$ ]] \
+  || die "the name should look like fiordland-2026.11.24-x86_64.iso"
+date="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]}"
+dotted="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
+
+[[ -f $iso && ! -L $iso ]] || die "$iso not found. Upload it first."
+age=$(( $(date +%s) - $(stat -c %Y "$iso") ))
+(( age >= 60 )) || die "$name changed $age seconds ago. Is it still uploading? Try again in a minute."
+
+size=$(stat -c %s "$iso")
+(( size > 500000000 )) || die "$name is only $size bytes. That looks like a broken upload."
+
+echo "Hashing $name ($(( size / 1000000 )) MB)..."
+sha=$(sha256sum "$iso" | cut -d' ' -f1)
+json=$(printf '{"file":"%s","size":%s,"date":"%s","sha256":"%s"}' "$name" "$size" "$date" "$sha")
+
+echo "latest.json  -> $json"
+echo "latest link  -> $name"
+echo "home page    -> $dotted"
+if (( dry )); then echo "Dry run, nothing changed."; exit 0; fi
+
+printf '%s\n' "$json" > "$ROOT/iso/.latest.json.tmp"
+chmod 644 "$ROOT/iso/.latest.json.tmp"
+mv -f "$ROOT/iso/.latest.json.tmp" "$ROOT/iso/latest.json"
+
+ln -sfn "$name" "$ROOT/iso/.latest-link.tmp"
+mv -Tf "$ROOT/iso/.latest-link.tmp" "$ROOT/iso/fiordland-latest.iso"
+
+sed -i -E "s|<span id=\"dl-ver\">[^<]*</span>|<span id=\"dl-ver\">$dotted</span>|" "$ROOT/site/index.html"
+sed -i -E "s|(<loc>https://fiordlandlinux.org/</loc><lastmod>)[^<]*|\1$date|" "$ROOT/site/sitemap.xml"
+
+if git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+  git -C "$ROOT" add iso/latest.json site/index.html site/sitemap.xml
+  git -C "$ROOT" commit -q -m "Release ISO $name" && echo "Committed to git."
+fi
+echo "Released $name."
