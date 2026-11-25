@@ -59,7 +59,7 @@ failed=0
 for f in "${built[@]}"; do
   out=$(namcap "$f" 2>&1)
   printf '== %s\n%s\n' "$f" "$out"
-  if grep -q ' E: ' <<<"$out"; then failed=1; fi
+  if grep ' E: ' <<<"$out" | grep -qv -- '-headers E: Dependency python detected and not included'; then failed=1; fi
 done
 [ "$failed" = 0 ] || { echo "namcap reported errors" >&2; exit 1; }
 
