@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Effects
 import qs.theme
@@ -21,7 +23,7 @@ Item {
 
     RectangularShadow {
         anchors.fill: fill
-        visible: root.shadow && Style.shadows && root.width > 0
+        visible: root.shadow && Style.shadows && Style.effects && root.width > 0
         radius: Math.min(root.radius, height / 2)
         offset.y: root.shadowOffset
         blur: root.shadowBlur
@@ -57,7 +59,7 @@ Item {
             bottomRightRadius: root.bottomRightRadius
             color: "transparent"
             border.width: 1
-            border.color: Colours.alpha(Colours.onSurface, Colours.light ? 0.5 : 0.1)
+            border.color: Colours.alpha(Colours.fgSurface, Colours.light ? 0.5 : 0.1)
         }
     }
 

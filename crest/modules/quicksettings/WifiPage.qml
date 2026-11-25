@@ -46,7 +46,7 @@ ColumnLayout {
         visible: Net.sorted.length === 0
         text: Net.wifiEnabled ? "looking for networks…" : "wi‑fi is off"
         role: "bodyM"
-        color: Colours.onSurfaceVariant
+        color: Colours.fgSurfaceVariant
     }
 
     Repeater {
@@ -93,14 +93,14 @@ ColumnLayout {
                     name: row.modelData.signalStrength > 0.66 ? "network_wifi" : row.modelData.signalStrength > 0.33 ? "network_wifi_2_bar" : "network_wifi_1_bar"
                     fill: 1
                     size: 20
-                    color: row.modelData.connected ? Colours.onPrimaryContainer : Colours.onSurface
+                    color: row.modelData.connected ? Colours.fgPrimaryContainer : Colours.fgSurface
                 }
 
                 Txt {
                     Layout.fillWidth: true
                     text: row.modelData.name
                     role: "bodyL"
-                    color: row.modelData.connected ? Colours.onPrimaryContainer : Colours.onSurface
+                    color: row.modelData.connected ? Colours.fgPrimaryContainer : Colours.fgSurface
                 }
 
                 LoadingIndicator {
@@ -113,7 +113,7 @@ ColumnLayout {
                     visible: row.secured
                     name: "lock"
                     size: 16
-                    color: Colours.onSurfaceVariant
+                    color: Colours.fgSurfaceVariant
                 }
             }
 
@@ -139,7 +139,7 @@ ColumnLayout {
                         anchors.rightMargin: 16
                         verticalAlignment: TextInput.AlignVCenter
                         echoMode: TextInput.Password
-                        color: Colours.onSurface
+                        color: Colours.fgSurface
                         font.family: Style.font
                         font.pixelSize: 14
                         focus: visible

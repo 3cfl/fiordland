@@ -1,4 +1,5 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
@@ -44,6 +45,16 @@ Singleton {
         if (demo || !/^[0-9a-fA-F]+$/.test(address))
             return;
         Hyprland.dispatch(lua ? `hl.dsp.focus({ window = "address:0x${address}" })` : `focuswindow address:0x${address}`);
+    }
+
+    function refresh(): void {
+        if (!demo)
+            Hyprland.refreshToplevels();
+    }
+
+    function exit(): void {
+        if (!demo)
+            Hyprland.dispatch(lua ? "hl.dsp.exit()" : "exit");
     }
 
     function apply(luaChunks: list<string>, keywords: list<string>): void {

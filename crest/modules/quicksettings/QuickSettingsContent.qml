@@ -56,7 +56,7 @@ Glass {
                     Layout.fillWidth: true
                     text: Power.hasBattery ? `${Math.round(Power.level * 100)}%${Power.charging ? " · charging" : ""}${Power.timeLeft > 0 ? " · " + Power.fmtTime(Power.timeLeft) + (Power.charging ? " to full" : " left") : ""}` : Qt.formatDate(new Date(), "dddd d MMMM")
                     role: "bodyS"
-                    color: Colours.onSurfaceVariant
+                    color: Colours.fgSurfaceVariant
                 }
             }
 

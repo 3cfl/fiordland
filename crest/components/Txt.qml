@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import qs.theme
 
@@ -6,7 +8,7 @@ Text {
     property bool emphasis: false
     readonly property var spec: Style.type[role] ?? Style.type.bodyM
 
-    color: Colours.onSurface
+    color: Colours.fgSurface
     font.family: spec.display ? Style.display : Style.font
     font.pixelSize: spec.size
     font.weight: Math.min(900, spec.weight + (emphasis ? 200 : 0))

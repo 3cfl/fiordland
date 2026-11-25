@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
@@ -14,13 +16,15 @@ Scope {
     property string edge: "top-right"
     property bool exclusiveKeyboard: false
     property bool scrim: edge === "fill"
+    property bool interactive: true
+    property int offset: 0
     property Component content
     property real progress: 0
     readonly property bool fill: edge === "fill"
     readonly property int padL: fill ? 0 : (edge === "top-left" ? 12 : 40)
     readonly property int padR: fill ? 0 : (edge === "top-right" ? 12 : 40)
-    readonly property int padT: fill ? 0 : (edge === "bottom" ? 40 : 8)
-    readonly property int padB: fill ? 0 : (edge === "bottom" ? 24 : 48)
+    readonly property int padT: fill ? 0 : (edge === "bottom" ? 40 : 8 + offset)
+    readonly property int padB: fill ? 0 : (edge === "bottom" ? 24 + offset : 48)
 
     signal dismissed
 
@@ -66,7 +70,7 @@ Scope {
             color: "transparent"
             WlrLayershell.namespace: "crest-" + root.name
             WlrLayershell.layer: root.fill ? WlrLayer.Overlay : WlrLayer.Top
-            WlrLayershell.keyboardFocus: root.open ? (root.exclusiveKeyboard ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand) : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: root.open && root.interactive ? (root.exclusiveKeyboard ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand) : WlrKeyboardFocus.None
             exclusionMode: root.fill ? ExclusionMode.Ignore : ExclusionMode.Normal
             anchors.top: root.fill || root.edge.startsWith("top")
             anchors.bottom: root.fill || root.edge === "bottom"
@@ -75,8 +79,15 @@ Scope {
             implicitWidth: holder.implicitWidth + root.padL + root.padR
             implicitHeight: holder.implicitHeight + root.padT + root.padB
 
+            property Region cardRegion: Region {
+                item: holder
+            }
+            property Region emptyRegion: Region {}
+
+            mask: root.fill ? null : (root.interactive ? cardRegion : emptyRegion)
+
             HyprlandFocusGrab {
-                active: root.open && !Config.demo
+                active: root.open && root.interactive && !Config.demo
                 windows: [win]
                 onCleared: root.dismissed()
             }

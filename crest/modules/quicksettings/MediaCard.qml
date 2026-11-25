@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Layouts
@@ -30,7 +32,7 @@ Rectangle {
 
     MultiEffect {
         anchors.fill: parent
-        visible: art.status === Image.Ready && Style.blur
+        visible: art.status === Image.Ready && Style.effects
         source: art
         blurEnabled: true
         blur: 1
@@ -61,7 +63,7 @@ Rectangle {
                 name: "music_note"
                 size: 40
                 fill: 1
-                color: Colours.onTertiaryContainer
+                color: Colours.fgTertiaryContainer
             }
 
             Rectangle {
@@ -104,7 +106,7 @@ Rectangle {
                 Layout.fillWidth: true
                 text: Media.artist
                 role: "bodyM"
-                color: Colours.onSurfaceVariant
+                color: Colours.fgSurfaceVariant
             }
 
             Item {
@@ -116,7 +118,7 @@ Rectangle {
                 value: Media.progress
                 animating: Media.playing
                 amplitude: Media.playing ? 2.5 : 0
-                trackColor: Colours.alpha(Colours.onSurface, 0.16)
+                trackColor: Colours.alpha(Colours.fgSurface, 0.16)
 
                 MouseArea {
                     anchors.fill: parent
@@ -132,7 +134,7 @@ Rectangle {
                 Txt {
                     text: `${Media.fmt(Media.position)} / ${Media.fmt(Media.length)}`
                     role: "labelS"
-                    color: Colours.onSurfaceVariant
+                    color: Colours.fgSurfaceVariant
                     elide: Text.ElideNone
                 }
 

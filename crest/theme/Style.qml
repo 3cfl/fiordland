@@ -1,4 +1,5 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
@@ -8,6 +9,7 @@ Singleton {
 
     property bool blur: true
     property bool shadows: true
+    property bool effects: true
 
     readonly property real glassAlpha: blur ? 0.72 : 0.94
 

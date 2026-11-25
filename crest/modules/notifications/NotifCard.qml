@@ -27,6 +27,7 @@ Item {
         return Qt.formatDate(entry.time, "d MMM");
     }
     property real now: Date.now()
+    readonly property bool hovered: hover.hovered
 
     signal dismissed
 
@@ -117,7 +118,7 @@ Item {
                     name: root.critical ? "priority_high" : "notifications"
                     fill: 1
                     size: 22
-                    color: root.critical ? Colours.onError : Colours.onPrimaryContainer
+                    color: root.critical ? Colours.fgError : Colours.fgPrimaryContainer
                 }
 
                 Image {
@@ -161,7 +162,7 @@ Item {
                     Txt {
                         text: root.entry.appName || "notification"
                         role: "labelM"
-                        color: root.critical ? Colours.onErrorContainer : Colours.primary
+                        color: root.critical ? Colours.fgErrorContainer : Colours.primary
                         elide: Text.ElideNone
                     }
 
@@ -169,7 +170,7 @@ Item {
                         Layout.fillWidth: true
                         text: "· " + root.ago
                         role: "labelM"
-                        color: root.critical ? Colours.onErrorContainer : Colours.onSurfaceVariant
+                        color: root.critical ? Colours.fgErrorContainer : Colours.fgSurfaceVariant
                     }
 
                     Rectangle {
@@ -177,7 +178,7 @@ Item {
                         Layout.preferredHeight: 24
                         radius: 12
                         opacity: hover.hovered ? 1 : 0
-                        color: Colours.alpha(Colours.onSurface, closeArea.containsMouse ? 0.16 : 0.08)
+                        color: Colours.alpha(Colours.fgSurface, closeArea.containsMouse ? 0.16 : 0.08)
 
                         Behavior on opacity {
                             Ease {
@@ -189,7 +190,7 @@ Item {
                             anchors.centerIn: parent
                             name: "close"
                             size: 16
-                            color: Colours.onSurface
+                            color: Colours.fgSurface
                         }
 
                         MouseArea {
@@ -207,7 +208,7 @@ Item {
                     Layout.fillWidth: true
                     text: root.entry.summary
                     role: "titleS"
-                    color: root.critical ? Colours.onErrorContainer : Colours.onSurface
+                    color: root.critical ? Colours.fgErrorContainer : Colours.fgSurface
                 }
 
                 Txt {
@@ -215,7 +216,7 @@ Item {
                     visible: text !== ""
                     text: root.entry.body
                     role: "bodyM"
-                    color: root.critical ? Colours.onErrorContainer : Colours.onSurfaceVariant
+                    color: root.critical ? Colours.fgErrorContainer : Colours.fgSurfaceVariant
                     wrapMode: Text.Wrap
                     maximumLineCount: root.expanded ? 12 : 2
                 }

@@ -1,4 +1,5 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
@@ -99,21 +100,21 @@ Singleton {
     }
 
     readonly property color primary: pick("primary")
-    readonly property color onPrimary: pick("onPrimary")
+    readonly property color fgPrimary: pick("onPrimary")
     readonly property color primaryContainer: pick("primaryContainer")
-    readonly property color onPrimaryContainer: pick("onPrimaryContainer")
+    readonly property color fgPrimaryContainer: pick("onPrimaryContainer")
     readonly property color secondary: pick("secondary")
-    readonly property color onSecondary: pick("onSecondary")
+    readonly property color fgSecondary: pick("onSecondary")
     readonly property color secondaryContainer: pick("secondaryContainer")
-    readonly property color onSecondaryContainer: pick("onSecondaryContainer")
+    readonly property color fgSecondaryContainer: pick("onSecondaryContainer")
     readonly property color tertiary: pick("tertiary")
-    readonly property color onTertiary: pick("onTertiary")
+    readonly property color fgTertiary: pick("onTertiary")
     readonly property color tertiaryContainer: pick("tertiaryContainer")
-    readonly property color onTertiaryContainer: pick("onTertiaryContainer")
+    readonly property color fgTertiaryContainer: pick("onTertiaryContainer")
     readonly property color error: pick("error")
-    readonly property color onError: pick("onError")
+    readonly property color fgError: pick("onError")
     readonly property color errorContainer: pick("errorContainer")
-    readonly property color onErrorContainer: pick("onErrorContainer")
+    readonly property color fgErrorContainer: pick("onErrorContainer")
     readonly property color surface: pick("surface")
     readonly property color surfaceDim: pick("surfaceDim")
     readonly property color surfaceBright: pick("surfaceBright")
@@ -122,8 +123,8 @@ Singleton {
     readonly property color surfaceContainer: pick("surfaceContainer")
     readonly property color surfaceContainerHigh: pick("surfaceContainerHigh")
     readonly property color surfaceContainerHighest: pick("surfaceContainerHighest")
-    readonly property color onSurface: pick("onSurface")
-    readonly property color onSurfaceVariant: pick("onSurfaceVariant")
+    readonly property color fgSurface: pick("onSurface")
+    readonly property color fgSurfaceVariant: pick("onSurfaceVariant")
     readonly property color outline: pick("outline")
     readonly property color outlineVariant: pick("outlineVariant")
     readonly property color inverseSurface: pick("inverseSurface")

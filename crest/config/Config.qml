@@ -1,4 +1,5 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
@@ -46,50 +47,66 @@ Singleton {
         JsonAdapter {
             id: adapter
 
-            property JsonObject appearance: JsonObject {
-                property string mode: "dark"
-                property string scheme: "wallpaper"
-                property string variant: "scheme-tonal-spot"
-                property bool transparency: true
-            }
+            property AppearanceOptions appearance: AppearanceOptions {}
 
-            property JsonObject bar: JsonObject {
-                property int workspaces: 5
-                property bool showSeconds: false
-                property bool batteryPercent: true
-                property bool showMedia: true
-                property bool use24h: true
-                property bool showTray: true
-            }
+            property BarOptions bar: BarOptions {}
 
-            property JsonObject performance: JsonObject {
-                property string lowEnd: "auto"
-            }
+            property PerformanceOptions performance: PerformanceOptions {}
 
-            property JsonObject wallpaper: JsonObject {
-                property string path: ""
-                property string folder: ""
-            }
+            property WallpaperOptions wallpaper: WallpaperOptions {}
 
-            property JsonObject notifications: JsonObject {
-                property bool dnd: false
-                property int timeout: 6000
-            }
+            property NotificationsOptions notifications: NotificationsOptions {}
 
-            property JsonObject nightLight: JsonObject {
-                property bool enabled: false
-                property int temperature: 4500
-            }
+            property NightLightOptions nightLight: NightLightOptions {}
 
-            property JsonObject lock: JsonObject {
-                property bool fingerprint: false
-                property int idleMinutes: 10
-                property bool lockBeforeSleep: true
-            }
+            property LockOptions lock: LockOptions {}
 
-            property JsonObject launcher: JsonObject {
-                property var usage: ({})
-            }
+            property LauncherOptions launcher: LauncherOptions {}
         }
+    }
+
+    component AppearanceOptions: JsonObject {
+        property string mode: "dark"
+        property string scheme: "wallpaper"
+        property string variant: "scheme-tonal-spot"
+        property bool transparency: true
+    }
+
+    component BarOptions: JsonObject {
+        property int workspaces: 5
+        property bool showSeconds: false
+        property bool batteryPercent: true
+        property bool showMedia: true
+        property bool use24h: true
+        property bool showTray: true
+    }
+
+    component PerformanceOptions: JsonObject {
+        property string lowEnd: "auto"
+    }
+
+    component WallpaperOptions: JsonObject {
+        property string path: ""
+        property string folder: ""
+    }
+
+    component NotificationsOptions: JsonObject {
+        property bool dnd: false
+        property int timeout: 6000
+    }
+
+    component NightLightOptions: JsonObject {
+        property bool enabled: false
+        property int temperature: 4500
+    }
+
+    component LockOptions: JsonObject {
+        property bool fingerprint: false
+        property int idleMinutes: 10
+        property bool lockBeforeSleep: true
+    }
+
+    component LauncherOptions: JsonObject {
+        property var usage: ({})
     }
 }

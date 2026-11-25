@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import qs.theme
 
@@ -10,7 +12,7 @@ Text {
     property int weight: 400
 
     text: name
-    color: Colours.onSurface
+    color: Colours.fgSurface
     textFormat: Text.PlainText
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignVCenter

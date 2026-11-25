@@ -1,4 +1,5 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
@@ -12,6 +13,7 @@ Singleton {
     property int memoryMb: 0
     property bool softwareGpu: false
     property bool probed: false
+    readonly property bool softwareBackend: (Quickshell.env("QT_QUICK_BACKEND") ?? "") === "software"
     readonly property bool autoLow: softwareGpu || (memoryMb > 0 && memoryMb < 3800)
     readonly property string mode: Config.performance.lowEnd
     readonly property bool lowEnd: mode === "on" || (mode === "auto" && autoLow)
@@ -21,7 +23,8 @@ Singleton {
 
     function apply(): void {
         Style.blur = !lowEnd && Config.appearance.transparency;
-        Style.shadows = !lowEnd;
+        Style.shadows = !lowEnd && !softwareBackend;
+        Style.effects = !lowEnd && !softwareBackend;
         Motion.reduced = lowEnd;
         if (probed)
             Hypr.setLowEnd(lowEnd);

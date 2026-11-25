@@ -1,10 +1,12 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import qs.theme
 
 MouseArea {
     id: root
 
-    property color tint: Colours.onSurface
+    property color tint: Colours.fgSurface
     property real radius: 0
     property real topLeftRadius: radius
     property real topRightRadius: radius

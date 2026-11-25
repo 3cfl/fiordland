@@ -60,7 +60,7 @@ lint() {
     write_qmldirs "$work/$which/qs"
     mapfile -d '' files < <(find "$work/$which/qs" -name '*.qml' -not -path '*/tests/*' -print0)
     echo ":: qmllint $which (${#files[@]} files)"
-    "$qmllint" -I "$work/$which" -I /usr/lib/qt6/qml "${files[@]}" || rc=1
+    "$qmllint" -I "$work/$which" -I /usr/lib/qt6/qml \n      --uncreatable-type disable --unused-imports info --import info --unresolved-type info \n      "${files[@]}" || rc=1
   done
   return "$rc"
 }

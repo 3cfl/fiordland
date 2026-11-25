@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import qs.theme
 
@@ -64,7 +66,7 @@ Item {
             height: 6
             radius: 3
             visible: parent.width > parent.height
-            color: Colours.onSecondaryContainer
+            color: Colours.fgSecondaryContainer
         }
     }
 
@@ -88,7 +90,7 @@ Item {
         name: root.icon
         size: 22
         fill: 1
-        color: active.width > x + width + 4 ? Colours.onPrimary : Colours.onSecondaryContainer
+        color: active.width > x + width + 4 ? Colours.fgPrimary : Colours.fgSecondaryContainer
     }
 
     Txt {
@@ -98,7 +100,7 @@ Item {
         anchors.rightMargin: 22
         text: Math.round(root.value * 100)
         role: "labelM"
-        color: root.hx > root.width - 48 ? Colours.onPrimary : Colours.onSecondaryContainer
+        color: root.hx > root.width - 48 ? Colours.fgPrimary : Colours.fgSecondaryContainer
     }
 
     MouseArea {

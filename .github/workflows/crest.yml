@@ -19,18 +19,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - run: pacman -Syu --noconfirm --needed quickshell qt6-declarative qt6-imageformats qt6-svg inter-font ttf-jetbrains-mono noto-fonts-emoji findutils grep
-      - name: probe
-        continue-on-error: true
-        run: |
-          qs --version || true
-          pacman -Q quickshell qt6-declarative
-          for p in matugen ttf-material-symbols-variable cage greetd greetd-tuigreet hyprland; do pacman -Si "$p" 2>/dev/null | sed -n '1,3p' || echo "no $p"; done
-          ls /usr/lib/qt6/qml/Quickshell
-          grep -rl usingLua /usr/lib/qt6/qml/Quickshell || echo "no usingLua"
-          find /usr/lib/qt6/qml/Quickshell -name '*.qmltypes' | head -40
-          for f in Services/Greetd Networking Hyprland Wayland Services/Pam; do find "/usr/lib/qt6/qml/Quickshell/$f" -name '*.qmltypes' -exec grep -E 'name: "|Signal|Method' {} + | head -120; done
-          /usr/lib/qt6/bin/qmllint --help | head -80
+      - run: pacman -Syu --noconfirm --needed quickshell qt6-declarative qt6-imageformats qt6-svg matugen inter-font ttf-jetbrains-mono ttf-material-symbols-variable noto-fonts-emoji findutils grep
+      - name: matugen output
+        run: matugen image crest/assets/wallpaper.webp -t scheme-tonal-spot -m dark --json hex --dry-run --source-color-index 0 | tee "$RUNNER_TEMP/scheme.json" | head -c 4000
       - run: tools/crest-qml.sh unit
       - run: tools/crest-qml.sh lint
       - run: tools/crest-qml.sh render "$GITHUB_WORKSPACE/render-out"

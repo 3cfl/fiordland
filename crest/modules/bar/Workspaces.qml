@@ -35,11 +35,11 @@ Item {
     Rectangle {
         id: pill
 
-        readonly property real left: Math.min(root.lead, root.trail)
-        readonly property real right: Math.max(root.lead, root.trail) + root.pillWidth
+        readonly property real from: Math.min(root.lead, root.trail)
+        readonly property real to: Math.max(root.lead, root.trail) + root.pillWidth
 
-        x: left
-        width: right - left
+        x: from
+        width: to - from
         height: root.height
         radius: height / 2
         color: Colours.primary
@@ -49,7 +49,7 @@ Item {
             text: root.active
             role: "labelL"
             emphasis: true
-            color: Colours.onPrimary
+            color: Colours.fgPrimary
         }
     }
 
@@ -78,7 +78,7 @@ Item {
                 width: ws.windows > 0 ? 8 : 6
                 height: width
                 radius: width / 2
-                color: ws.windows > 0 ? Colours.onSurfaceVariant : Colours.alpha(Colours.outline, 0.6)
+                color: ws.windows > 0 ? Colours.fgSurfaceVariant : Colours.alpha(Colours.outline, 0.6)
                 scale: hover.containsMouse ? 1.35 : 1
 
                 Behavior on scale {

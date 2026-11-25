@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import qs.theme
 
@@ -13,12 +15,12 @@ Item {
     property bool wide: false
     property color iconColor: {
         if (checkable && checked)
-            return Colours.onPrimary;
+            return Colours.fgPrimary;
         if (variant === "filled")
-            return Colours.onPrimary;
+            return Colours.fgPrimary;
         if (variant === "tonal")
-            return Colours.onSecondaryContainer;
-        return Colours.onSurfaceVariant;
+            return Colours.fgSecondaryContainer;
+        return Colours.fgSurfaceVariant;
     }
     property color background: {
         if (checkable && checked)

@@ -56,7 +56,7 @@ Item {
                 name: "landscape"
                 size: 18
                 fill: 1
-                color: Colours.onPrimary
+                color: Colours.fgPrimary
             }
 
             MouseArea {
@@ -114,7 +114,7 @@ Item {
                 name: Media.playing ? "graphic_eq" : "music_note"
                 size: 18
                 fill: 1
-                color: Colours.onTertiaryContainer
+                color: Colours.fgTertiaryContainer
             }
         }
 
@@ -123,7 +123,7 @@ Item {
             width: Math.min(implicitWidth, 220)
             text: Media.artist ? `${Media.title} · ${Media.artist}` : Media.title
             role: "labelL"
-            color: Colours.onSurface
+            color: Colours.fgSurface
         }
 
         Item {
@@ -167,7 +167,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             text: Qt.formatDateTime(clock.date, "ddd d MMM")
             role: "bodyM"
-            color: Colours.onSurfaceVariant
+            color: Colours.fgSurfaceVariant
             elide: Text.ElideNone
         }
 
@@ -268,21 +268,21 @@ Item {
                     name: Net.icon
                     size: 19
                     fill: 1
-                    color: Colours.onSurface
+                    color: Colours.fgSurface
                 }
 
                 Icon {
                     visible: Bt.enabled
                     name: Bt.connected.length > 0 ? "bluetooth_connected" : "bluetooth"
                     size: 19
-                    color: Colours.onSurface
+                    color: Colours.fgSurface
                 }
 
                 Icon {
                     name: Audio.icon
                     size: 19
                     fill: 1
-                    color: Colours.onSurface
+                    color: Colours.fgSurface
                 }
 
                 Row {
@@ -294,7 +294,7 @@ Item {
                         size: 19
                         fill: 1
                         rotation: 90
-                        color: Power.level < 0.15 && !Power.charging ? Colours.error : Colours.onSurface
+                        color: Power.level < 0.15 && !Power.charging ? Colours.error : Colours.fgSurface
                     }
 
                     Txt {
@@ -329,7 +329,7 @@ Item {
                 name: Notifs.dnd ? "notifications_off" : (Notifs.count > 0 ? "notifications_unread" : "notifications")
                 size: 19
                 fill: Notifs.count > 0 ? 1 : 0
-                color: Colours.onSurface
+                color: Colours.fgSurface
             }
 
             Rectangle {
@@ -348,7 +348,7 @@ Item {
                     text: Notifs.count > 9 ? "9+" : Notifs.count
                     role: "labelS"
                     font.pixelSize: 9
-                    color: Colours.onTertiary
+                    color: Colours.fgTertiary
                     elide: Text.ElideNone
                 }
             }

@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import qs.theme
 
@@ -36,7 +38,7 @@ Item {
         radius: d / 2
         anchors.verticalCenter: parent.verticalCenter
         x: root.checked ? root.width - 4 - d : 4 + (24 - d) / 2
-        color: root.checked ? Colours.onPrimary : Colours.outline
+        color: root.checked ? Colours.fgPrimary : Colours.outline
 
         Behavior on x {
             SpringFast {}
@@ -55,7 +57,7 @@ Item {
             name: "check"
             size: 16
             opacity: root.checked ? 1 : 0
-            color: Colours.onPrimaryContainer
+            color: Colours.fgPrimaryContainer
         }
     }
 

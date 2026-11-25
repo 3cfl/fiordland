@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
 import qs.theme
@@ -11,11 +13,11 @@ Item {
     property int size: 40
     property color foreground: {
         if (variant === "filled")
-            return Colours.onPrimary;
+            return Colours.fgPrimary;
         if (variant === "tonal")
-            return Colours.onSecondaryContainer;
+            return Colours.fgSecondaryContainer;
         if (variant === "danger")
-            return Colours.onErrorContainer;
+            return Colours.fgErrorContainer;
         return Colours.primary;
     }
     property color background: {

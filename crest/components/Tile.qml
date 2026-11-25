@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
 import qs.theme
@@ -10,7 +12,7 @@ Item {
     property string sublabel
     property bool active: false
     property bool details: false
-    readonly property color fg: active ? Colours.onPrimary : Colours.onSurface
+    readonly property color fg: active ? Colours.fgPrimary : Colours.fgSurface
 
     signal clicked
     signal secondaryClicked
