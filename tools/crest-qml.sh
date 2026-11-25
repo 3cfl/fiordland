@@ -51,18 +51,29 @@ write_qmldirs() {
   done < <(find "$base" -type d -not -path '*/tests*' -not -path '*/assets*' -print0)
 }
 
+overlay() {
+  local dest="$1" src=/usr/lib/qt6/qml/Quickshell f
+  mkdir -p "$dest"
+  [ -d "$src" ] || return 0
+  cp -r "$src" "$dest/"
+  while IFS= read -r -d '' f; do
+    sed -i '/^prefer /d' "$f"
+  done < <(find "$dest/Quickshell" -name qmldir -print0)
+}
+
 lint() {
   local work rc=0 which qmllint
   qmllint="$(qtbin qmllint)"
   work="$(mktemp -d)"
   trap 'rm -rf "$work"' RETURN
+  overlay "$work/overlay"
   for which in crest crest-greeter; do
     [ -d "$root/$which" ] || continue
     assemble "$which" "$work/$which/qs"
     write_qmldirs "$work/$which/qs"
     mapfile -d '' files < <(find "$work/$which/qs" -name '*.qml' -not -path '*/tests/*' -print0)
     echo ":: qmllint $which (${#files[@]} files)"
-    "$qmllint" -I "$work/$which" -I /usr/lib/qt6/qml \
+    "$qmllint" -I "$work/$which" -I "$work/overlay" -I /usr/lib/qt6/qml --max-warnings 0 \
       --uncreatable-type disable --unused-imports info --import info --unresolved-type info \
       "${files[@]}" || rc=1
   done

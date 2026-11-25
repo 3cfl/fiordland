@@ -10,7 +10,7 @@ depends=('greetd' 'cage' 'quickshell' 'qt6-declarative' 'qt6-imageformats' 'qt6-
 optdepends=('accountsservice: user pictures from /var/lib/AccountsService/icons'
             'xorg-xinit: start X11 sessions')
 source=("crest-greeter-$pkgver.tar.gz"
-        'crest-greeter'
+        'crest-greeter.sh'
         'config.toml.example')
 sha256sums=('SKIP'
             '5676ff9f1eed251ab9a93aa42df7f17c20f782a583543d096a7f762cf9926ec5'
@@ -24,7 +24,7 @@ package() {
   install -m644 crest/assets/wallpaper.webp "$dest/assets/wallpaper.webp"
   find "$dest" -type d -exec chmod 755 {} +
   find "$dest" -type f -exec chmod 644 {} +
-  install -Dm755 "$srcdir/crest-greeter" "$pkgdir/usr/bin/crest-greeter"
+  install -Dm755 "$srcdir/crest-greeter.sh" "$pkgdir/usr/bin/crest-greeter"
   install -Dm644 "$srcdir/config.toml.example" "$pkgdir/usr/share/doc/crest-greeter/config.toml.example"
   install -Dm644 crest/LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

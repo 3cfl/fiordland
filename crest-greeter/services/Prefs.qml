@@ -18,8 +18,8 @@ Singleton {
     function remember(user: string, session: string): void {
         if (demo || !ready)
             return;
-        adapter.lastUser = user;
-        adapter.lastSession = session;
+        root.lastUser = user;
+        root.lastSession = session;
         file.writeAdapter();
     }
 

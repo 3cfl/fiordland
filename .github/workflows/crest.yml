@@ -24,14 +24,6 @@ jobs:
         run: |
           matugen image crest/assets/wallpaper.webp -t scheme-expressive -m dark --json hex --dry-run --source-color-index 0 > "$RUNNER_TEMP/scheme.json"
           grep -q '"primary_container"' "$RUNNER_TEMP/scheme.json"
-      - name: hyprland import probe
-        continue-on-error: true
-        run: |
-          find /usr/lib/qt6/qml/Quickshell/Hyprland
-          for f in /usr/lib/qt6/qml/Quickshell/Hyprland/*/qmldir; do echo "== $f"; cat "$f"; done
-          printf 'import QtQuick\nimport Quickshell.Hyprland\nItem { property var x: Hyprland.focusedMonitor }\n' > "$RUNNER_TEMP/t.qml"
-          /usr/lib/qt6/bin/qmllint -I /usr/lib/qt6/qml "$RUNNER_TEMP/t.qml" || true
-          QT_LOGGING_RULES='qt.qml.import*=true' /usr/lib/qt6/bin/qmllint -I /usr/lib/qt6/qml "$RUNNER_TEMP/t.qml" 2>&1 | tail -30 || true
       - run: tools/crest-qml.sh unit
       - run: tools/crest-qml.sh lint
       - run: tools/crest-qml.sh render "$GITHUB_WORKSPACE/render-out"
