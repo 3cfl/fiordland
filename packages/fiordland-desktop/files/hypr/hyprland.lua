@@ -15,6 +15,7 @@ hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("GTK_THEME", "Adwaita:dark")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
+if not os.getenv("QS_ICON_THEME") then hl.env("QS_ICON_THEME", "Fiordland") end
 
 local function nvidia_only()
     if not io.open("/proc/driver/nvidia/version", "r") then

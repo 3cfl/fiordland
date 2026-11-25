@@ -113,7 +113,7 @@ render() {
     chmod 700 "$work/run-$which"
     echo ":: render $which"
     env XDG_RUNTIME_DIR="$work/run-$which" HOME="$work/run-$which" \
-      CREST_DEMO=1 CREST_RENDER_OUT="$out" CREST_RENDER_SCHEME="${CREST_RENDER_SCHEME:-}" \
+      CREST_DEMO=1 CREST_RENDER_OUT="$out" CREST_RENDER_SCHEME="${CREST_RENDER_SCHEME:-}" QS_ICON_THEME=Papirus-Dark \
       QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software \
       timeout -k 5 240 qs -p "$work/$which/shell.qml" --no-color || rc=1
   done
