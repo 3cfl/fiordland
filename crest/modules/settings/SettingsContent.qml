@@ -400,7 +400,7 @@ Rectangle {
                                 spacing: 2
 
                                 Txt {
-                                    text: "crest 2.0"
+                                    text: "crest 1"
                                     role: "headlineS"
                                 }
 

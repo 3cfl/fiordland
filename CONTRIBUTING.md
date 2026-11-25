@@ -8,7 +8,7 @@ Thanks for helping. This page covers the repo layout, how to build and test, and
 | --- | --- |
 | `crest/` | The Hyprland shell, plain QML on Quickshell. |
 | `crest-greeter/` | The greetd login screen, which reuses crest's theme and components. |
-| `packages/` | PKGBUILDs for everything Fiordland ships. `packages/aur/` holds bundled AUR packages that crest 1.x needed. |
+| `packages/` | PKGBUILDs for everything Fiordland ships. `packages/aur/` holds bundled AUR packages that the old Caelestia-based crest needed. |
 | `iso/` | The archiso profile for the live ISO. |
 | `flavors/` | Overlays on the ISO profile, selected with `FLAVOR=` (currently `xfce`). |
 | `container/` | The Fiordland XFCE container image. |

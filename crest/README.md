@@ -2,7 +2,7 @@
 
 The Hyprland shell of [Fiordland Linux](https://fiordlandlinux.org), written in plain QML for [Quickshell](https://quickshell.org). There is no C++ plugin and nothing to compile.
 
-crest 2.0 is a rewrite. It uses Material 3 Expressive shapes and spring motion, and puts translucent glass over Hyprland's blur.
+crest 1 is a rewrite of the earlier Caelestia-based shell. It uses Material 3 Expressive shapes and spring motion, and puts translucent glass over Hyprland's blur.
 
 ## What's in it
 
@@ -56,7 +56,7 @@ qs -c crest ipc call lock lock
 
 crest's look and behaviour draw on these GPL-3.0 projects, and some of crest's patterns are adapted from them. Thanks to their authors.
 
-- [Caelestia shell](https://github.com/caelestia-dots/shell) by the Caelestia contributors. crest 1.x was a fork of it.
+- [Caelestia shell](https://github.com/caelestia-dots/shell) by the Caelestia contributors. The earlier crest shell was a fork of it.
 - [end-4's dots-hyprland](https://github.com/end-4/dots-hyprland) and its illogical-impulse Quickshell config.
 - [Quickshell](https://quickshell.org) by outfoxxed and contributors, which crest is built on.
 

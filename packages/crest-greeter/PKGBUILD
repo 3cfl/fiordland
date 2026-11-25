@@ -1,5 +1,5 @@
 pkgname=crest-greeter
-pkgver=2.0.0
+pkgver=1.0.0
 pkgrel=1
 pkgdesc="Login screen for greetd in the crest style, running Quickshell inside cage"
 arch=('any')
