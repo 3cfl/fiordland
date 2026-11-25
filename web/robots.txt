@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /repo/
+Disallow: /stable/
+Disallow: /iso/
+Disallow: /w/
+Disallow: /wiki/Special:
+Disallow: /mirrors/whoami
+
+Sitemap: https://fiordlandlinux.org/sitemap.xml

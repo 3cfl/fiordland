@@ -3,7 +3,7 @@ import sys, pathlib, html
 WEB = pathlib.Path(sys.argv[1])
 V = sys.argv[2]
 
-NAV = [("/#features", "Features"), ("/compare/", "Compare"), ("/docs/", "Docs"), ("/wiki/", "Wiki"), ("https://github.com/Fiordland-Linux/fiordland", "GitHub")]
+NAV = [("/#features", "Features"), ("/compare/", "Compare"), ("/docs/", "Docs"), ("/wiki/", "Wiki"), ("https://github.com/Fiordland-Linux/fiordland", "GitHub"), ("https://donate.stripe.com/8x25kFfe96fn0WL6X12wU00", "Donate"), ("https://discord.gg/gy4ANH2Q9V", "Discord")]
 
 def nav(cur):
     out = []
@@ -20,13 +20,19 @@ FOOT = """<footer class="foot">
     <a href="/mirrors/">Mirrors</a>
     <a href="/repo/x86_64/">Repo</a>
     <a href="https://github.com/Fiordland-Linux/fiordland">GitHub</a>
+      <a href="https://donate.stripe.com/8x25kFfe96fn0WL6X12wU00">Donate</a>
     <a href="https://apollo44.lat">apollo44.lat</a>
     <a href="https://ivy.rest">ivy.rest</a>
     <span class="credit">Tux by <a href="https://isc.tamu.edu/~lewing/linux/">Larry Ewing</a>, Simon Budig and Garrett LeSage, made with The GIMP.</span>
   </div>
 </footer>"""
 
-def page(title, desc, cur, body, eyebrow):
+def head_extra(path):
+    if path is None:
+        return '<meta name="robots" content="noindex">'
+    return f'<link rel="canonical" href="https://fiordlandlinux.org{path}">\n<meta property="og:url" content="https://fiordlandlinux.org{path}">'
+
+def page(title, desc, cur, body, eyebrow, path="/docs/"):
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -35,6 +41,7 @@ def page(title, desc, cur, body, eyebrow):
 <title>{title} &middot; Fiordland Linux</title>
 <meta name="description" content="{html.escape(desc)}">
 <meta name="theme-color" content="#131313">
+{head_extra(path)}
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{html.escape(desc)}">
 <meta property="og:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
@@ -205,7 +212,7 @@ C["help"] = "\n".join([
 
 def doc(slug, title, desc):
     body = f'  <h1 class="page">{title}</h1>\n  <p class="lede">{desc}</p>\n{C[slug]}\n{pager(slug)}'
-    return page(title, desc, "/docs/", body, '<a href="/docs/">Docs</a>')
+    return page(title, desc, "/docs/", body, '<a href="/docs/">Docs</a>', f"/docs/{slug}/")
 
 cards = "\n".join(f'    <a class="card dcard" href="/docs/{s}/"><div class="card-in"><h3>{t}</h3><p>{d}</p></div></a>' for s, t, d in DOCS)
 idx = f"""  <h1 class="page">Documentation</h1>
@@ -221,3 +228,7 @@ for s, t, d in DOCS:
     (WEB / "docs" / s).mkdir(exist_ok=True)
     (WEB / "docs" / s / "index.html").write_text(doc(s, t, d))
 
+nf = """  <h1 class="page">Page not found</h1>
+  <p class="lede">That page does not exist. It may have moved.</p>
+  <p><a href="/">Home</a> &middot; <a href="/docs/">Docs</a> &middot; <a href="/wiki/">Wiki</a></p>"""
+(WEB / "404.html").write_text(page("Page not found", "That page does not exist.", "", nf, "Fiordland", None))

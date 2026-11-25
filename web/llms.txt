@@ -1,0 +1,29 @@
+# Fiordland Linux
+
+> Fiordland Linux is a free, open-source, Arch-based Linux distribution. It ships a stable channel built from tested Arch Linux snapshots, the CachyOS kernel, Btrfs with automatic snapper snapshots before every update, Flathub, and gaming packages (Steam, Proton-CachyOS, MangoHud, gamescope) out of the box. It has its own tools, named after birds of the Fiordland region of New Zealand.
+
+## Tools
+
+- [tawaki](https://github.com/Fiordland-Linux/tawaki): command-line package manager in Rust. One command for the Arch repos, Flathub and the AUR, picking the cleanest source.
+- [kuaka](https://github.com/Fiordland-Linux/kuaka): graphical update manager for system, AUR and Flatpak updates, with a snapshot first.
+- [weka](https://github.com/Fiordland-Linux/weka): switches desktops and window managers cleanly while keeping apps, logins and passwords.
+- [rawaru](https://github.com/Fiordland-Linux/rawaru): graphical installer with 24 desktops and window managers and optional dotfiles.
+- crest: Fiordland's own Hyprland shell, forked from Caelestia.
+
+## Docs
+
+- [Install](https://fiordlandlinux.org/docs/install/): make a USB stick, boot it and run the installer.
+- [First steps](https://fiordlandlinux.org/docs/first-steps/)
+- [Updates and channels](https://fiordlandlinux.org/docs/updates/): stable and rolling channels.
+- [Apps](https://fiordlandlinux.org/docs/apps/)
+- [Snapshots and rollback](https://fiordlandlinux.org/docs/snapshots/)
+- [Getting help](https://fiordlandlinux.org/docs/help/)
+- [Fiordland vs CachyOS vs Arch](https://fiordlandlinux.org/compare/)
+- [Wiki](https://fiordlandlinux.org/wiki/)
+
+## Project
+
+- Website: https://fiordlandlinux.org
+- Source: https://github.com/Fiordland-Linux
+- Community: https://discord.gg/gy4ANH2Q9V
+- Download: https://fiordlandlinux.org/iso/fiordland-latest.iso
