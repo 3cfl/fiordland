@@ -90,19 +90,23 @@ Singleton {
         Entry {}
     }
 
-    NotificationServer {
-        id: server
+    LazyLoader {
+        active: !root.demo
 
-        keepOnReload: false
-        actionsSupported: true
-        bodySupported: true
-        bodyMarkupSupported: false
-        imageSupported: true
-        persistenceSupported: true
+        NotificationServer {
+            id: server
 
-        onNotification: n => {
-            n.tracked = true;
-            root.add(entryComp.createObject(root, { notif: n }));
+            keepOnReload: false
+            actionsSupported: true
+            bodySupported: true
+            bodyMarkupSupported: false
+            imageSupported: true
+            persistenceSupported: true
+
+            onNotification: n => {
+                n.tracked = true;
+                root.add(entryComp.createObject(root, { notif: n }));
+            }
         }
     }
 
