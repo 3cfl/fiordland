@@ -22,9 +22,9 @@ Named after the Fiordland penguin, the tawaki.</p>
 
 | Path | What it is |
 |------|------------|
-| `crest/` | Fiordland's own Hyprland shell, one of the options in the installer. Top bar, dashboard, launcher, notifications, lock screen, settings. Quickshell + a C++ plugin, forked from Caelestia. |
+| `crest/` | Fiordland's own Hyprland shell, one of the options in the installer. Bar, launcher, notifications, quick settings, lock screen, overview, settings. Plain QML on Quickshell with Material 3 Expressive shapes and glass over Hyprland's blur, no C++ plugin. `crest-greeter/` is its greetd login screen. |
 | [tawaki](https://github.com/Fiordland-Linux/tawaki) | Package manager in Rust, in its own repo. One command that picks the cleanest source: pacman, then Flathub, then AUR. |
-| [rawaru](https://github.com/Fiordland-Linux/rawaru) | Graphical installer, in its own repo (PySide6 + QML). Pick from 11 desktops and 13 window managers, with optional dotfiles (crest, Noctalia, Dux, Caelestia, end-4, HyDE, ML4W, JaKooLit, iNiR). Btrfs with snapper snapshots, zram, GRUB, GPU driver detection, CachyOS or Arch kernel. |
+| [rawaru](https://github.com/Fiordland-Linux/rawaru) | Graphical installer, in its own repo (PySide6 + QML). Pick from 11 desktops and 13 window managers, with optional dotfiles (crest, Noctalia, Dux, Caelestia, end-4, HyDE, ML4W, JaKooLit, iNiR). Btrfs with snapper snapshots, zram, GRUB, GPU driver detection, CachyOS, Fiordland or Arch kernel, and a Low-end PC switch. |
 | `packages/` | PKGBUILDs for everything above (tawaki and rawaru build from their tagged GitHub releases), plus `fiordland-desktop` (theme, icons, configs, defaults). |
 | `iso/` | archiso profile for the live ISO. |
 | `web/` | The website. |
@@ -56,7 +56,7 @@ prefer_light = true
 
 ## Kernel and drivers
 
-Installs default to the [CachyOS](https://cachyos.org) kernel (`linux-cachyos`), pulled from CachyOS's baseline `[cachyos]` repo, which sits after the Arch repos so only CachyOS-only packages come from it. The stock Arch `linux` kernel stays installed as a second boot entry. Pick "Arch kernel" in the installer to skip the CachyOS kernel.
+Installs default to the [CachyOS](https://cachyos.org) kernel (`linux-cachyos`), pulled from CachyOS's baseline `[cachyos]` repo, which sits after the Arch repos so only CachyOS-only packages come from it. The stock Arch `linux` kernel stays installed as a second boot entry. Pick "Arch kernel" in the installer to skip the CachyOS kernel, or "Fiordland" for [linux-fiord](docs/kernel.md), our own kernel built for the x86-64 baseline.
 
 The installer detects the GPU: NVIDIA Turing and newer get `nvidia-open` (plus `linux-cachyos-nvidia-open`), older NVIDIA cards use nouveau, Intel and AMD get the matching Vulkan and VA-API drivers. Multilib is enabled for Steam and Wine.
 
@@ -66,15 +66,7 @@ Every install comes with the `fiordland-gaming` meta package: Steam, proton-cach
 
 ## crest
 
-Runs with `qs -c crest`. Settings live in `~/.config/caelestia/shell.json` and in the settings app (Super + I).
-
-Changes from Caelestia:
-
-- Floating top bar instead of the side bar and screen frame; panels and popouts drop down from it
-- Grey and baby blue scheme (`fiordland`), Inter everywhere
-- Pill workspace indicator, single-line clock that opens the dashboard
-- Fiordland wallpaper, no mascot artwork
-- Terminal system info toggle (Settings → Apps → Terminal)
+Runs with `qs -c crest`. Settings live in `~/.config/crest/config.json` and in the settings window (Super + I). Colours come from the wallpaper through matugen, with the Fiordland palette as the fallback. Low-end mode turns off blur, shadows and most animation, and switches on by itself under software rendering or with less than 4 GB of memory. See [crest/README.md](crest/README.md) for shortcuts and IPC.
 
 ## Building
 
@@ -82,7 +74,7 @@ Needs an Arch-based host with `archiso`, `devtools` and `base-devel`.
 
 ```
 ./build.sh            build all packages and the ISO into out/
-SKIP_AUR=1 ./build.sh skip the chroot builds of crest and its AUR deps
+SKIP_AUR=1 ./build.sh skip the chroot builds of crest and crest-greeter
 REBUILD_KERNEL=1 ./build.sh rebuild linux-fiord even if its version is published
 ./vm.sh --share       boot the ISO in QEMU
 ```
@@ -99,7 +91,9 @@ Report vulnerabilities privately; see [SECURITY.md](SECURITY.md). Signing key ha
 
 ## Credits
 
-- [Caelestia shell](https://github.com/caelestia-dots/shell) by the Caelestia contributors, which crest is forked from (GPL-3.0)
+- [Caelestia shell](https://github.com/caelestia-dots/shell) by the Caelestia contributors, which the earlier crest was forked from, and [end-4's dots-hyprland](https://github.com/end-4/dots-hyprland), which crest 1 draws on (both GPL-3.0)
+- [Quickshell](https://quickshell.org) by outfoxxed and contributors, which crest is built on
+- [CachyOS](https://github.com/CachyOS/linux-cachyos), whose kernel packaging linux-fiord is forked from
 - [archiso](https://gitlab.archlinux.org/archlinux/archiso), the base of the ISO profile
 - AUR maintainers of the bundled PKGBUILDs in `packages/aur/`
 - Tawaki photos on the website from Wikimedia Commons, credited per photo
