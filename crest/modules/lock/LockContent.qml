@@ -188,8 +188,12 @@ Item {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: parent.height * 0.14
             width: 400
-            height: cardCol.implicitHeight + 56
+            height: cardCol.implicitHeight + 64
             radius: Style.rXxl
+
+            Behavior on height {
+                SpringDefault {}
+            }
 
             transform: Translate {
                 id: shakeX
@@ -331,7 +335,8 @@ Item {
 
                 Txt {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 20
+                    Layout.preferredHeight: text ? 20 : 0
+                    Layout.topMargin: text ? 0 : -16
                     horizontalAlignment: Text.AlignHCenter
                     text: root.auth?.message ?? ""
                     role: "bodyM"

@@ -42,13 +42,13 @@ Glass {
                 spacing: 0
 
                 Txt {
-                    text: Qt.formatDateTime(clock.date, "dddd")
+                    text: Qt.formatDateTime(clock.date, "dddd").toLowerCase()
                     role: "labelL"
                     color: Colours.primary
                 }
 
                 Txt {
-                    text: Qt.formatDateTime(clock.date, "d MMMM")
+                    text: Qt.formatDateTime(clock.date, "d MMMM").toLowerCase()
                     role: "headlineM"
                 }
             }

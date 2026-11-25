@@ -186,6 +186,7 @@ Item {
             }
 
             Txt {
+                height: implicitHeight - (root.wide ? 36 : 24)
                 text: Qt.formatDateTime(clock.date, "HH")
                 role: "displayL"
                 font.pixelSize: root.wide ? 168 : 112
@@ -594,7 +595,7 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: root.sessionsOpen ? listCol.implicitHeight : 0
                     clip: true
-                    visible: Layout.preferredHeight > 0.5
+                    visible: opacity > 0.01
                     opacity: root.sessionsOpen ? 1 : 0
 
                     Behavior on Layout.preferredHeight {

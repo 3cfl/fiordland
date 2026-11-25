@@ -65,7 +65,7 @@ Item {
             width: 6
             height: 6
             radius: 3
-            visible: parent.width > parent.height
+            visible: !root.showValue && parent.width > parent.height
             color: Colours.fgSecondaryContainer
         }
     }
