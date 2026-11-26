@@ -51,7 +51,7 @@ Glass {
                 }
 
                 Txt {
-                    text: Scheme.generating ? "picking colours…" : (Scheme.fromWallpaper ? "colours follow your wallpaper" : "fiordland colours")
+                    text: Scheme.generating ? "picking colours…" : (Scheme.fromWallpaper ? (Scheme.live ? "colours follow your live wallpaper" : "colours follow your wallpaper") : "fiordland colours")
                     role: "bodyM"
                     color: Colours.fgSurfaceVariant
                 }
