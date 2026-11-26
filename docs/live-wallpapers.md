@@ -28,6 +28,8 @@ Kererū plays scene and video wallpapers. Web and application wallpapers aren't 
 
 Workshop wallpapers are files made by strangers, so Kererū runs the engine in a [bubblewrap](https://github.com/containers/bubblewrap) sandbox. Inside it the engine has no network access and can't see your home folder. It can only read the wallpapers it is showing, Wallpaper Engine's assets, the system's libraries, and your display. When sound is on, it can also use your sound server.
 
+The sandbox can't limit what the engine does with your display. It draws through the same Wayland or X11 connection as your other apps, so a wallpaper that broke out of the engine itself could still ask the compositor for things any app can, such as reading the screen or typing into other windows. Fiordland's Hyprland setup offers no way to take those away from one app yet. Only use wallpapers from creators you trust if that worries you.
+
 Web wallpapers aren't supported because they would need a web browser engine running untrusted code.
 
 ## Getting new wallpapers
