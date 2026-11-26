@@ -42,6 +42,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
     hl.exec_cmd("xdg-user-dirs-update")
     hl.exec_cmd("fiordland-dots")
+    hl.exec_cmd("kuaka --tray")
 end)
 
 hl.config({

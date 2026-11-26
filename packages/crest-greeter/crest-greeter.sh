@@ -17,6 +17,7 @@ fi
 export QT_LOGGING_RULES='*.debug=false;quickshell.service.greetd.debug=false'
 export QS_NO_RELOAD_POPUP=1
 export QT_QPA_PLATFORM=wayland
+export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
 unset QT_QUICK_BACKEND
 
 kbd=/etc/X11/xorg.conf.d/00-keyboard.conf
