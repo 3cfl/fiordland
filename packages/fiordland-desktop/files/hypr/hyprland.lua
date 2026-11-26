@@ -33,6 +33,12 @@ if nvidia_only() then
     hl.env("NVD_BACKEND", "direct")
 end
 
+local function installed(path)
+    local f = io.open(path, "r")
+    if f then f:close() end
+    return f ~= nil
+end
+
 hl.on("hyprland.start", function()
     if runs[shell] then hl.exec_cmd(runs[shell]) end
     if shell == "none" then
@@ -43,6 +49,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("xdg-user-dirs-update")
     hl.exec_cmd("fiordland-dots")
     hl.exec_cmd("kuaka --tray")
+    if installed("/usr/bin/kereru") then hl.exec_cmd("kereru --autostart") end
 end)
 
 hl.config({

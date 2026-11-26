@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Live Wallpapers
+Comment=Plays your chosen Wallpaper Engine wallpaper
+Exec=kereru --autostart
+Icon=kereru
+Terminal=false
+NoDisplay=true
+X-GNOME-Autostart-Delay=3
+X-KDE-autostart-phase=2
