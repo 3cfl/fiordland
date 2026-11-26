@@ -335,7 +335,10 @@ impl ksni::Tray for Tray {
     }
 }
 
+type Starter = fn(&std::path::Path, &Plan, Option<&std::path::Path>) -> Result<Engine>;
+
 struct Supervisor {
+    start: Starter,
     log: Option<std::path::PathBuf>,
     engine: Option<Engine>,
     running_plan: Option<Plan>,
@@ -394,7 +397,7 @@ impl Supervisor {
             return None;
         }
         if self.engine.is_none() && Instant::now() >= self.retry_at {
-            match Engine::start(bin, want, self.log.as_deref()) {
+            match (self.start)(bin, want, self.log.as_deref()) {
                 Ok(e) => {
                     self.engine = Some(e);
                     self.running_plan = Some(want.clone());
@@ -458,6 +461,7 @@ pub fn run(autostart: bool) -> Result<()> {
     let mut battery = cfg.pause_on_battery && sys::on_battery();
     let mut battery_at = Instant::now();
     let mut sup = Supervisor {
+        start: Engine::start,
         log: engine::log_path(),
         engine: None,
         running_plan: None,
@@ -585,6 +589,7 @@ mod tests {
     #[test]
     fn supervisor_reports_missing_engine() {
         let mut s = Supervisor {
+            start: Engine::start_direct,
             log: None,
             engine: None,
             running_plan: None,
@@ -603,6 +608,7 @@ mod tests {
     #[test]
     fn supervisor_gives_up_after_repeated_quick_crashes() {
         let mut s = Supervisor {
+            start: Engine::start_direct,
             log: None,
             engine: None,
             running_plan: None,

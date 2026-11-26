@@ -437,8 +437,19 @@ impl Engine {
             anyhow::bail!("bubblewrap isn't installed, so the wallpaper can't run safely");
         }
         let mut cmd = Command::new(BWRAP);
-        cmd.args(sandbox_args(bin, plan, &Host::detect()))
-            .env_clear()
+        cmd.args(sandbox_args(bin, plan, &Host::detect()));
+        Engine::launch(cmd, log).with_context(|| format!("couldn't start {BWRAP}"))
+    }
+
+    #[cfg(test)]
+    pub fn start_direct(bin: &Path, plan: &Plan, log: Option<&Path>) -> Result<Engine> {
+        let mut cmd = Command::new(bin);
+        cmd.args(plan.args());
+        Engine::launch(cmd, log)
+    }
+
+    fn launch(mut cmd: Command, log: Option<&Path>) -> Result<Engine> {
+        cmd.env_clear()
             .env("PATH", sys::SAFE_PATH)
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
@@ -454,9 +465,7 @@ impl Engine {
                 Ok(())
             });
         }
-        let mut child = cmd
-            .spawn()
-            .with_context(|| format!("couldn't start {BWRAP}"))?;
+        let mut child = cmd.spawn()?;
         let log = log.and_then(|p| sys::open_private_log(p).ok());
         let log2 = log.as_ref().and_then(|f| f.try_clone().ok());
         if let Some(out) = child.stdout.take() {
