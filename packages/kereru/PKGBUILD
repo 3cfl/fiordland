@@ -5,7 +5,7 @@ pkgdesc="Live Wallpaper Engine wallpapers for Fiordland, with a tray icon and a 
 arch=('x86_64')
 url='https://fiordlandlinux.org'
 license=('GPL-3.0-only')
-depends=('linux-wallpaperengine' 'gcc-libs' 'glibc' 'fontconfig' 'freetype2' 'libxkbcommon'
+depends=('linux-wallpaperengine' 'bubblewrap' 'gcc-libs' 'glibc' 'fontconfig' 'freetype2' 'libxkbcommon'
          'libxkbcommon-x11' 'wayland' 'libglvnd' 'libx11' 'libxcursor' 'libxrandr' 'libxi')
 makedepends=('cargo')
 options=('!lto' '!debug')

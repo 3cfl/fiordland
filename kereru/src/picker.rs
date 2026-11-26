@@ -163,6 +163,7 @@ fn refresh(ui: &App, st: &Rc<std::cell::RefCell<State>>) {
                 preview: thumb.as_ref().map(to_image).unwrap_or_default(),
                 hidden,
                 selected: current.as_deref() == Some(i.key.as_str()),
+                unsupported: !i.kind.playable(),
             }
         })
         .collect();
@@ -286,8 +287,10 @@ fn load_thumbs(ui: &App, st: &Rc<std::cell::RefCell<State>>) {
     }
 }
 
-pub fn shop_state(installed: bool, waiting: bool) -> &'static str {
-    if installed {
+pub fn shop_state(playable: bool, installed: bool, waiting: bool) -> &'static str {
+    if !playable {
+        "unsupported"
+    } else if installed {
         "installed"
     } else if waiting {
         "waiting"
@@ -315,6 +318,7 @@ fn shop_rows(ui: &App, st: &State) -> Vec<Shop> {
                 preview: thumb.as_ref().map(to_image).unwrap_or_default(),
                 hidden,
                 state: shop_state(
+                    e.kind.playable(),
                     st.lib.find(&e.id).is_some(),
                     st.pending.iter().any(|(p, _)| *p == e.id),
                 )
@@ -452,7 +456,10 @@ fn load_shop_thumbs(ui: &App, st: &Rc<std::cell::RefCell<State>>) {
     }
 }
 
-fn apply(ui: &App, st: &Rc<std::cell::RefCell<State>>, key: String) {
+fn apply(ui: &App, st: &Rc<std::cell::RefCell<State>>, key: String) -> bool {
+    if st.borrow().lib.unsupported(&key) {
+        return false;
+    }
     let scope = scope_key(ui, &st.borrow().monitors);
     save(|c| match scope {
         Some(m) => {
@@ -469,6 +476,7 @@ fn apply(ui: &App, st: &Rc<std::cell::RefCell<State>>, key: String) {
     });
     daemon::start_in_background();
     refresh(ui, st);
+    true
 }
 
 fn rescan(ui: &App, st: &Rc<std::cell::RefCell<State>>) {
@@ -502,8 +510,12 @@ fn check_pending(ui: &App, st: &Rc<std::cell::RefCell<State>>) {
     if let Some(id) = arrived.last() {
         let title = st.borrow().lib.find(id).map(|i| i.title.clone());
         if let Some(title) = title {
-            apply(ui, st, id.clone());
-            ui.set_shop_status(format!("{title} downloaded and is playing now.").into());
+            let status = if apply(ui, st, id.clone()) {
+                format!("{title} downloaded and is playing now.")
+            } else {
+                format!("{title} downloaded. {}.", library::WEB_NOTE)
+            };
+            ui.set_shop_status(status.into());
             show_shop(ui, st);
         }
     }
@@ -600,6 +612,14 @@ pub fn run() -> Result<()> {
     ui.on_shop_get(move |id| {
         let Some(ui) = weak.upgrade() else { return };
         let steam = s.borrow().lib.steam;
+        let playable = s
+            .borrow()
+            .shop
+            .iter()
+            .any(|e| e.id == id.as_str() && e.kind.playable());
+        if !playable {
+            return;
+        }
         let Some(url) = workshop::item_page(&id, steam) else {
             return;
         };
@@ -828,9 +848,11 @@ mod tests {
 
     #[test]
     fn shop_states() {
-        assert_eq!(shop_state(true, true), "installed");
-        assert_eq!(shop_state(false, true), "waiting");
-        assert_eq!(shop_state(false, false), "get");
+        assert_eq!(shop_state(true, true, true), "installed");
+        assert_eq!(shop_state(true, false, true), "waiting");
+        assert_eq!(shop_state(true, false, false), "get");
+        assert_eq!(shop_state(false, true, false), "unsupported");
+        assert_eq!(shop_state(false, false, false), "unsupported");
     }
 
     #[test]

@@ -5,7 +5,7 @@ pkgname=linux-wallpaperengine
 _commit=a0ddce586e9ff12e9d31ca6b103f6036cc1b68fe
 _cef=135.0.17+gcbc1c5b+chromium-135.0.7049.52
 pkgver=0.0.1.r643.a0ddce5
-pkgrel=1
+pkgrel=2
 pkgdesc="Renders Wallpaper Engine scene, video and web wallpapers on Linux"
 arch=('x86_64')
 url="https://github.com/Almamu/linux-wallpaperengine"
@@ -29,7 +29,8 @@ source=("$pkgname::git+https://github.com/Almamu/linux-wallpaperengine.git#commi
         "Catch2::git+https://github.com/catchorg/Catch2.git"
         "quickjs::git+https://github.com/quickjs-ng/quickjs.git"
         "cef_binary_${_cef}_linux64_minimal.tar.bz2::https://cef-builds.spotifycdn.com/cef_binary_${_cef//+/%2B}_linux64_minimal.tar.bz2"
-        "pause-signals.patch")
+        "pause-signals.patch"
+        "media-without-dbus.patch")
 noextract=("cef_binary_${_cef}_linux64_minimal.tar.bz2")
 sha256sums=('SKIP'
             'SKIP'
@@ -42,7 +43,8 @@ sha256sums=('SKIP'
             'SKIP'
             'SKIP'
             '24ac1980e62be7b1aea2c337d6bd4bc770dccd8b37e47c6db94b397f13ec4dc6'
-            '19f9527b9dd0f0edced353fb468b9062e1dfdbcc29c27789c111cfcf34f1c305')
+            '19f9527b9dd0f0edced353fb468b9062e1dfdbcc29c27789c111cfcf34f1c305'
+            'c7c35aa2f51368904c999c31bca633dfc1cfc75bd42597a7ae2e05cc3607750c')
 
 prepare() {
   cd "$pkgname"
@@ -53,6 +55,7 @@ prepare() {
   done
   git -c protocol.file.allow=always submodule update
   patch -Np1 -i "$srcdir/pause-signals.patch"
+  patch -Np1 -i "$srcdir/media-without-dbus.patch"
   mkdir -p "$srcdir/build/cef"
   ln -sf "$srcdir/cef_binary_${_cef}_linux64_minimal.tar.bz2" "$srcdir/build/cef/"
 }

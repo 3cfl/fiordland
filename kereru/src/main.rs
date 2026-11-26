@@ -21,14 +21,21 @@ fn change(f: impl FnOnce(&mut Config)) -> anyhow::Result<()> {
 fn status() {
     let cfg = Config::load();
     let lib = library::scan();
+    let name = |k: &str| {
+        if lib.unsupported(k) {
+            format!("{} ({})", lib.title(k), library::WEB_NOTE)
+        } else {
+            lib.title(k)
+        }
+    };
     let pick = cfg
         .wallpaper
         .as_deref()
-        .map(|k| lib.title(k))
+        .map(name)
         .unwrap_or_else(|| "none".into());
     println!("wallpaper: {pick}");
     for (m, k) in &cfg.monitors {
-        println!("  {m}: {}", lib.title(k));
+        println!("  {m}: {}", name(k));
     }
     println!("running: {}", if daemon::running() { "yes" } else { "no" });
     println!("paused: {}", if cfg.paused { "yes" } else { "no" });

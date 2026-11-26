@@ -39,7 +39,7 @@ startup.
   screen. Previews of wallpapers marked mature are blurred until you choose to
   show them.
 - **Workshop**: browse trending, most subscribed and newest wallpapers, or
-  search, and filter by scene, video or web. **get** opens the item in Steam,
+  search, and filter by scene or video. **get** opens the item in Steam,
   or on the Workshop website if Kererū finds no Steam library. Kererū never
   sees your Steam login and never downloads wallpapers itself. Steam does the
   download, and Kererū watches for it for two hours.
@@ -77,8 +77,20 @@ Wallpaper Engine's own `projects/myprojects` and `projects/defaultprojects`. It
 also looks in `~/.local/share/kereru/wallpapers`, where each wallpaper is a folder
 with a `project.json`. Native Steam, Flatpak Steam and Snap Steam are all found.
 
-Scene and video wallpapers work best. Web wallpapers work too, but they use more
-memory. Application wallpapers are not supported.
+Kererū plays scene and video wallpapers. Web and application wallpapers aren't
+supported yet. Web wallpapers are listed greyed out and can't be picked, because
+they would need a web browser engine running untrusted code.
+
+## Sandbox
+
+Workshop wallpapers are untrusted files, so Kererū runs the engine inside
+[bubblewrap](https://github.com/containers/bubblewrap). The engine gets no
+network and no home folder. It can read `/usr`, the engine's own folder, a few
+files from `/etc`, the wallpaper folders it is showing and the Wallpaper Engine
+assets. It can also reach the display socket, `/dev/dri` and the GPU devices, and
+the sound server socket when sound is on. Everything else is an empty, private
+`/tmp`. This needs unprivileged user namespaces, which some hardened kernels turn
+off.
 
 ## License
 

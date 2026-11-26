@@ -10,6 +10,7 @@ const VDF_LIMIT: u64 = 256 * 1024;
 const PREVIEW_LIMIT: u64 = 32 << 20;
 const MAX_ITEMS: usize = 2000;
 const MAX_LIBRARIES: usize = 32;
+pub const WEB_NOTE: &str = "Web wallpapers aren't supported yet";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Kind {
@@ -26,6 +27,10 @@ impl Kind {
             "web" => Some(Kind::Web),
             _ => None,
         }
+    }
+
+    pub fn playable(self) -> bool {
+        matches!(self, Kind::Scene | Kind::Video)
     }
 
     pub fn label(self) -> &'static str {
@@ -297,15 +302,26 @@ impl Library {
         self.items.iter().find(|i| i.key == key)
     }
 
+    fn current(&self, key: &str) -> Option<Item> {
+        match self.find(key) {
+            Some(i) => read_item(&i.dir, i.workshop),
+            None if config::valid_workshop_id(key) => None,
+            None => read_item(Path::new(key), false),
+        }
+    }
+
     pub fn resolve(&self, key: &str) -> Option<PathBuf> {
-        if let Some(i) = self.find(key) {
-            return Some(i.dir.clone());
-        }
-        if config::valid_workshop_id(key) {
-            return None;
-        }
-        let p = PathBuf::from(key);
-        read_item(&p, false).map(|i| i.dir)
+        self.current(key)
+            .filter(|i| i.kind.playable())
+            .map(|i| i.dir)
+    }
+
+    pub fn unsupported(&self, key: &str) -> bool {
+        self.current(key).is_some_and(|i| !i.kind.playable())
+    }
+
+    pub fn playable(&self) -> impl Iterator<Item = &Item> {
+        self.items.iter().filter(|i| i.kind.playable())
     }
 
     pub fn title(&self, key: &str) -> String {
@@ -315,11 +331,13 @@ impl Library {
     }
 
     pub fn next_after(&self, key: Option<&str>) -> Option<&Item> {
-        if self.items.is_empty() {
-            return None;
-        }
-        let pos = key.and_then(|k| self.items.iter().position(|i| i.key == k));
-        Some(&self.items[pos.map_or(0, |p| (p + 1) % self.items.len())])
+        let n = self.items.len();
+        let start = key
+            .and_then(|k| self.items.iter().position(|i| i.key == k))
+            .map_or(0, |p| p + 1);
+        (0..n)
+            .map(|o| &self.items[(start + o) % n])
+            .find(|i| i.kind.playable())
     }
 }
 
@@ -396,8 +414,18 @@ mod tests {
         assert!(clouds.mature);
         assert_eq!(lib.resolve("111"), Some(fjord.dir.clone()));
         assert_eq!(lib.resolve("999"), None);
-        assert_eq!(lib.next_after(Some("222")).unwrap().title, "Clouds");
-        assert_eq!(lib.next_after(None).unwrap().title, "Clouds");
+        assert_eq!(lib.next_after(Some("222")).unwrap().title, "Fjord at night");
+        assert_eq!(lib.next_after(None).unwrap().title, "Fjord at night");
+        assert_eq!(lib.resolve(&clouds.key), None);
+        assert!(lib.unsupported(&clouds.key));
+        assert!(!lib.unsupported("111"));
+        assert_eq!(lib.playable().count(), 2);
+        project(
+            &ws.join("111"),
+            r#"{"title":"Fjord at night","type":"web"}"#,
+        );
+        assert_eq!(lib.resolve("111"), None);
+        assert!(lib.unsupported("111"));
         let _ = std::fs::remove_dir_all(&home);
     }
 

@@ -383,8 +383,7 @@ pub fn menu_text(s: &str) -> String {
 }
 
 fn menu_items(lib: &Library) -> Vec<(String, String)> {
-    lib.items
-        .iter()
+    lib.playable()
         .take(MENU_ITEMS)
         .map(|i| (i.key.clone(), i.title.clone()))
         .collect()
@@ -476,6 +475,12 @@ pub fn run(autostart: bool) -> Result<()> {
         if problem.is_none() && cfg.wallpaper.is_some() && want.screens.is_empty() {
             problem = Some(if monitors.is_empty() {
                 "No screens found".into()
+            } else if monitors
+                .iter()
+                .filter_map(|m| cfg.wallpaper_for(&m.name))
+                .any(|k| lib.unsupported(k))
+            {
+                library::WEB_NOTE.into()
             } else {
                 "The chosen wallpaper isn't installed anymore".into()
             });

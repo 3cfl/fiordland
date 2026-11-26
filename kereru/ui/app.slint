@@ -10,6 +10,7 @@ export struct Wall {
     has-preview: bool,
     hidden: bool,
     selected: bool,
+    unsupported: bool,
 }
 
 export struct Screen {
@@ -99,8 +100,11 @@ component WallCard inherits Rectangle {
     accessible-role: button;
     accessible-label: wall.title;
     accessible-checked: wall.selected;
+    accessible-description: wall.unsupported ? "Web wallpapers aren't supported yet" : "";
     accessible-action-default => {
-        root.picked();
+        if !root.wall.unsupported {
+            root.picked();
+        }
     }
     property <length> shot: self.width * 9 / 16;
     Rectangle {
@@ -115,7 +119,7 @@ component WallCard inherits Rectangle {
             source: root.wall.preview;
             image-fit: cover;
         }
-        if !root.wall.has-preview: Icon {
+        if !root.wall.has-preview && !root.wall.unsupported: Icon {
             name: root.wall.kind == "video" ? "movie" : root.wall.kind == "web" ? "language" : "landscape";
             size: 40px;
             tint: Theme.on-surface-variant;
@@ -159,6 +163,20 @@ component WallCard inherits Rectangle {
                 }
             }
         }
+        if root.wall.unsupported: Rectangle {
+            width: parent.width;
+            height: parent.height;
+            background: Theme.surface.with-alpha(0.75);
+            Txt {
+                x: 12px;
+                width: parent.width - 24px;
+                text: "Web wallpapers aren't supported yet";
+                role: "labelM";
+                color: Theme.on-surface;
+                horizontal-alignment: center;
+                wrap: word-wrap;
+            }
+        }
         if root.wall.selected: Badge {
             x: 10px;
             y: 10px;
@@ -181,7 +199,8 @@ component WallCard inherits Rectangle {
         vertical-alignment: top;
     }
     touch := TouchArea {
-        mouse-cursor: pointer;
+        enabled: !root.wall.unsupported;
+        mouse-cursor: root.wall.unsupported ? default : pointer;
         clicked => {
             root.picked();
         }
@@ -259,6 +278,11 @@ component ShopCard inherits Rectangle {
                 horizontal-alignment: center;
             }
         }
+        if root.item.state == "unsupported": Rectangle {
+            width: parent.width;
+            height: parent.height;
+            background: Theme.surface.with-alpha(0.75);
+        }
         KindPill {
             x: parent.width - self.width - 10px;
             y: 10px;
@@ -310,6 +334,13 @@ component ShopCard inherits Rectangle {
                 clicked => {
                     root.get();
                 }
+            }
+            if root.item.state == "unsupported": Txt {
+                text: "Web wallpapers aren't supported yet";
+                role: "bodyS";
+                color: Theme.on-surface-variant;
+                height: 32px;
+                vertical-alignment: center;
             }
             if root.item.state == "installed": PillButton {
                 text: "use";
@@ -601,7 +632,7 @@ export component App inherits Window {
                                 }
                             }
                         }
-                        for f in ["all", "scene", "video", "web"]: Chip {
+                        for f in ["all", "scene", "video"]: Chip {
                             text: f;
                             interactive: true;
                             selected: root.filter == f;
@@ -706,7 +737,7 @@ export component App inherits Window {
                                 }
                             }
                         }
-                        for f in ["all", "scene", "video", "web"]: Chip {
+                        for f in ["all", "scene", "video"]: Chip {
                             text: f;
                             interactive: true;
                             selected: root.shop-kind == f;
