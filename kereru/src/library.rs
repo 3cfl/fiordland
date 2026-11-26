@@ -275,6 +275,23 @@ pub fn scan() -> Library {
     }
 }
 
+pub fn arrived_in(home: &Path, id: &str) -> bool {
+    config::valid_workshop_id(id)
+        && libraries(home).iter().any(|root| {
+            let dir = root
+                .join("steamapps")
+                .join("workshop")
+                .join("content")
+                .join(APP_ID)
+                .join(id);
+            read_item(&dir, true).is_some()
+        })
+}
+
+pub fn arrived(id: &str) -> bool {
+    sys::home().is_some_and(|h| arrived_in(&h, id))
+}
+
 impl Library {
     pub fn find(&self, key: &str) -> Option<&Item> {
         self.items.iter().find(|i| i.key == key)
@@ -359,6 +376,11 @@ mod tests {
             r#"{"title":"Clouds","type":"web","contentrating":"Mature"}"#,
         );
         std::fs::create_dir_all(steam.join("steamapps/common/wallpaper_engine/assets")).unwrap();
+        assert!(arrived_in(&home, "111"));
+        assert!(!arrived_in(&home, "333"));
+        assert!(!arrived_in(&home, "444"));
+        assert!(!arrived_in(&home, "999"));
+        assert!(!arrived_in(&home, "../111"));
         let lib = scan_home(&home, None);
         let keys: Vec<_> = lib.items.iter().map(|i| i.title.as_str()).collect();
         assert_eq!(keys, vec!["Clouds", "Fjord at night", "Rain"]);

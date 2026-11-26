@@ -5,6 +5,7 @@ mod library;
 mod outputs;
 mod picker;
 mod sys;
+mod workshop;
 
 use config::Config;
 

@@ -18,6 +18,17 @@ export struct Screen {
     custom: bool,
 }
 
+export struct Shop {
+    id: string,
+    title: string,
+    kind: string,
+    preview: image,
+    has-preview: bool,
+    hidden: bool,
+    state: string,
+    subs: string,
+}
+
 component Scroller inherits Flickable {
     in property <length> content: 0px;
     content-height: max(self.height, content);
@@ -181,6 +192,138 @@ component WallCard inherits Rectangle {
     }
 }
 
+component KindPill inherits Rectangle {
+    in property <string> kind;
+    width: pill-row.preferred-width;
+    height: 24px;
+    border-radius: 12px;
+    background: Theme.surface.with-alpha(0.8);
+    pill-row := HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 10px;
+        spacing: 4px;
+        VerticalLayout {
+            alignment: center;
+            Icon {
+                name: root.kind == "video" ? "movie" : root.kind == "web" ? "language" : "landscape";
+                size: 14px;
+                tint: Theme.on-surface;
+            }
+        }
+        Text {
+            text: root.kind;
+            color: Theme.on-surface;
+            font-size: 11px;
+            font-weight: 600;
+            vertical-alignment: center;
+        }
+    }
+}
+
+component ShopCard inherits Rectangle {
+    in property <Shop> item;
+    callback get();
+    callback use();
+    callback open();
+    border-radius: Theme.xl;
+    background: Theme.glass(Theme.surface-container);
+    border-width: 1px;
+    border-color: item.state == "installed" ? Theme.primary.with-alpha(0.6) : Theme.outline-variant.with-alpha(0.6);
+    clip: true;
+    property <length> shot: self.width * 9 / 16;
+    Rectangle {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.shot;
+        background: Theme.surface-container-highest;
+        if root.item.has-preview: Image {
+            width: parent.width;
+            height: parent.height;
+            source: root.item.preview;
+            image-fit: cover;
+        }
+        if !root.item.has-preview: Icon {
+            name: root.item.kind == "video" ? "movie" : root.item.kind == "web" ? "language" : "landscape";
+            size: 40px;
+            tint: Theme.on-surface-variant;
+        }
+        if root.item.hidden: Rectangle {
+            width: parent.width;
+            height: parent.height;
+            background: Theme.surface.with-alpha(0.35);
+            Txt {
+                text: "preview hidden";
+                role: "labelM";
+                color: Theme.on-surface;
+                horizontal-alignment: center;
+            }
+        }
+        KindPill {
+            x: parent.width - self.width - 10px;
+            y: 10px;
+            kind: root.item.kind;
+        }
+        shot-touch := TouchArea {
+            mouse-cursor: pointer;
+            clicked => {
+                root.open();
+            }
+        }
+    }
+    VerticalLayout {
+        x: 16px;
+        y: root.shot + 10px;
+        width: root.width - 32px;
+        height: root.height - root.shot - 20px;
+        spacing: 8px;
+        VerticalLayout {
+            spacing: 2px;
+            Txt {
+                text: root.item.title;
+                role: "titleS";
+                wrap: no-wrap;
+                overflow: elide;
+            }
+            Txt {
+                text: root.item.subs + " subscribers";
+                role: "bodyS";
+                color: Theme.on-surface-variant;
+            }
+        }
+        HorizontalLayout {
+            alignment: start;
+            if root.item.state == "get": PillButton {
+                text: "get";
+                icon: "download";
+                kind: "tonal";
+                height: 32px;
+                clicked => {
+                    root.get();
+                }
+            }
+            if root.item.state == "waiting": PillButton {
+                text: "waiting for Steam";
+                icon: "sync";
+                kind: "text";
+                height: 32px;
+                clicked => {
+                    root.get();
+                }
+            }
+            if root.item.state == "installed": PillButton {
+                text: "use";
+                icon: "check_circle";
+                kind: "filled";
+                height: 32px;
+                clicked => {
+                    root.use();
+                }
+            }
+        }
+    }
+}
+
 export component App inherits Window {
     title: "Kererū";
     preferred-width: 1120px;
@@ -211,7 +354,21 @@ export component App inherits Window {
     in-out property <bool> autostart: true;
     in-out property <bool> show-mature;
     in-out property <int> fps: 30;
+    in-out property <int> tab: 0;
+    in property <[Shop]> shop;
+    in-out property <string> shop-query;
+    in-out property <string> shop-sort: "popular";
+    in-out property <string> shop-kind: "all";
+    in property <string> shop-status;
+    in property <bool> shop-busy;
+    in property <bool> shop-more;
 
+    callback tab-changed();
+    callback shop-search();
+    callback shop-load-more();
+    callback shop-get(string);
+    callback shop-use(string);
+    callback shop-open(string);
     callback pick(string);
     callback scope-changed();
     callback filter-changed();
@@ -225,10 +382,12 @@ export component App inherits Window {
 
     property <length> side: 320px;
     property <length> gap: 16px;
-    property <int> cols: max(1, floor((grid.width - 24px + root.gap) / (230px + root.gap)));
-    property <length> card-w: (grid.width - 24px - (root.cols - 1) * root.gap) / root.cols;
+    property <int> cols: max(1, floor((area.width - 24px + root.gap) / (230px + root.gap)));
+    property <length> card-w: (area.width - 24px - (root.cols - 1) * root.gap) / root.cols;
     property <length> card-h: root.card-w * 9 / 16 + 48px;
+    property <length> shop-h: root.card-w * 9 / 16 + 100px;
     property <int> rows: ceil(root.walls.length / root.cols);
+    property <int> shop-rows: ceil(root.shop.length / root.cols);
 
     Backdrop {
         width: root.width;
@@ -339,6 +498,29 @@ export component App inherits Window {
                 spacing: 8px;
                 alignment: start;
                 Chip {
+                    text: "my wallpapers";
+                    icon: "wallpaper";
+                    interactive: true;
+                    selected: root.tab == 0;
+                    clicked => {
+                        root.tab = 0;
+                        root.tab-changed();
+                    }
+                }
+                Chip {
+                    text: "workshop";
+                    icon: "download";
+                    interactive: true;
+                    selected: root.tab == 1;
+                    clicked => {
+                        root.tab = 1;
+                        root.tab-changed();
+                    }
+                }
+                Rectangle {
+                    width: 16px;
+                }
+                Chip {
                     text: "all screens";
                     icon: "desktop_windows";
                     interactive: true;
@@ -367,86 +549,250 @@ export component App inherits Window {
                 }
             }
 
-            HorizontalLayout {
-                spacing: 8px;
-                Rectangle {
-                    height: 40px;
-                    min-width: 200px;
-                    horizontal-stretch: 1;
-                    border-radius: 20px;
-                    background: Theme.glass(Theme.surface-container-high);
+            area := Rectangle {
+                vertical-stretch: 1;
+                min-height: 200px;
+
+                if root.tab == 0: VerticalLayout {
+                    width: area.width;
+                    height: area.height;
+                    spacing: 16px;
                     HorizontalLayout {
-                        padding-left: 14px;
-                        padding-right: 14px;
                         spacing: 8px;
-                        VerticalLayout {
-                            alignment: center;
-                            Icon {
-                                name: "search";
-                                size: 20px;
-                                tint: Theme.on-surface-variant;
+                        Rectangle {
+                            height: 40px;
+                            min-width: 200px;
+                            horizontal-stretch: 1;
+                            border-radius: 20px;
+                            background: Theme.glass(Theme.surface-container-high);
+                            HorizontalLayout {
+                                padding-left: 14px;
+                                padding-right: 14px;
+                                spacing: 8px;
+                                VerticalLayout {
+                                    alignment: center;
+                                    Icon {
+                                        name: "search";
+                                        size: 20px;
+                                        tint: Theme.on-surface-variant;
+                                    }
+                                }
+                                TextInput {
+                                    text <=> root.query;
+                                    color: Theme.on-surface;
+                                    font-size: 14px;
+                                    vertical-alignment: center;
+                                    single-line: true;
+                                    accessible-role: text-input;
+                                    accessible-label: "search my wallpapers";
+                                    edited => {
+                                        root.filter-changed();
+                                    }
+                                    if self.text == "": Text {
+                                        text: "search " + root.total + " wallpapers";
+                                        color: Theme.on-surface-variant;
+                                        font-size: 14px;
+                                        x: 0;
+                                        width: parent.width;
+                                        height: parent.height;
+                                        horizontal-alignment: left;
+                                        vertical-alignment: center;
+                                    }
+                                }
                             }
                         }
-                        search := TextInput {
-                            text <=> root.query;
-                            color: Theme.on-surface;
-                            font-size: 14px;
-                            vertical-alignment: center;
-                            single-line: true;
-                            accessible-role: text-input;
-                            accessible-label: "search wallpapers";
-                            edited => {
+                        for f in ["all", "scene", "video", "web"]: Chip {
+                            text: f;
+                            interactive: true;
+                            selected: root.filter == f;
+                            y: 4px;
+                            clicked => {
+                                root.filter = f;
                                 root.filter-changed();
                             }
-                            if self.text == "": Text {
-                                text: "search " + root.total + " wallpapers";
+                        }
+                    }
+
+                    grid := Scroller {
+                        vertical-stretch: 1;
+                        content: root.rows * (root.card-h + root.gap);
+                        for w[i] in root.walls: WallCard {
+                            x: Math.mod(i, root.cols) * (root.card-w + root.gap);
+                            y: floor(i / root.cols) * (root.card-h + root.gap);
+                            width: root.card-w;
+                            height: root.card-h;
+                            wall: w;
+                            picked => {
+                                root.pick(w.key);
+                            }
+                        }
+                        if root.walls.length == 0 && root.problem == "": VerticalLayout {
+                            alignment: center;
+                            spacing: 12px;
+                            width: grid.width;
+                            height: grid.height;
+                            Txt {
+                                text: root.total == 0 ? "no wallpapers yet" : "nothing matches";
+                                role: "titleM";
+                                horizontal-alignment: center;
+                            }
+                            Txt {
+                                text: root.total == 0 ? "Find some in the workshop tab. Steam downloads them and they show up here." : "Try another search or filter.";
+                                role: "bodyM";
                                 color: Theme.on-surface-variant;
-                                font-size: 14px;
+                                horizontal-alignment: center;
+                            }
+                            if root.total == 0: HorizontalLayout {
+                                alignment: center;
+                                PillButton {
+                                    text: "browse the workshop";
+                                    icon: "download";
+                                    kind: "tonal";
+                                    clicked => {
+                                        root.tab = 1;
+                                        root.tab-changed();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if root.tab == 1: VerticalLayout {
+                    width: area.width;
+                    height: area.height;
+                    spacing: 16px;
+                    HorizontalLayout {
+                        spacing: 8px;
+                        Rectangle {
+                            height: 40px;
+                            min-width: 200px;
+                            horizontal-stretch: 1;
+                            border-radius: 20px;
+                            background: Theme.glass(Theme.surface-container-high);
+                            HorizontalLayout {
+                                padding-left: 14px;
+                                padding-right: 14px;
+                                spacing: 8px;
+                                VerticalLayout {
+                                    alignment: center;
+                                    Icon {
+                                        name: "search";
+                                        size: 20px;
+                                        tint: Theme.on-surface-variant;
+                                    }
+                                }
+                                TextInput {
+                                    text <=> root.shop-query;
+                                    color: Theme.on-surface;
+                                    font-size: 14px;
+                                    vertical-alignment: center;
+                                    single-line: true;
+                                    accessible-role: text-input;
+                                    accessible-label: "search the Steam Workshop";
+                                    accepted => {
+                                        root.shop-search();
+                                    }
+                                    if self.text == "": Text {
+                                        text: "search the Steam Workshop, then press Enter";
+                                        color: Theme.on-surface-variant;
+                                        font-size: 14px;
+                                        x: 0;
+                                        width: parent.width;
+                                        height: parent.height;
+                                        horizontal-alignment: left;
+                                        vertical-alignment: center;
+                                    }
+                                }
+                            }
+                        }
+                        for f in ["all", "scene", "video", "web"]: Chip {
+                            text: f;
+                            interactive: true;
+                            selected: root.shop-kind == f;
+                            y: 4px;
+                            clicked => {
+                                root.shop-kind = f;
+                                root.shop-search();
+                            }
+                        }
+                    }
+                    if root.shop-query == "": HorizontalLayout {
+                        spacing: 8px;
+                        alignment: start;
+                        for s[i] in ["popular", "top", "new"]: Chip {
+                            text: i == 0 ? "trending" : i == 1 ? "most subscribed" : "newest";
+                            interactive: true;
+                            selected: root.shop-sort == s;
+                            clicked => {
+                                root.shop-sort = s;
+                                root.shop-search();
+                            }
+                        }
+                    }
+
+                    shop-grid := Scroller {
+                        vertical-stretch: 1;
+                        content: root.shop-rows * (root.shop-h + root.gap) + 72px;
+                        for s[i] in root.shop: ShopCard {
+                            x: Math.mod(i, root.cols) * (root.card-w + root.gap);
+                            y: floor(i / root.cols) * (root.shop-h + root.gap);
+                            width: root.card-w;
+                            height: root.shop-h;
+                            item: s;
+                            get => {
+                                root.shop-get(s.id);
+                            }
+                            use => {
+                                root.shop-use(s.id);
+                            }
+                            open => {
+                                root.shop-open(s.id);
+                            }
+                        }
+                        if root.shop.length > 0: HorizontalLayout {
+                            y: root.shop-rows * (root.shop-h + root.gap) + 8px;
+                            width: shop-grid.width - 24px;
+                            height: 48px;
+                            alignment: center;
+                            if root.shop-more && !root.shop-busy: PillButton {
+                                text: "load more";
+                                icon: "expand_more";
+                                kind: "outlined";
+                                clicked => {
+                                    root.shop-load-more();
+                                }
+                            }
+                            if root.shop-busy: Txt {
+                                text: "loading…";
+                                role: "bodyM";
+                                color: Theme.on-surface-variant;
                                 vertical-alignment: center;
                             }
                         }
+                        if root.shop.length == 0: VerticalLayout {
+                            alignment: center;
+                            spacing: 8px;
+                            width: shop-grid.width;
+                            height: shop-grid.height;
+                            Txt {
+                                text: root.shop-busy ? "loading the workshop…" : root.shop-status != "" ? root.shop-status : "nothing found";
+                                role: "titleM";
+                                horizontal-alignment: center;
+                            }
+                            if !root.shop-busy: Txt {
+                                text: "Get opens the wallpaper in Steam. Press Subscribe there, and it plays here as soon as Steam has downloaded it.";
+                                role: "bodyM";
+                                color: Theme.on-surface-variant;
+                                horizontal-alignment: center;
+                                wrap: word-wrap;
+                            }
+                        }
                     }
-                }
-                for f in ["all", "scene", "video", "web"]: Chip {
-                    text: f;
-                    interactive: true;
-                    selected: root.filter == f;
-                    y: 4px;
-                    clicked => {
-                        root.filter = f;
-                        root.filter-changed();
-                    }
-                }
-            }
-
-            grid := Scroller {
-                vertical-stretch: 1;
-                content: root.rows * (root.card-h + root.gap);
-                for w[i] in root.walls: WallCard {
-                    x: Math.mod(i, root.cols) * (root.card-w + root.gap);
-                    y: floor(i / root.cols) * (root.card-h + root.gap);
-                    width: root.card-w;
-                    height: root.card-h;
-                    wall: w;
-                    picked => {
-                        root.pick(w.key);
-                    }
-                }
-                if root.walls.length == 0 && root.problem == "": VerticalLayout {
-                    alignment: center;
-                    spacing: 8px;
-                    width: grid.width;
-                    height: grid.height;
-                    Txt {
-                        text: root.total == 0 ? "no wallpapers yet" : "nothing matches";
-                        role: "titleM";
-                        horizontal-alignment: center;
-                    }
-                    Txt {
-                        text: root.total == 0 ? "Subscribe to wallpapers in the Steam Workshop and they show up here." : "Try another search or filter.";
-                        role: "bodyM";
+                    if root.shop.length > 0: Txt {
+                        text: root.shop-status != "" ? root.shop-status : "Get opens the wallpaper in Steam. Press Subscribe there, and it plays here as soon as Steam has downloaded it.";
+                        role: "bodyS";
                         color: Theme.on-surface-variant;
-                        horizontal-alignment: center;
                     }
                 }
             }

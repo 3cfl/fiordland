@@ -1,13 +1,15 @@
 use crate::config::Config;
 use crate::library::{self, Item, Library};
 use crate::outputs::{self, Monitor};
-use crate::{daemon, engine, sys, App, Screen, Theme, Wall};
+use crate::workshop::{self, Query, Sort};
+use crate::{daemon, engine, sys, App, Screen, Shop, Theme, Wall};
 use anyhow::Result;
 use slint::{ComponentHandle, Model, ModelRc, Rgba8Pixel, SharedPixelBuffer, VecModel};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
 const THUMB_W: u32 = 384;
 const THUMB_H: u32 = 216;
@@ -66,10 +68,24 @@ pub fn matches(item: &Item, filter: &str, query: &str) -> bool {
 }
 
 fn decode(path: &Path, blur: bool) -> Option<Thumb> {
-    let mut reader = image::ImageReader::open(path)
+    let reader = image::ImageReader::open(path)
         .ok()?
         .with_guessed_format()
         .ok()?;
+    decode_reader(reader, blur)
+}
+
+fn decode_bytes(bytes: &[u8], blur: bool) -> Option<Thumb> {
+    let reader = image::ImageReader::new(std::io::Cursor::new(bytes))
+        .with_guessed_format()
+        .ok()?;
+    decode_reader(reader, blur)
+}
+
+fn decode_reader<R: std::io::BufRead + std::io::Seek>(
+    mut reader: image::ImageReader<R>,
+    blur: bool,
+) -> Option<Thumb> {
     let mut limits = image::Limits::default();
     limits.max_image_width = Some(8192);
     limits.max_image_height = Some(8192);
@@ -90,7 +106,15 @@ struct State {
     lib: Library,
     monitors: Vec<Monitor>,
     thumbs: HashMap<(String, bool), Option<Thumb>>,
+    shop: Vec<workshop::Entry>,
+    shop_thumbs: HashMap<(String, bool), Option<Thumb>>,
+    shop_page: u32,
+    shop_gen: u64,
+    shop_loaded: bool,
+    pending: Vec<(String, Instant)>,
 }
+
+const PENDING_FOR: Duration = Duration::from_secs(2 * 60 * 60);
 
 fn to_image(t: &Thumb) -> slint::Image {
     let buf = SharedPixelBuffer::<Rgba8Pixel>::clone_from_slice(&t.2, t.0, t.1);
@@ -262,6 +286,229 @@ fn load_thumbs(ui: &App, st: &Rc<std::cell::RefCell<State>>) {
     }
 }
 
+pub fn shop_state(installed: bool, waiting: bool) -> &'static str {
+    if installed {
+        "installed"
+    } else if waiting {
+        "waiting"
+    } else {
+        "get"
+    }
+}
+
+fn shop_rows(ui: &App, st: &State) -> Vec<Shop> {
+    let mature = ui.get_show_mature();
+    st.shop
+        .iter()
+        .map(|e| {
+            let hidden = e.mature && !mature;
+            let thumb = st
+                .shop_thumbs
+                .get(&(e.id.clone(), hidden))
+                .cloned()
+                .flatten();
+            Shop {
+                id: e.id.as_str().into(),
+                title: e.title.as_str().into(),
+                kind: e.kind.label().into(),
+                has_preview: thumb.is_some(),
+                preview: thumb.as_ref().map(to_image).unwrap_or_default(),
+                hidden,
+                state: shop_state(
+                    st.lib.find(&e.id).is_some(),
+                    st.pending.iter().any(|(p, _)| *p == e.id),
+                )
+                .into(),
+                subs: workshop::short_count(e.subscriptions).into(),
+            }
+        })
+        .collect()
+}
+
+fn show_shop(ui: &App, st: &Rc<std::cell::RefCell<State>>) {
+    let rows = shop_rows(ui, &st.borrow());
+    ui.set_shop(ModelRc::new(VecModel::from(rows)));
+}
+
+fn shop_query(ui: &App, page: u32) -> Query {
+    Query {
+        text: ui.get_shop_query().to_string(),
+        sort: Sort::parse(&ui.get_shop_sort()),
+        kind: library::Kind::parse(&ui.get_shop_kind()),
+        page,
+    }
+}
+
+fn search_shop(ui: &App, st: &Rc<std::cell::RefCell<State>>, more: bool) {
+    let (generation, page) = {
+        let mut s = st.borrow_mut();
+        s.shop_gen += 1;
+        s.shop_loaded = true;
+        if !more {
+            s.shop.clear();
+            s.shop_page = 0;
+        }
+        (s.shop_gen, s.shop_page + 1)
+    };
+    if !more {
+        ui.set_shop(ModelRc::new(VecModel::from(Vec::<Shop>::new())));
+    }
+    ui.set_shop_busy(true);
+    ui.set_shop_status("".into());
+    let q = shop_query(ui, page);
+    let weak = ui.as_weak();
+    std::thread::spawn(move || {
+        let result = workshop::search(&q);
+        let _ = weak.upgrade_in_event_loop(move |ui| {
+            STATE.with(|cell| {
+                let Some(st) = cell.borrow().as_ref().cloned() else {
+                    return;
+                };
+                if st.borrow().shop_gen != generation {
+                    return;
+                }
+                ui.set_shop_busy(false);
+                match result {
+                    Ok(found) => {
+                        let mut s = st.borrow_mut();
+                        s.shop_page = page;
+                        let fresh: Vec<_> = found
+                            .into_iter()
+                            .filter(|e| !s.shop.iter().any(|x| x.id == e.id))
+                            .collect();
+                        ui.set_shop_more(!fresh.is_empty() && page < 50);
+                        s.shop.extend(fresh);
+                    }
+                    Err(e) => {
+                        ui.set_shop_more(false);
+                        ui.set_shop_status(
+                            format!("{e}. Check your connection and try again.").into(),
+                        );
+                    }
+                }
+                show_shop(&ui, &st);
+                load_shop_thumbs(&ui, &st);
+            });
+        });
+    });
+}
+
+fn load_shop_thumbs(ui: &App, st: &Rc<std::cell::RefCell<State>>) {
+    let mature = ui.get_show_mature();
+    let jobs: Vec<(String, bool, String)> = {
+        let s = st.borrow();
+        s.shop
+            .iter()
+            .filter_map(|e| {
+                let hidden = e.mature && !mature;
+                let url = e.preview.clone()?;
+                (!s.shop_thumbs.contains_key(&(e.id.clone(), hidden)))
+                    .then(|| (e.id.clone(), hidden, url))
+            })
+            .collect()
+    };
+    if jobs.is_empty() {
+        return;
+    }
+    {
+        let mut s = st.borrow_mut();
+        for (id, hidden, _) in &jobs {
+            s.shop_thumbs.insert((id.clone(), *hidden), None);
+        }
+    }
+    let queue = Arc::new(Mutex::new(jobs));
+    for _ in 0..4 {
+        let queue = queue.clone();
+        let weak = ui.as_weak();
+        std::thread::spawn(move || loop {
+            let job = queue.lock().unwrap_or_else(|e| e.into_inner()).pop();
+            let Some((id, hidden, url)) = job else {
+                break;
+            };
+            let thumb = workshop::preview(&url)
+                .ok()
+                .and_then(|b| decode_bytes(&b, hidden));
+            let _ = weak.upgrade_in_event_loop(move |ui| {
+                STATE.with(|cell| {
+                    let Some(st) = cell.borrow().as_ref().cloned() else {
+                        return;
+                    };
+                    st.borrow_mut()
+                        .shop_thumbs
+                        .insert((id.clone(), hidden), thumb.clone());
+                    let model = ui.get_shop();
+                    for row in 0..model.row_count() {
+                        if let Some(mut w) = model.row_data(row) {
+                            if w.id.as_str() == id && w.hidden == hidden {
+                                w.has_preview = thumb.is_some();
+                                w.preview = thumb.as_ref().map(to_image).unwrap_or_default();
+                                model.set_row_data(row, w);
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    }
+}
+
+fn apply(ui: &App, st: &Rc<std::cell::RefCell<State>>, key: String) {
+    let scope = scope_key(ui, &st.borrow().monitors);
+    save(|c| match scope {
+        Some(m) => {
+            if c.wallpaper.is_none() {
+                c.wallpaper = Some(key.clone());
+            }
+            if c.wallpaper.as_deref() == Some(key.as_str()) {
+                c.monitors.remove(&m);
+            } else {
+                c.monitors.insert(m, key.clone());
+            }
+        }
+        None => c.wallpaper = Some(key.clone()),
+    });
+    daemon::start_in_background();
+    refresh(ui, st);
+}
+
+fn rescan(ui: &App, st: &Rc<std::cell::RefCell<State>>) {
+    {
+        let mut s = st.borrow_mut();
+        s.lib = library::scan();
+        s.monitors = outputs::list();
+    }
+    refresh(ui, st);
+    load_thumbs(ui, st);
+    show_shop(ui, st);
+}
+
+fn check_pending(ui: &App, st: &Rc<std::cell::RefCell<State>>) {
+    let arrived: Vec<String> = {
+        let mut s = st.borrow_mut();
+        s.pending.retain(|(_, at)| at.elapsed() < PENDING_FOR);
+        let done: Vec<String> = s
+            .pending
+            .iter()
+            .filter(|(id, _)| library::arrived(id))
+            .map(|(id, _)| id.clone())
+            .collect();
+        s.pending.retain(|(id, _)| !done.contains(id));
+        done
+    };
+    if arrived.is_empty() {
+        return;
+    }
+    rescan(ui, st);
+    if let Some(id) = arrived.last() {
+        let title = st.borrow().lib.find(id).map(|i| i.title.clone());
+        if let Some(title) = title {
+            apply(ui, st, id.clone());
+            ui.set_shop_status(format!("{title} downloaded and is playing now.").into());
+            show_shop(ui, st);
+        }
+    }
+}
+
 thread_local! {
     static STATE: std::cell::RefCell<Option<Rc<std::cell::RefCell<State>>>> = const { std::cell::RefCell::new(None) };
 }
@@ -300,32 +547,93 @@ pub fn run() -> Result<()> {
         lib: library::scan(),
         monitors: outputs::list(),
         thumbs: HashMap::new(),
+        shop: Vec::new(),
+        shop_thumbs: HashMap::new(),
+        shop_page: 0,
+        shop_gen: 0,
+        shop_loaded: false,
+        pending: Vec::new(),
     }));
     STATE.with(|c| *c.borrow_mut() = Some(st.clone()));
     refresh(&ui, &st);
     load_thumbs(&ui, &st);
+    if st.borrow().lib.items.is_empty() && st.borrow().lib.assets.is_some() {
+        ui.set_tab(1);
+        search_shop(&ui, &st, false);
+    }
 
     let weak = ui.as_weak();
     let s = st.clone();
     ui.on_pick(move |key| {
+        if let Some(ui) = weak.upgrade() {
+            apply(&ui, &s, key.to_string());
+        }
+    });
+
+    let weak = ui.as_weak();
+    let s = st.clone();
+    ui.on_tab_changed(move || {
         let Some(ui) = weak.upgrade() else { return };
-        let scope = scope_key(&ui, &s.borrow().monitors);
-        let key = key.to_string();
-        save(|c| match scope {
-            Some(m) => {
-                if c.wallpaper.is_none() {
-                    c.wallpaper = Some(key.clone());
-                }
-                if c.wallpaper.as_deref() == Some(key.as_str()) {
-                    c.monitors.remove(&m);
-                } else {
-                    c.monitors.insert(m, key.clone());
-                }
+        if ui.get_tab() == 1 && !s.borrow().shop_loaded {
+            search_shop(&ui, &s, false);
+        }
+    });
+
+    let weak = ui.as_weak();
+    let s = st.clone();
+    ui.on_shop_search(move || {
+        if let Some(ui) = weak.upgrade() {
+            search_shop(&ui, &s, false);
+        }
+    });
+
+    let weak = ui.as_weak();
+    let s = st.clone();
+    ui.on_shop_load_more(move || {
+        if let Some(ui) = weak.upgrade() {
+            search_shop(&ui, &s, true);
+        }
+    });
+
+    let weak = ui.as_weak();
+    let s = st.clone();
+    ui.on_shop_get(move |id| {
+        let Some(ui) = weak.upgrade() else { return };
+        let steam = s.borrow().lib.steam;
+        let Some(url) = workshop::item_page(&id, steam) else {
+            return;
+        };
+        sys::open_url(&url);
+        {
+            let mut st = s.borrow_mut();
+            st.pending.retain(|(p, _)| *p != id.as_str());
+            st.pending.push((id.to_string(), Instant::now()));
+        }
+        ui.set_shop_status(
+            if steam {
+                "Opened in Steam. Press Subscribe there. The wallpaper plays here as soon as Steam has downloaded it."
+            } else {
+                "Opened the Workshop page in your browser. Subscribe there, and the wallpaper plays here once Steam has downloaded it."
             }
-            None => c.wallpaper = Some(key.clone()),
-        });
-        daemon::start_in_background();
-        refresh(&ui, &s);
+            .into(),
+        );
+        show_shop(&ui, &s);
+    });
+
+    let weak = ui.as_weak();
+    let s = st.clone();
+    ui.on_shop_use(move |id| {
+        let Some(ui) = weak.upgrade() else { return };
+        if s.borrow().lib.find(&id).is_some() {
+            apply(&ui, &s, id.to_string());
+        }
+    });
+
+    let s = st.clone();
+    ui.on_shop_open(move |id| {
+        if let Some(url) = workshop::item_page(&id, s.borrow().lib.steam) {
+            sys::open_url(&url);
+        }
     });
 
     let weak = ui.as_weak();
@@ -362,6 +670,8 @@ pub fn run() -> Result<()> {
         if let Some(ui) = weak.upgrade() {
             refresh(&ui, &s);
             load_thumbs(&ui, &s);
+            show_shop(&ui, &s);
+            load_shop_thumbs(&ui, &s);
         }
     });
 
@@ -412,14 +722,9 @@ pub fn run() -> Result<()> {
     let weak = ui.as_weak();
     let s = st.clone();
     ui.on_rescan(move || {
-        let Some(ui) = weak.upgrade() else { return };
-        {
-            let mut st = s.borrow_mut();
-            st.lib = library::scan();
-            st.monitors = outputs::list();
+        if let Some(ui) = weak.upgrade() {
+            rescan(&ui, &s);
         }
-        refresh(&ui, &s);
-        load_thumbs(&ui, &s);
     });
 
     let s = st.clone();
@@ -442,6 +747,9 @@ pub fn run() -> Result<()> {
                 let running = daemon::running();
                 if running != ui.get_running() {
                     refresh(&ui, &s);
+                }
+                if !s.borrow().pending.is_empty() {
+                    check_pending(&ui, &s);
                 }
             }
         },
@@ -516,6 +824,13 @@ mod tests {
         std::fs::write(dir.join("bad.png"), b"nope").unwrap();
         assert!(decode(&dir.join("bad.png"), false).is_none());
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn shop_states() {
+        assert_eq!(shop_state(true, true), "installed");
+        assert_eq!(shop_state(false, true), "waiting");
+        assert_eq!(shop_state(false, false), "get");
     }
 
     #[test]
