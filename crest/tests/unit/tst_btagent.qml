@@ -43,6 +43,16 @@ TestCase {
         compare(Agent.feed(state, "yes\n").length, 0);
     }
 
+    function test_bluez_588_prompt() {
+        const state = Agent.create();
+        const start = Agent.feed(state, "Waiting to connect to bluetoothd...\r\x1b[19P\x1b[0;94m[bluetoothctl]> \x1b[0m\r\x1b[K\rAgent registered\n\x1b[0;94m[bluetoothctl]> \x1b[0mdefault-agent\n\x1b[0;94m[bluetoothctl]> \x1b[0m\r\x1b[K\rDefault agent request successful\n");
+        compare(start.map(e => e.type), ["lost", "registered", "default"]);
+        Agent.feed(state, "\x1b[0;94m[bluetoothctl]> \x1b[0m\r\x1b[K\rRequest confirmation\n");
+        const ev = Agent.feed(state, "\x1b[0;94m[bluetoothctl]> \x1b[0m\r\x1b[K\r\x1b[1;39m[agent] Confirm passkey 654321 (yes/no): \x1b[0m");
+        compare(ev.length, 1);
+        compare(ev[0].code, "654321");
+    }
+
     function test_prompt_needs_marker() {
         const state = Agent.create();
         compare(Agent.feed(state, "[agent] Confirm passkey 123456 (yes/no): \n").length, 0);

@@ -1,7 +1,7 @@
 .pragma library
 
 const ansi = /\x1b\[[0-9;]*[A-Za-z]/g;
-const shellPrompt = /^\[[^\]]*\]# ?/;
+const shellPrompt = /^\[[^\]]*\][#>] ?/;
 const promptEcho = /^\[agent\] (?:.*\(yes\/no\)|Enter PIN code|Enter passkey \(number in 0-999999\)): ?/;
 const rejectPin = "reject-pin-request";
 

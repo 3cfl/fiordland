@@ -12,7 +12,7 @@ ColumnLayout {
     readonly property var req: Bt.request
     readonly property string kind: req?.kind ?? ""
     readonly property string who: req?.name || req?.address || "a device"
-    readonly property bool input: kind === "pin" || kind === "passkey"
+    readonly property bool input: !req?.display && (kind === "pin" || kind === "passkey")
     readonly property bool asking: kind === "authorize" || kind === "service"
     property bool invalid: false
 
