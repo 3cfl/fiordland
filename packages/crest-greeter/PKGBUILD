@@ -1,6 +1,6 @@
 pkgname=crest-greeter
 pkgver=1.0.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Login screen for greetd in the crest style, running Quickshell inside cage"
 arch=('any')
 url='https://fiordlandlinux.org'
@@ -13,7 +13,7 @@ source=("crest-greeter-$pkgver.tar.gz"
         'crest-greeter.sh'
         'config.toml.example')
 sha256sums=('SKIP'
-            '5676ff9f1eed251ab9a93aa42df7f17c20f782a583543d096a7f762cf9926ec5'
+            'f31f7440365ccd2d9cf31c7d894c9d9455ca28d9ec8ef1515cf7104de69c2730'
             '32bfc3675d68292da9ff8298fd6ef38851da46b9439abdfa84e080c4c8096f55')
 
 package() {
