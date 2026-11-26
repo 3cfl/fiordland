@@ -68,7 +68,7 @@ Singleton {
     }
 
     function quote(word: string): string {
-        if (/^[A-Za-z0-9_@%+=:,.\/-]+$/.test(word))
+        if (/^[A-Za-z0-9_@%+:,.\/-]+$/.test(word))
             return word;
         return "'" + word.replace(/'/g, "'\\''") + "'";
     }
