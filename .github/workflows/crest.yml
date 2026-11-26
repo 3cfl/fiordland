@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - run: pacman -Syu --noconfirm --needed quickshell qt6-declarative qt6-imageformats qt6-svg matugen inter-font ttf-jetbrains-mono ttf-material-symbols-variable noto-fonts-emoji papirus-icon-theme findutils grep
+      - run: pacman -Syu --noconfirm --needed quickshell qt6-declarative qt6-imageformats qt6-svg qt6-multimedia matugen inter-font ttf-jetbrains-mono ttf-material-symbols-variable noto-fonts-emoji papirus-icon-theme findutils grep
       - name: matugen scheme
         run: |
           matugen image crest/assets/wallpaper.webp -t scheme-expressive -m dark --json hex --dry-run --source-color-index 0 > "$RUNNER_TEMP/scheme.json"
