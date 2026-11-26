@@ -10,10 +10,11 @@ document.querySelectorAll(".copy").forEach(b => b.addEventListener("click", asyn
 
 fetch("/iso/latest.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).then(d => {
   if (!d) return;
+  const ver = ((d.file.match(/^fiordland-(.+)-x86_64\.iso$/) || [])[1]) || d.date.replaceAll("-", ".");
   document.querySelectorAll("[data-iso]").forEach(a => (a.href = "/iso/" + d.file));
   if ($("dl-sum")) $("dl-sum").textContent = d.sha256;
-  if ($("dl-meta")) $("dl-meta").textContent = `x86_64 · ${(d.size / 1e9).toFixed(1)} GB · ${d.date.replaceAll("-", ".")}`;
-  if ($("dl-ver")) $("dl-ver").textContent = d.date.replaceAll("-", ".");
+  if ($("dl-meta")) $("dl-meta").textContent = `x86_64 · ${(d.size / 1e9).toFixed(1)} GB · ${ver}`;
+  if ($("dl-ver")) $("dl-ver").textContent = ver;
 }).catch(() => {});
 
 document.querySelectorAll("[data-blur]").forEach(el => {
