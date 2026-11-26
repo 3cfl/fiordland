@@ -61,6 +61,8 @@ PAGE = """<!doctype html>
   <div class="wrap foot-in">
     <span class="mark">Fiordland</span>
     <a href="/docs/">Docs</a>
+    <a href="/why/">Why Fiordland</a>
+    <a href="/low-end/">Low-end PCs</a>
     <a href="/wiki/">Wiki</a>
     <a href="/mirrors/">Mirrors</a>
     <a href="/repo/x86_64/">Repo</a>
@@ -121,8 +123,9 @@ def write(path, text):
 def point_home_page_at(version):
     index = SITE / "index.html"
     text = index.read_text(encoding="utf-8")
+    shown = re.sub(r"(\.0)+$", "", version)
     text, a = re.subn(r'<a class="badge" href="[^"]*">(<span class="dot"></span><span class="shine">)Fiordland [0-9.]+ ',
-                      rf'<a class="badge" href="/news/#v{version}">\g<1>Fiordland {version} ', text)
+                      rf'<a class="badge" href="/news/#v{version}">\g<1>Fiordland {shown} ', text)
     text, b = re.subn(r'"softwareVersion":"[^"]*"', f'"softwareVersion":"{version}"', text)
     if not (a and b):
         sys.exit("post-news: couldn't find the version badge on the home page; it may have been redesigned.")
