@@ -129,6 +129,15 @@ ShellRoot {
         }
     }
 
+    Popout {
+        name: "bluetooth-pair"
+        edge: "top"
+        offset: 96
+        open: Bt.request !== null && !Bt.pageOpen && !Session.locked
+        onDismissed: Bt.reject()
+        content: PairPrompt {}
+    }
+
     LazyLoader {
         active: Panels.settings
 

@@ -1,14 +1,14 @@
 pkgname=crest
 epoch=2
 pkgver=1.0.1
-pkgrel=3
+pkgrel=4
 pkgdesc="Fiordland desktop shell for Hyprland, written in QML for Quickshell"
 arch=('any')
 url='https://fiordlandlinux.org'
 license=('GPL-3.0-only')
 depends=('quickshell' 'qt6-declarative' 'qt6-imageformats' 'qt6-svg' 'hyprland'
          'matugen' 'hyprsunset' 'brightnessctl' 'wl-clipboard'
-         'networkmanager' 'bluez' 'upower' 'power-profiles-daemon' 'pipewire'
+         'networkmanager' 'bluez' 'bluez-utils' 'upower' 'power-profiles-daemon' 'pipewire'
          'ttf-material-symbols-variable' 'inter-font' 'ttf-jetbrains-mono'
          'grim' 'slurp' 'cliphist' 'wf-recorder' 'libnotify' 'xdg-user-dirs'
          'cava' 'gnome-keyring' 'libsecret' 'seahorse' 'xdg-utils'

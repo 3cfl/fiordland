@@ -119,6 +119,8 @@ tawaki update
 
 Install your apps with `tawaki install`. See [tawaki.md](tawaki.md).
 
+To pair a Bluetooth device on the crest desktop, open quick settings and click the arrow on the Bluetooth tile, then click the device under **available**. If it shows a code or needs a PIN, crest asks for it.
+
 ## If something goes wrong
 
 - The live USB does not boot: turn off Secure Boot, rewrite the stick in DD mode, or try another USB port.

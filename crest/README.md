@@ -10,6 +10,7 @@ crest 1 is a rewrite of the earlier Caelestia-based shell. It uses Material 3 Ex
 - a launcher with fuzzy app search, a calculator (start with `=`) and emoji (start with `:`)
 - notification popups and a unified dashboard with notifications, calendar, music, system stats and clipboard history
 - quick settings for Wi-Fi, Bluetooth, power profile, do not disturb and night light, plus volume and brightness sliders and media controls
+- Bluetooth pairing from quick settings: your devices, nearby devices, battery levels, and a prompt for pairing codes and PINs, answered through `bluetoothctl` running as the pairing agent
 - on-screen displays for volume and brightness
 - a lock screen that uses `ext-session-lock` and PAM, with optional fingerprint unlock
 - a session menu, a workspace overview, a wallpaper picker and a settings window

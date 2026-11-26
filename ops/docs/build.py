@@ -139,6 +139,7 @@ C["install"] = "\n".join([
 
 C["first-steps"] = "\n".join([
  sec("Connect to the internet", p("Click the network icon in the panel and pick your Wi-Fi. A cable works without any setup.")),
+ sec("Pair Bluetooth devices", p("On the crest desktop, open quick settings and click the arrow on the Bluetooth tile. Put the device in pairing mode and click it under <strong>available</strong>. If it shows a code or needs a PIN, crest asks for it. Other desktops have their own Bluetooth settings.")),
  sec("Update once", p("The ISO may be a few days old. Open a terminal and run:") + "\n    " + term("tawaki update") + "\n" + p("It asks for your password, then updates the system, Flatpaks and AUR packages together.")),
  sec("Install your apps", p("Use the package manager from the terminal:") + "\n    " + term("tawaki install firefox steam discord") + "\n" + p('<code>i</code> is a shortcut for <code>tawaki install</code>. More in <a href="/docs/apps/">Installing apps</a>.')),
  sec("Already set up for you", ul([
