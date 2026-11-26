@@ -28,6 +28,7 @@
 
 ## Project
 
+- Created and maintained by Apollo (GitHub: 3cfl, Discord: u5sk), https://apollo44.lat
 - Website: https://fiordlandlinux.org
 - Source: https://github.com/Fiordland-Linux
 - Community: https://discord.gg/gy4ANH2Q9V

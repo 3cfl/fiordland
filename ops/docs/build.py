@@ -15,6 +15,7 @@ def nav(cur):
 FOOT = """<footer class="foot">
   <div class="wrap foot-in">
     <span class="mark">Fiordland</span>
+    <span class="credit">Created by <a href="https://apollo44.lat" rel="author">Apollo</a> (<a href="https://github.com/3cfl">3cfl</a>)</span>
     <a href="/docs/">Docs</a>
     <a href="/why/">Why Fiordland</a>
     <a href="/low-end/">Low-end PCs</a>
