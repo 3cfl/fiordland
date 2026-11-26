@@ -35,6 +35,11 @@ ShellRoot {
         { name: "launcher-emoji", w: 720, h: 560, comp: launcherScene, seed: ":heart" },
         { name: "quicksettings", w: 460, h: 780, comp: qsScene },
         { name: "quicksettings-light", w: 460, h: 780, comp: qsScene, light: true },
+        { name: "quicksettings-bluetooth", w: 460, h: 860, comp: qsScene, qsPage: "bluetooth" },
+        { name: "quicksettings-bluetooth-light", w: 460, h: 860, comp: qsScene, qsPage: "bluetooth", light: true },
+        { name: "bluetooth-pair", w: 520, h: 340, comp: pairScene, bt: "confirm" },
+        { name: "bluetooth-pair-pin", w: 520, h: 340, comp: pairScene, bt: "pin" },
+        { name: "bluetooth-pair-display", w: 520, h: 340, comp: pairScene, bt: "display", light: true },
         { name: "dashboard-home", w: 900, h: 700, comp: centreScene },
         { name: "notification-popup", w: 460, h: 160, comp: popupScene },
         { name: "osd", w: 400, h: 110, comp: osdScene },
@@ -54,6 +59,16 @@ ShellRoot {
         { name: "wallscheme-bar", w: 1440, h: 76, comp: barScene, wall: true }
     ]
 
+    function btRequest(kind: string): var {
+        if (kind === "confirm")
+            return Bt.demoRequest;
+        if (kind === "pin")
+            return Object.assign({}, Bt.demoRequest, { kind: "pin", code: "", name: "Keychron K2", icon: "input-keyboard" });
+        if (kind === "display")
+            return Object.assign({}, Bt.demoRequest, { kind: "passkey", code: "731406", entered: 3, display: true, name: "Keychron K2", icon: "input-keyboard" });
+        return null;
+    }
+
     function next(): void {
         index++;
         if (index >= scenes.length) {
@@ -64,6 +79,7 @@ ShellRoot {
         scene = scenes[index];
         Config.appearance.mode = scene.light ? "light" : "dark";
         Scheme.override = scene.wall && root.wallJson ? Scheme.extract(root.wallJson, scene.light ? "light" : "dark") : null;
+        Bt.request = root.btRequest(scene.bt ?? "");
         win.width = scene.w;
         win.height = scene.h;
         loader.sourceComponent = null;
@@ -188,6 +204,18 @@ ShellRoot {
                 x: 24
                 y: 16
                 width: parent.width - 48
+                page: root.scene.qsPage ?? "main"
+            }
+        }
+    }
+
+    Component {
+        id: pairScene
+
+        Item {
+            PairPrompt {
+                x: (parent.width - width) / 2
+                y: 24
             }
         }
     }

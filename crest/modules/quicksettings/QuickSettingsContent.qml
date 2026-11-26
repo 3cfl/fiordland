@@ -133,7 +133,9 @@ Glass {
                     label: "Bluetooth"
                     sublabel: Bt.label
                     active: Bt.enabled
+                    details: true
                     onClicked: Bt.setEnabled(!Bt.enabled)
+                    onSecondaryClicked: root.page = "bluetooth"
                 }
 
                 Tile {
@@ -184,6 +186,13 @@ Glass {
         WifiPage {
             Layout.fillWidth: true
             visible: root.page === "wifi"
+            onBack: root.page = "main"
+        }
+
+        BluetoothPage {
+            Layout.fillWidth: true
+            visible: root.page === "bluetooth"
+            live: root.live
             onBack: root.page = "main"
         }
     }
