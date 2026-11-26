@@ -5,6 +5,7 @@ mod engine;
 mod library;
 mod outputs;
 mod picker;
+mod scale;
 mod sys;
 mod workshop;
 
@@ -51,6 +52,7 @@ fn status() {
 }
 
 fn main() -> anyhow::Result<()> {
+    sys::reset_sigpipe();
     let args: Vec<String> = std::env::args().skip(1).collect();
     if args.len() > 1 {
         eprintln!("{USAGE}");

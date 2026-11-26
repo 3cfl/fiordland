@@ -1,6 +1,6 @@
 pkgname=fiordland-base
 pkgver=1.0.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Fiordland Linux release, core packages and system migrations"
 arch=('any')
 url='https://fiordlandlinux.org'

@@ -381,6 +381,7 @@ export component App inherits Window {
     in-out property <bool> paused;
     in-out property <bool> pause-fullscreen: true;
     in-out property <bool> pause-battery: true;
+    in-out property <bool> lock-screen: true;
     in-out property <bool> sound;
     in-out property <bool> autostart: true;
     in-out property <bool> show-mature;
@@ -847,6 +848,15 @@ export component App inherits Window {
                     text: "pause for fullscreen apps";
                     note: "Games and videos get the whole GPU.";
                     checked <=> root.pause-fullscreen;
+                    toggled => {
+                        root.settings-changed();
+                    }
+                }
+                SettingRow {
+                    icon: "lock";
+                    text: "show on the lock screen";
+                    note: "Video wallpapers play behind the login box.";
+                    checked <=> root.lock-screen;
                     toggled => {
                         root.settings-changed();
                     }

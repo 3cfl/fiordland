@@ -196,10 +196,99 @@ Scope {
         }
     }
 
+    IpcHandler {
+        target: "dashboard"
+
+        function toggle(): void {
+            Panels.toggle("dashboard");
+        }
+
+        function media(): void {
+            Panels.openDashboard("media");
+        }
+
+        function system(): void {
+            Panels.openDashboard("system");
+        }
+
+        function clipboard(): void {
+            Panels.openDashboard("clipboard");
+        }
+    }
+
+    IpcHandler {
+        target: "capture"
+
+        function toggle(): void {
+            if (Capture.recording)
+                Capture.stop();
+            else
+                Panels.toggle("capture");
+        }
+
+        function screenshot(mode: string): void {
+            Capture.shot(mode || "region");
+        }
+
+        function record(mode: string): void {
+            Capture.record(mode || "region");
+        }
+
+        function stop(): void {
+            Capture.stop();
+        }
+
+        function isRecording(): bool {
+            return Capture.recording;
+        }
+    }
+
+    GlobalShortcut {
+        appid: "crest"
+        name: "dashboard"
+        onPressed: Panels.toggle("dashboard")
+    }
+
+    GlobalShortcut {
+        appid: "crest"
+        name: "clipboard"
+        onPressed: Panels.openDashboard("clipboard")
+    }
+
+    GlobalShortcut {
+        appid: "crest"
+        name: "capture"
+        onPressed: Capture.recording ? Capture.stop() : (Panels.open && !Panels.capture) ? Capture.shot(Config.capture.mode || "region") : Panels.toggle("capture")
+    }
+
+    GlobalShortcut {
+        appid: "crest"
+        name: "screenshotRegion"
+        onPressed: Capture.shot("region")
+    }
+
+    GlobalShortcut {
+        appid: "crest"
+        name: "screenshotScreen"
+        onPressed: Capture.shot("screen")
+    }
+
+    GlobalShortcut {
+        appid: "crest"
+        name: "recordRegion"
+        onPressed: Capture.record("region")
+    }
+
     GlobalShortcut {
         appid: "crest"
         name: "launcher"
         onPressed: Panels.toggle("launcher")
+    }
+
+    GlobalShortcut {
+        appid: "crest"
+        name: "launcherTap"
+        onReleased: if (!Session.locked) Panels.toggle("launcher")
     }
 
     GlobalShortcut {
@@ -235,7 +324,7 @@ Scope {
     GlobalShortcut {
         appid: "crest"
         name: "lock"
-        onPressed: Session.lock()
+        onReleased: Session.lock()
     }
 
     GlobalShortcut {

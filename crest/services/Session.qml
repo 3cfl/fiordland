@@ -17,6 +17,11 @@ Singleton {
             locked = true;
     }
 
+    onLockedChanged: {
+        if (locked)
+            Panels.close();
+    }
+
     function run(id: string): void {
         if (Config.demo)
             return;

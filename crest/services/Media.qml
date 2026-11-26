@@ -28,7 +28,8 @@ Singleton {
     property real demoPosition: 87
     readonly property real position: demo ? demoPosition : (player?.position ?? 0)
     readonly property real progress: length > 0 ? Math.max(0, Math.min(1, position / length)) : 0
-    property bool tracking: false
+    property int trackers: 0
+    readonly property bool tracking: trackers > 0
 
     function toggle(): void {
         if (player?.canTogglePlaying)

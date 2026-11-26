@@ -40,6 +40,10 @@ pub fn config_home() -> Option<PathBuf> {
     xdg_dir("XDG_CONFIG_HOME", ".config")
 }
 
+pub fn cache_home() -> Option<PathBuf> {
+    xdg_dir("XDG_CACHE_HOME", ".cache")
+}
+
 pub fn state_home() -> Option<PathBuf> {
     xdg_dir("XDG_STATE_HOME", ".local/state")
 }
@@ -135,6 +139,16 @@ where
             true
         }
         Err(_) => false,
+    }
+}
+
+extern "C" {
+    fn signal(sig: i32, handler: usize) -> usize;
+}
+
+pub fn reset_sigpipe() {
+    unsafe {
+        signal(13, 0);
     }
 }
 

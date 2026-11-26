@@ -10,8 +10,37 @@ pub enum Now {
     Playing {
         key: String,
         preview: Option<PathBuf>,
+        lock: Option<Lock>,
     },
     Idle,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Lock {
+    pub kind: &'static str,
+    pub video: Option<PathBuf>,
+    pub still: Option<PathBuf>,
+}
+
+impl Lock {
+    pub fn of(item: &crate::library::Item) -> Lock {
+        Lock {
+            kind: item.kind.label(),
+            video: item.video.clone(),
+            still: item.preview.clone(),
+        }
+    }
+
+    fn value(&self) -> serde_json::Value {
+        let mut m = serde_json::Map::new();
+        m.insert("kind".into(), self.kind.into());
+        for (k, v) in [("video", &self.video), ("still", &self.still)] {
+            if let Some(p) = v {
+                m.insert(k.into(), p.to_string_lossy().into_owned().into());
+            }
+        }
+        serde_json::Value::Object(m)
+    }
 }
 
 impl Now {
@@ -64,12 +93,15 @@ pub fn png(preview: &Path) -> Option<Vec<u8>> {
 
 pub fn json(now: &Now, image: Option<&Path>) -> String {
     let v = match now {
-        Now::Playing { key, .. } => {
+        Now::Playing { key, lock, .. } => {
             let mut m = serde_json::Map::new();
             m.insert("playing".into(), true.into());
             m.insert("key".into(), key.as_str().into());
             if let Some(p) = image {
                 m.insert("image".into(), p.to_string_lossy().into_owned().into());
+            }
+            if let Some(l) = lock {
+                m.insert("lock".into(), l.value());
             }
             serde_json::Value::Object(m)
         }
@@ -100,7 +132,7 @@ pub fn write_in(dir: &Path, now: &Now) -> anyhow::Result<()> {
 
 pub struct Publisher {
     dir: Option<PathBuf>,
-    last: Option<Option<String>>,
+    last: Option<Option<(String, bool)>>,
 }
 
 impl Publisher {
@@ -108,22 +140,32 @@ impl Publisher {
         Publisher { dir, last: None }
     }
 
-    pub fn publish(&mut self, key: Option<&str>, preview: impl FnOnce(&str) -> Option<PathBuf>) {
-        if self.last.as_ref().map(Option::as_deref) == Some(key) {
+    pub fn publish(
+        &mut self,
+        key: Option<&str>,
+        lock: bool,
+        info: impl FnOnce(&str) -> (Option<PathBuf>, Option<Lock>),
+    ) {
+        let want = key.map(|k| (k.to_string(), lock));
+        if self.last.as_ref() == Some(&want) {
             return;
         }
         let now = match key {
-            Some(k) => Now::Playing {
-                key: k.to_string(),
-                preview: preview(k),
-            },
+            Some(k) => {
+                let (preview, l) = info(k);
+                Now::Playing {
+                    key: k.to_string(),
+                    preview,
+                    lock: if lock { l } else { None },
+                }
+            }
             None => Now::Idle,
         };
-        self.write(&now);
+        self.write(&now, lock);
     }
 
-    fn write(&mut self, now: &Now) {
-        let state = now.id().map(str::to_string);
+    fn write(&mut self, now: &Now, lock: bool) {
+        let state = now.id().map(|k| (k.to_string(), lock));
         let Some(dir) = self.dir.as_deref() else {
             return;
         };
@@ -154,6 +196,7 @@ mod tests {
         let now = Now::Playing {
             key: "3645562838".into(),
             preview: None,
+            lock: None,
         };
         let v = parse(&json(
             &now,
@@ -191,6 +234,7 @@ mod tests {
         let now = Now::Playing {
             key: "/home/u/walls/a \"b\"\n".into(),
             preview: None,
+            lock: None,
         };
         let v = parse(&json(&now, None));
         assert_eq!(v["key"], "/home/u/walls/a \"b\"\n");
@@ -207,6 +251,7 @@ mod tests {
         let now = Now::Playing {
             key: "111".into(),
             preview: Some(preview),
+            lock: None,
         };
         write_in(&out, &now).unwrap();
         let v = parse(&std::fs::read_to_string(out.join("colors.json")).unwrap());
@@ -231,6 +276,7 @@ mod tests {
         let now = Now::Playing {
             key: "222".into(),
             preview: Some(broken),
+            lock: None,
         };
         write_in(&out, &now).unwrap();
         let v = parse(&std::fs::read_to_string(out.join("colors.json")).unwrap());
@@ -279,25 +325,53 @@ mod tests {
         let looked = std::cell::Cell::new(0);
         let none = |_: &str| {
             looked.set(looked.get() + 1);
-            None
+            (None, None)
         };
-        p.publish(Some("1"), none);
+        p.publish(Some("1"), false, none);
         assert_eq!(read(), serde_json::json!({ "playing": true, "key": "1" }));
         std::fs::write(&file, "{}").unwrap();
-        p.publish(Some("1"), none);
-        p.publish(Some("1"), none);
+        p.publish(Some("1"), false, none);
+        p.publish(Some("1"), false, none);
         assert_eq!(read(), serde_json::json!({}));
         assert_eq!(looked.get(), 1);
-        p.publish(Some("2"), none);
+        p.publish(Some("2"), false, none);
         assert_eq!(read()["key"], "2");
-        p.publish(None, none);
+        p.publish(None, false, none);
         assert_eq!(read(), serde_json::json!({ "playing": false }));
         std::fs::write(&file, "{}").unwrap();
-        p.publish(None, none);
+        p.publish(None, false, none);
         assert_eq!(read(), serde_json::json!({}));
-        p.publish(Some("2"), none);
+        p.publish(Some("2"), false, none);
         assert_eq!(read()["playing"], true);
         assert_eq!(looked.get(), 3);
+        let _ = std::fs::remove_dir_all(&d);
+    }
+
+    #[test]
+    fn lock_art_is_published_and_follows_the_toggle() {
+        let d = scratch("lock");
+        let file = d.join("colors.json");
+        let read = || parse(&std::fs::read_to_string(&file).unwrap());
+        let mut p = Publisher::new(Some(d.clone()));
+        let art = |_: &str| {
+            (
+                None,
+                Some(Lock {
+                    kind: "video",
+                    video: Some(PathBuf::from("/w/1/clip.mp4")),
+                    still: Some(PathBuf::from("/w/1/preview.jpg")),
+                }),
+            )
+        };
+        p.publish(Some("1"), true, art);
+        assert_eq!(
+            read()["lock"],
+            serde_json::json!({ "kind": "video", "video": "/w/1/clip.mp4", "still": "/w/1/preview.jpg" })
+        );
+        p.publish(Some("1"), false, art);
+        assert!(read().get("lock").is_none());
+        p.publish(Some("1"), true, art);
+        assert_eq!(read()["lock"]["kind"], "video");
         let _ = std::fs::remove_dir_all(&d);
     }
 
@@ -321,7 +395,7 @@ mod tests {
     #[test]
     fn publisher_without_a_state_dir_does_nothing() {
         let mut p = Publisher::new(None);
-        p.publish(Some("1"), |_| None);
+        p.publish(Some("1"), false, |_| (None, None));
         assert!(p.last.is_none());
     }
 }

@@ -17,6 +17,9 @@ Singleton {
     property bool liveReady: false
     property string liveImage: ""
     property string liveKey: ""
+    property string lockKind: ""
+    property string lockVideo: ""
+    property string lockStill: ""
     readonly property bool live: liveImage !== ""
     readonly property bool fromWallpaper: Config.appearance.scheme === "wallpaper" && (live || !Wallpapers.isDefault)
     readonly property string key: fromWallpaper ? (live ? `kereru:${liveKey}|${variant}` : `${Wallpapers.current}|${variant}`) : "fjord"
@@ -75,17 +78,31 @@ Singleton {
         return Object.keys(out).length >= 10 ? out : null;
     }
 
+    function safePath(p: var): string {
+        return typeof p === "string" && p.startsWith("/") && p.length <= 4096 && !/[\x00-\x1f]/.test(p) && p.split("/").indexOf("..") < 0 ? p : "";
+    }
+
+    function fileUrl(p: string): string {
+        return p ? "file://" + p.split("/").map(encodeURIComponent).join("/") : "";
+    }
+
     function readLive(text: string): void {
         let image = "";
         let key = "";
+        let lock = null;
         try {
             const s = JSON.parse(text);
+            if (s && s.playing === true && s.lock && typeof s.lock === "object")
+                lock = s.lock;
             const expected = root.liveDir + "/colors.png";
             if (s && s.playing === true && s.image === expected && typeof s.key === "string" && s.key.length > 0 && s.key.length <= 4096 && s.key.indexOf("\n") < 0) {
                 image = expected;
                 key = s.key;
             }
         } catch (e) {}
+        root.lockKind = lock && ["video", "scene", "web"].indexOf(lock.kind) >= 0 ? lock.kind : "";
+        root.lockVideo = root.lockKind === "video" ? root.safePath(lock.video) : "";
+        root.lockStill = root.lockKind ? root.safePath(lock.still) : "";
         if (image === "") {
             root.liveImage = "";
             root.liveKey = "";

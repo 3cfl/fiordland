@@ -57,7 +57,8 @@ Singleton {
         property string body: notif?.body ?? ""
         property string image: notif?.image ?? ""
         property int urgency: notif?.urgency ?? NotificationUrgency.Normal
-        property var actions: notif?.actions ?? []
+        property var actions: (notif?.actions ?? []).filter(a => a.identifier !== "default" && (a.text ?? "").trim() !== "")
+        readonly property var defaultAction: (notif?.actions ?? []).find(a => a.identifier === "default") ?? null
         property int timeout: (notif?.expireTimeout ?? -1) > 0 ? notif.expireTimeout : Config.notifications.timeout
         property date time: new Date()
         property bool popup: false
@@ -75,6 +76,11 @@ Singleton {
                 notif.dismiss();
             else
                 root.remove(entry);
+        }
+
+        function activate(): void {
+            if (defaultAction)
+                invoke(defaultAction);
         }
 
         function invoke(action: var): void {

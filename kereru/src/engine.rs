@@ -600,6 +600,7 @@ mod tests {
             title: key.into(),
             kind: k,
             preview: None,
+            video: None,
             mature: false,
             workshop: true,
         };
@@ -621,6 +622,7 @@ mod tests {
             .map(|n| Monitor {
                 name: n.to_string(),
                 label: n.to_string(),
+                size: None,
             })
             .collect()
     }

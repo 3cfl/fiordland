@@ -7,6 +7,7 @@ use wayland_client::{Connection, Dispatch, QueueHandle};
 pub struct Monitor {
     pub name: String,
     pub label: String,
+    pub size: Option<(u32, u32)>,
 }
 
 #[derive(Default)]
@@ -15,6 +16,7 @@ struct Out {
     description: Option<String>,
     make: String,
     model: String,
+    size: Option<(u32, u32)>,
 }
 
 #[derive(Default)]
@@ -63,6 +65,14 @@ impl Dispatch<wl_output::WlOutput, u32> for State {
         match event {
             wl_output::Event::Name { name } => out.name = Some(name),
             wl_output::Event::Description { description } => out.description = Some(description),
+            wl_output::Event::Mode {
+                flags: wayland_client::WEnum::Value(f),
+                width,
+                height,
+                ..
+            } if f.contains(wl_output::Mode::Current) && width > 0 && height > 0 => {
+                out.size = Some((width as u32, height as u32));
+            }
             wl_output::Event::Geometry { make, model, .. } => {
                 out.make = make;
                 out.model = model;
@@ -109,6 +119,7 @@ fn wayland() -> Option<Vec<Monitor>> {
             config::valid_monitor(&name).then(|| Monitor {
                 label: label(&name, &o.make, &o.model, o.description.as_deref()),
                 name,
+                size: o.size,
             })
         })
         .collect();
@@ -123,9 +134,11 @@ pub fn parse_xrandr(text: &str) -> Vec<Monitor> {
         .skip(1)
         .filter_map(|l| {
             let name = l.split_whitespace().last()?;
+            let size = l.split_whitespace().nth(2).and_then(xrandr_size);
             config::valid_monitor(name).then(|| Monitor {
                 name: name.to_string(),
                 label: name.to_string(),
+                size,
             })
         })
         .take(config::MAX_MONITORS)
@@ -133,6 +146,13 @@ pub fn parse_xrandr(text: &str) -> Vec<Monitor> {
     list.sort();
     list.dedup();
     list
+}
+
+fn xrandr_size(geo: &str) -> Option<(u32, u32)> {
+    let (w, rest) = geo.split_once('x')?;
+    let w = w.split('/').next()?.parse().ok()?;
+    let h = rest.split(['/', '+']).next()?.parse().ok()?;
+    Some((w, h))
 }
 
 fn x11() -> Option<Vec<Monitor>> {
@@ -164,6 +184,8 @@ mod tests {
         let text = "Monitors: 2\n 0: +*eDP-1 1920/344x1080/194+0+0  eDP-1\n 1: +HDMI-1 2560/597x1440/336+1920+0  HDMI-1\n 2: +bad name 1/1x1/1+0+0  --evil\n";
         let names: Vec<_> = parse_xrandr(text).into_iter().map(|m| m.name).collect();
         assert_eq!(names, vec!["HDMI-1", "eDP-1"]);
+        let sizes: Vec<_> = parse_xrandr(text).into_iter().map(|m| m.size).collect();
+        assert_eq!(sizes, vec![Some((2560, 1440)), Some((1920, 1080))]);
     }
 
     #[test]

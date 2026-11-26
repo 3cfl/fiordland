@@ -8,6 +8,7 @@ import qs.config
 import qs.services
 import qs.theme
 import "modules/bar"
+import "modules/dashboard"
 import "modules/launcher"
 import "modules/lock"
 import "modules/notifications"
@@ -34,7 +35,7 @@ ShellRoot {
         { name: "launcher-emoji", w: 720, h: 560, comp: launcherScene, seed: ":heart" },
         { name: "quicksettings", w: 460, h: 780, comp: qsScene },
         { name: "quicksettings-light", w: 460, h: 780, comp: qsScene, light: true },
-        { name: "notification-centre", w: 500, h: 900, comp: centreScene },
+        { name: "dashboard-home", w: 900, h: 700, comp: centreScene },
         { name: "notification-popup", w: 460, h: 160, comp: popupScene },
         { name: "osd", w: 400, h: 110, comp: osdScene },
         { name: "session", w: 1280, h: 720, comp: sessionScene },
@@ -43,6 +44,10 @@ ShellRoot {
         { name: "wallpaper", w: 1060, h: 360, comp: wallpaperScene },
         { name: "settings", w: 880, h: 620, comp: settingsScene, page: "appearance" },
         { name: "settings-performance", w: 880, h: 620, comp: settingsScene, page: "performance" },
+        { name: "settings-account", w: 880, h: 620, comp: settingsScene, page: "account" },
+        { name: "settings-shell", w: 880, h: 620, comp: settingsScene, page: "bar" },
+        { name: "settings-keybinds", w: 880, h: 620, comp: settingsScene, page: "keybinds" },
+        { name: "settings-about", w: 880, h: 620, comp: settingsScene, page: "about" },
         { name: "overview", w: 1440, h: 810, comp: overviewScene },
         { name: "wallscheme-quicksettings", w: 460, h: 780, comp: qsScene, wall: true },
         { name: "wallscheme-lock", w: 1280, h: 800, comp: lockScene, wall: true },
@@ -191,10 +196,9 @@ ShellRoot {
         id: centreScene
 
         Item {
-            CentreContent {
-                x: 24
+            DashboardContent {
+                x: 20
                 y: 16
-                width: parent.width - 48
             }
         }
     }

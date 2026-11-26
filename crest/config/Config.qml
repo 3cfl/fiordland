@@ -24,6 +24,10 @@ Singleton {
     property alias nightLight: adapter.nightLight
     property alias lock: adapter.lock
     property alias launcher: adapter.launcher
+    property alias capture: adapter.capture
+    property alias clipboard: adapter.clipboard
+    property alias media: adapter.media
+    property alias binds: adapter.binds
 
     Process {
         running: !root.demo
@@ -62,6 +66,14 @@ Singleton {
             property LockOptions lock: LockOptions {}
 
             property LauncherOptions launcher: LauncherOptions {}
+
+            property CaptureOptions capture: CaptureOptions {}
+
+            property ClipboardOptions clipboard: ClipboardOptions {}
+
+            property MediaOptions media: MediaOptions {}
+
+            property BindsOptions binds: BindsOptions {}
         }
     }
 
@@ -70,6 +82,8 @@ Singleton {
         property string scheme: "wallpaper"
         property string variant: "scheme-tonal-spot"
         property bool transparency: true
+        property bool terminal: true
+        property bool apps: true
     }
 
     component BarOptions: JsonObject {
@@ -79,6 +93,7 @@ Singleton {
         property bool showMedia: true
         property bool use24h: true
         property bool showTray: true
+        property bool showStats: true
     }
 
     component PerformanceOptions: JsonObject {
@@ -108,5 +123,24 @@ Singleton {
 
     component LauncherOptions: JsonObject {
         property var usage: ({})
+    }
+
+    component CaptureOptions: JsonObject {
+        property string mode: "region"
+        property bool audio: false
+    }
+
+    component MediaOptions: JsonObject {
+        property bool lyrics: true
+        property bool showLyrics: true
+    }
+
+    component BindsOptions: JsonObject {
+        property var overrides: ({})
+    }
+
+    component ClipboardOptions: JsonObject {
+        property bool enabled: true
+        property int keep: 200
     }
 }

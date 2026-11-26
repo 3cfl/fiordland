@@ -47,6 +47,7 @@ pub struct Config {
     pub fps: u32,
     pub scaling: Scaling,
     pub autostart: bool,
+    pub lock_screen: bool,
 }
 
 impl Default for Config {
@@ -62,6 +63,7 @@ impl Default for Config {
             fps: 30,
             scaling: Scaling::Fill,
             autostart: true,
+            lock_screen: true,
         }
     }
 }
@@ -137,6 +139,7 @@ impl Config {
                 }
                 "scaling" => c.scaling = Scaling::parse(v).unwrap_or(c.scaling),
                 "autostart" => c.autostart = boolean(v).unwrap_or(c.autostart),
+                "lock_screen" => c.lock_screen = boolean(v).unwrap_or(c.lock_screen),
                 _ => {}
             }
         }
@@ -154,7 +157,7 @@ impl Config {
             }
         }
         out.push_str(&format!(
-            "paused = {}\npause_on_fullscreen = {}\npause_on_battery = {}\nsound = {}\nvolume = {}\nfps = {}\nscaling = {}\nautostart = {}\n",
+            "paused = {}\npause_on_fullscreen = {}\npause_on_battery = {}\nsound = {}\nvolume = {}\nfps = {}\nscaling = {}\nautostart = {}\nlock_screen = {}\n",
             self.paused,
             self.pause_on_fullscreen,
             self.pause_on_battery,
@@ -162,7 +165,8 @@ impl Config {
             self.volume.min(100),
             self.fps.clamp(5, 240),
             self.scaling.as_str(),
-            self.autostart
+            self.autostart,
+            self.lock_screen
         ));
         out
     }

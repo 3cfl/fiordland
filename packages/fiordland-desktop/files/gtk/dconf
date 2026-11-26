@@ -1,6 +1,6 @@
 [org/gnome/desktop/interface]
 color-scheme='prefer-dark'
-gtk-theme='Adwaita-dark'
+gtk-theme='adw-gtk3-dark'
 icon-theme='Fiordland'
 font-name='Inter 10.5'
 monospace-font-name='JetBrains Mono 11'

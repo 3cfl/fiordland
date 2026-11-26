@@ -15,7 +15,6 @@ Item {
     property var window: null
     readonly property alias leftIsland: left
     readonly property alias centreIsland: centre
-    readonly property alias mediaIsland: media
     readonly property alias rightIsland: right
 
     implicitHeight: 44
@@ -80,102 +79,308 @@ Item {
     }
 
     Island {
-        id: media
-
-        anchors.right: centre.left
-        anchors.rightMargin: 8
-        visible: Config.bar.showMedia && Media.available && Media.title !== ""
-        padding: 6
-        spacing: 8
-
-        Item {
-            width: 32
-            height: 32
-            anchors.verticalCenter: parent.verticalCenter
-
-            ExprShape {
-                id: disc
-
-                anchors.fill: parent
-                shape: "cookie12"
-                color: Colours.tertiaryContainer
-
-                RotationAnimator on rotation {
-                    running: Media.playing && media.visible && !Motion.reduced
-                    from: 0
-                    to: 360
-                    duration: 9000
-                    loops: Animation.Infinite
-                }
-            }
-
-            Icon {
-                anchors.centerIn: parent
-                name: Media.playing ? "graphic_eq" : "music_note"
-                size: 18
-                fill: 1
-                color: Colours.fgTertiaryContainer
-            }
-        }
-
-        Txt {
-            anchors.verticalCenter: parent.verticalCenter
-            width: Math.min(implicitWidth, 220)
-            text: Media.artist ? `${Media.title} · ${Media.artist}` : Media.title
-            role: "labelL"
-            color: Colours.fgSurface
-        }
-
-        Item {
-            width: 4
-            height: 1
-        }
-
-        MouseArea {
-            parent: media
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            acceptedButtons: Qt.LeftButton | Qt.MiddleButton
-            onClicked: mouse => mouse.button === Qt.MiddleButton ? Media.toggle() : Panels.toggle("quicksettings")
-        }
-    }
-
-    Island {
         id: centre
 
         anchors.horizontalCenter: parent.horizontalCenter
-        padding: 18
-        spacing: 10
+        padding: 6
+        spacing: 2
 
-        Txt {
-            anchors.verticalCenter: parent.verticalCenter
-            text: Qt.formatDateTime(clock.date, Config.bar.use24h ? (Config.bar.showSeconds ? "HH:mm:ss" : "HH:mm") : (Config.bar.showSeconds ? "h:mm:ss ap" : "h:mm ap"))
-            role: "titleM"
-            emphasis: true
-            elide: Text.ElideNone
+        property bool held: false
+        readonly property bool want: Config.bar.showStats
+
+        function sync(): void {
+            if (want && !held)
+                SysStats.acquire();
+            else if (!want && held)
+                SysStats.release();
+            held = want;
         }
+
+        onWantChanged: sync()
+        Component.onCompleted: sync()
+        Component.onDestruction: if (held)
+            SysStats.release()
+
+        Segment {
+            id: mediaSeg
+
+            visible: Config.bar.showMedia && Media.available && Media.title !== ""
+            active: Panels.dashboard && Panels.dashboardTab === "media"
+            leftPad: 4
+            onClicked: mouse => mouse.button === Qt.MiddleButton ? Media.toggle() : Panels.openDashboard("media")
+
+            Item {
+                width: 28
+                height: 28
+                anchors.verticalCenter: parent.verticalCenter
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 14
+                    color: Colours.tertiaryContainer
+                    visible: coverImg.status !== Image.Ready
+                }
+
+                Icon {
+                    anchors.centerIn: parent
+                    visible: coverImg.status !== Image.Ready
+                    name: "music_note"
+                    size: 16
+                    fill: 1
+                    color: Colours.fgTertiaryContainer
+                }
+
+                ClippingRectangle {
+                    anchors.fill: parent
+                    radius: 14
+                    color: "transparent"
+                    visible: coverImg.status === Image.Ready
+
+                    Image {
+                        id: coverImg
+
+                        anchors.fill: parent
+                        source: Media.art
+                        sourceSize.width: 64
+                        sourceSize.height: 64
+                        fillMode: Image.PreserveAspectCrop
+                        asynchronous: true
+                    }
+                }
+            }
+
+            Txt {
+                anchors.verticalCenter: parent.verticalCenter
+                width: Math.min(implicitWidth, 200)
+                text: Media.title
+                role: "labelL"
+                color: Colours.fgSurface
+            }
+
+            Bars {
+                anchors.verticalCenter: parent.verticalCenter
+                playing: Media.playing
+            }
+        }
+
+        Divider {
+            visible: mediaSeg.visible
+        }
+
+        Segment {
+            active: Panels.dashboard && Panels.dashboardTab === "home"
+            leftPad: 12
+            rightPad: 12
+            onClicked: Panels.openDashboard("home")
+
+            Txt {
+                anchors.verticalCenter: parent.verticalCenter
+                text: Qt.formatDateTime(clock.date, Config.bar.use24h ? (Config.bar.showSeconds ? "HH:mm:ss" : "HH:mm") : (Config.bar.showSeconds ? "h:mm:ss ap" : "h:mm ap"))
+                role: "titleM"
+                emphasis: true
+                elide: Text.ElideNone
+            }
+
+            Txt {
+                anchors.verticalCenter: parent.verticalCenter
+                text: Qt.formatDateTime(clock.date, "ddd d MMM").toLowerCase()
+                role: "bodyM"
+                color: Colours.fgSurfaceVariant
+                elide: Text.ElideNone
+            }
+
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                visible: Notifs.count > 0 && !Notifs.dnd
+                width: 7
+                height: 7
+                radius: 3.5
+                color: Colours.tertiary
+            }
+        }
+
+        Divider {
+            visible: statsSeg.visible
+        }
+
+        Segment {
+            id: statsSeg
+
+            visible: Config.bar.showStats
+            active: Panels.dashboard && Panels.dashboardTab === "system"
+            leftPad: 6
+            rightPad: 6
+            spacing: 4
+            onClicked: Panels.openDashboard("system")
+
+            Repeater {
+                model: [
+                    { label: "cpu", v: () => SysStats.cpu, c: Colours.primary },
+                    { label: "ram", v: () => SysStats.memory, c: Colours.tertiary }
+                ]
+
+                Item {
+                    id: stat
+
+                    required property var modelData
+
+                    width: 30
+                    height: 30
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    WavyRing {
+                        anchors.fill: parent
+                        value: stat.modelData.v()
+                        color: stat.modelData.c
+                        trackColor: Colours.alpha(stat.modelData.c, 0.18)
+                        thickness: 3
+                        amplitude: 0.8
+                        waves: 8
+                        animating: false
+                    }
+
+                    Txt {
+                        anchors.centerIn: parent
+                        text: Math.round(stat.modelData.v() * 100)
+                        role: "labelS"
+                        font.pixelSize: 10
+                        emphasis: true
+                        color: Colours.fgSurface
+                        elide: Text.ElideNone
+                    }
+                }
+            }
+        }
+
+        Divider {
+            visible: Capture.recording
+        }
+
+        Segment {
+            visible: Capture.recording
+            leftPad: 10
+            rightPad: 10
+            onClicked: Capture.stop()
+
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                width: 10
+                height: 10
+                radius: 5
+                color: Colours.error
+
+                SequentialAnimation on opacity {
+                    running: Capture.recording && !Motion.reduced
+                    loops: Animation.Infinite
+                    NumberAnimation {
+                        to: 0.3
+                        duration: 700
+                        easing.type: Easing.InOutSine
+                    }
+                    NumberAnimation {
+                        to: 1
+                        duration: 700
+                        easing.type: Easing.InOutSine
+                    }
+                }
+            }
+
+            Txt {
+                anchors.verticalCenter: parent.verticalCenter
+                text: Media.fmt(Capture.elapsed)
+                role: "labelL"
+                emphasis: true
+                color: Colours.error
+                elide: Text.ElideNone
+            }
+        }
+    }
+
+    component Divider: Rectangle {
+        anchors.verticalCenter: parent?.verticalCenter
+        width: 1
+        height: 18
+        color: Colours.alpha(Colours.outlineVariant, 0.8)
+    }
+
+    component Segment: Item {
+        id: seg
+
+        property bool active: false
+        property int leftPad: 10
+        property int rightPad: 10
+        property alias spacing: segRow.spacing
+        default property alias items: segRow.data
+
+        signal clicked(var mouse)
+
+        anchors.verticalCenter: parent?.verticalCenter
+        width: segRow.implicitWidth + leftPad + rightPad
+        height: 32
 
         Rectangle {
-            anchors.verticalCenter: parent.verticalCenter
-            width: 4
-            height: 4
-            radius: 2
-            color: Colours.primary
-        }
-
-        Txt {
-            anchors.verticalCenter: parent.verticalCenter
-            text: Qt.formatDateTime(clock.date, "ddd d MMM")
-            role: "bodyM"
-            color: Colours.fgSurfaceVariant
-            elide: Text.ElideNone
-        }
-
-        MouseArea {
-            parent: centre
             anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: Panels.toggle("notifications")
+            radius: 16
+            color: seg.active ? Colours.secondaryContainer : "transparent"
+
+            Behavior on color {
+                ColorEase {}
+            }
+        }
+
+        StateLayer {
+            radius: 16
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+            onClicked: mouse => seg.clicked(mouse)
+        }
+
+        Row {
+            id: segRow
+
+            x: seg.leftPad
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 8
+        }
+    }
+
+    component Bars: Row {
+        id: bars
+
+        property bool playing: false
+
+        spacing: 2
+        height: 14
+
+        Repeater {
+            model: 3
+
+            Rectangle {
+                id: bar
+
+                required property int index
+                property real level: 0.4
+
+                anchors.bottom: parent.bottom
+                width: 3
+                radius: 1.5
+                height: 4 + level * 10
+                color: Colours.primary
+
+                SequentialAnimation on level {
+                    running: bars.playing && bars.visible && !Motion.reduced
+                    loops: Animation.Infinite
+                    NumberAnimation {
+                        to: 1
+                        duration: 380 + bar.index * 110
+                        easing.type: Easing.InOutSine
+                    }
+                    NumberAnimation {
+                        to: 0.15
+                        duration: 420 + bar.index * 90
+                        easing.type: Easing.InOutSine
+                    }
+                }
+            }
         }
     }
 
@@ -291,9 +496,8 @@ Item {
 
                     Icon {
                         name: Power.icon
-                        size: 19
+                        size: 20
                         fill: 1
-                        rotation: 90
                         color: Power.level < 0.15 && !Power.charging ? Colours.error : Colours.fgSurface
                     }
 
@@ -316,11 +520,11 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 radius: 16
-                color: Panels.notifications ? Colours.secondaryContainer : "transparent"
+                color: Panels.dashboard && Panels.dashboardTab === "home" ? Colours.secondaryContainer : "transparent"
 
                 StateLayer {
                     radius: 16
-                    onClicked: Panels.toggle("notifications")
+                    onClicked: Panels.openDashboard("home")
                 }
             }
 

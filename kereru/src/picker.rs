@@ -223,6 +223,7 @@ fn refresh(ui: &App, st: &Rc<std::cell::RefCell<State>>) {
     ui.set_engine_note(note.into());
     ui.set_pause_fullscreen(cfg.pause_on_fullscreen);
     ui.set_pause_battery(cfg.pause_on_battery);
+    ui.set_lock_screen(cfg.lock_screen);
     ui.set_sound(cfg.sound);
     ui.set_autostart(cfg.autostart);
     ui.set_fps(cfg.fps as i32);
@@ -695,6 +696,7 @@ pub fn run() -> Result<()> {
     let s = st.clone();
     ui.on_settings_changed(move || {
         let Some(ui) = weak.upgrade() else { return };
+        let lock = ui.get_lock_screen();
         let (fs, bat, snd, auto, fps) = (
             ui.get_pause_fullscreen(),
             ui.get_pause_battery(),
@@ -705,6 +707,7 @@ pub fn run() -> Result<()> {
         save(|c| {
             c.pause_on_fullscreen = fs;
             c.pause_on_battery = bat;
+            c.lock_screen = lock;
             c.sound = snd;
             c.autostart = auto;
             c.fps = fps.clamp(5, 240) as u32;
@@ -787,6 +790,7 @@ mod tests {
             title: title.into(),
             kind,
             preview: None,
+            video: None,
             mature: false,
             workshop: true,
         }

@@ -19,6 +19,8 @@ const BATTERY_EVERY: Duration = Duration::from_secs(5);
 const SCAN_EVERY: Duration = Duration::from_secs(120);
 const QUICK_CRASH: Duration = Duration::from_secs(20);
 const MAX_FAILURES: u32 = 5;
+const INSTANT_CRASH: Duration = Duration::from_secs(4);
+const MAX_INSTANT: u32 = 2;
 const MENU_ITEMS: usize = 40;
 
 static QUIT: AtomicBool = AtomicBool::new(false);
@@ -310,6 +312,15 @@ impl ksni::Tray for Tray {
         );
         menu.push(
             CheckmarkItem {
+                label: "Show on the lock screen".into(),
+                checked: cfg.lock_screen,
+                activate: Box::new(|t: &mut Self| t.change(|c| c.lock_screen = !c.lock_screen)),
+                ..Default::default()
+            }
+            .into(),
+        );
+        menu.push(
+            CheckmarkItem {
                 label: "Pause on battery".into(),
                 checked: cfg.pause_on_battery,
                 activate: Box::new(|t: &mut Self| {
@@ -345,6 +356,9 @@ struct Supervisor {
     failures: u32,
     retry_at: Instant,
     gave_up_on: Option<Plan>,
+    instant: u32,
+    tried: Option<Plan>,
+    broken: Vec<std::path::PathBuf>,
 }
 
 impl Supervisor {
@@ -363,6 +377,11 @@ impl Supervisor {
         if let Some(e) = self.engine.as_mut() {
             if !e.alive() {
                 let quick = e.uptime() < QUICK_CRASH;
+                if e.uptime() < INSTANT_CRASH {
+                    self.instant += 1;
+                } else {
+                    self.instant = 0;
+                }
                 self.engine = None;
                 if quick {
                     self.failures += 1;
@@ -372,19 +391,28 @@ impl Supervisor {
                     self.failures = 0;
                     self.retry_at = Instant::now() + Duration::from_secs(2);
                 }
-                if self.failures >= MAX_FAILURES {
+                if self.failures >= MAX_FAILURES || self.instant >= MAX_INSTANT {
                     self.gave_up_on = self.running_plan.clone();
+                    if let Some(p) = &self.gave_up_on {
+                        for (_, dir) in &p.screens {
+                            if !self.broken.contains(dir) {
+                                self.broken.push(dir.clone());
+                            }
+                        }
+                    }
                 }
                 self.running_plan = None;
             } else if e.uptime() > Duration::from_secs(60) {
                 self.failures = 0;
+                self.instant = 0;
             }
         }
         if self.running_plan.as_ref() != Some(want) {
             self.stop();
             if self.gave_up_on.as_ref() != Some(want) {
                 self.gave_up_on = None;
-                if self.failures >= MAX_FAILURES {
+                if self.failures >= MAX_FAILURES || self.instant >= MAX_INSTANT {
+                    self.instant = 0;
                     self.failures = 0;
                     self.retry_at = Instant::now();
                 }
@@ -399,6 +427,10 @@ impl Supervisor {
         if self.engine.is_none() && Instant::now() >= self.retry_at {
             match (self.start)(bin, want, self.log.as_deref()) {
                 Ok(e) => {
+                    if self.tried.as_ref() != Some(want) {
+                        self.instant = 0;
+                        self.tried = Some(want.clone());
+                    }
                     self.engine = Some(e);
                     self.running_plan = Some(want.clone());
                 }
@@ -417,10 +449,17 @@ pub fn menu_text(s: &str) -> String {
     s.replace('_', "__")
 }
 
-fn menu_items(lib: &Library) -> Vec<(String, String)> {
+fn menu_items(lib: &Library, broken: &[std::path::PathBuf]) -> Vec<(String, String)> {
     lib.playable()
         .take(MENU_ITEMS)
-        .map(|i| (i.key.clone(), i.title.clone()))
+        .map(|i| {
+            let title = if broken.contains(&i.dir) {
+                format!("{} (crashes)", i.title)
+            } else {
+                i.title.clone()
+            };
+            (i.key.clone(), title)
+        })
         .collect()
 }
 
@@ -468,7 +507,12 @@ pub fn run(autostart: bool) -> Result<()> {
         failures: 0,
         retry_at: Instant::now(),
         gave_up_on: None,
+        instant: 0,
+        tried: None,
+        broken: Vec::new(),
     };
+    let mut notified: Option<Plan> = None;
+    let mut scaler = crate::scale::Scaler::default();
     let mut shown = View::default();
     let mut publisher = colors::Publisher::new(colors::dir());
 
@@ -510,9 +554,32 @@ pub fn run(autostart: bool) -> Result<()> {
             battery_at = Instant::now();
         }
 
-        let want = engine::plan(&cfg, &lib, &monitors);
+        let mut want = engine::plan(&cfg, &lib, &monitors);
+        scaler.apply(&mut want, &monitors);
         let bin = engine::engine_path();
         let mut problem = sup.step(&want, bin.as_deref());
+        if sup.gave_up_on.is_some() && sup.gave_up_on != notified {
+            notified = sup.gave_up_on.clone();
+            let title = monitors
+                .first()
+                .and_then(|m| cfg.wallpaper_for(&m.name))
+                .or(cfg.wallpaper.as_deref())
+                .map(|k| lib.title(k))
+                .unwrap_or_default();
+            sys::spawn_detached(
+                "notify-send",
+                [
+                    "-a",
+                    "kererū",
+                    "-i",
+                    "dialog-warning",
+                    "Live wallpaper can't play",
+                    &format!("{title} keeps crashing the wallpaper engine. Pick another one."),
+                ],
+            );
+        } else if sup.gave_up_on.is_none() {
+            notified = None;
+        }
         if problem.is_none() && cfg.wallpaper.is_some() && want.screens.is_empty() {
             problem = Some(if monitors.is_empty() {
                 "No screens found".into()
@@ -534,7 +601,13 @@ pub fn run(autostart: bool) -> Result<()> {
             (Some(_), Some(p)) => colors::playing_key(&p.screens, |m| cfg.wallpaper_for(m)),
             _ => None,
         };
-        publisher.publish(playing, |k| lib.current(k).and_then(|i| i.preview));
+        publisher.publish(playing, cfg.lock_screen, |k| {
+            let item = lib.current(k);
+            (
+                item.as_ref().and_then(|i| i.preview.clone()),
+                item.as_ref().map(colors::Lock::of),
+            )
+        });
 
         let current = monitors
             .first()
@@ -544,7 +617,7 @@ pub fn run(autostart: bool) -> Result<()> {
         let next = View {
             current_title: current.as_deref().map(|k| lib.title(k)).unwrap_or_default(),
             current,
-            items: menu_items(&lib),
+            items: menu_items(&lib, &sup.broken),
             screens: want.screens.len(),
             running: sup.engine.is_some(),
             paused: pause,
@@ -561,7 +634,7 @@ pub fn run(autostart: bool) -> Result<()> {
         }
     }
     sup.stop();
-    publisher.publish(None, |_| None);
+    publisher.publish(None, false, |_| (None, None));
     drop(handle);
     Ok(())
 }
@@ -596,6 +669,9 @@ mod tests {
             failures: 0,
             retry_at: Instant::now(),
             gave_up_on: None,
+            instant: 0,
+            tried: None,
+            broken: Vec::new(),
         };
         let plan = engine::plan(&Config::default(), &Library::default(), &[]);
         assert!(s.step(&plan, None).unwrap().contains("isn't installed"));
@@ -603,6 +679,40 @@ mod tests {
             .step(&plan, Some(std::path::Path::new("/bin/true")))
             .is_none());
         assert!(s.engine.is_none());
+    }
+
+    #[test]
+    fn supervisor_gives_up_fast_on_instant_crashes() {
+        let mut s = Supervisor {
+            start: Engine::start_direct,
+            log: None,
+            engine: None,
+            running_plan: None,
+            failures: 0,
+            retry_at: Instant::now(),
+            gave_up_on: None,
+            instant: 0,
+            tried: None,
+            broken: Vec::new(),
+        };
+        let plan = Plan {
+            screens: vec![("X".into(), std::path::PathBuf::from("/nonexistent"))],
+            assets: None,
+            fps: 30,
+            sound: false,
+            volume: 0,
+            scaling: "fill",
+            fullscreen_pause: true,
+        };
+        let bin = std::path::Path::new("/bin/false");
+        for _ in 0..=MAX_INSTANT {
+            s.retry_at = Instant::now();
+            s.step(&plan, Some(bin));
+            std::thread::sleep(Duration::from_millis(80));
+        }
+        let msg = s.step(&plan, Some(bin));
+        assert!(msg.unwrap().contains("keeps crashing"));
+        assert_eq!(s.broken, [std::path::PathBuf::from("/nonexistent")]);
     }
 
     #[test]
@@ -615,6 +725,9 @@ mod tests {
             failures: 0,
             retry_at: Instant::now(),
             gave_up_on: None,
+            instant: 0,
+            tried: None,
+            broken: Vec::new(),
         };
         let plan = Plan {
             screens: vec![("X".into(), std::path::PathBuf::from("/nonexistent"))],

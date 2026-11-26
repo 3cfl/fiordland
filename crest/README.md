@@ -8,7 +8,7 @@ crest 1 is a rewrite of the earlier Caelestia-based shell. It uses Material 3 Ex
 
 - a bar with a workspace pill that morphs between workspaces, a clock, the tray, and network, audio, battery and notification indicators
 - a launcher with fuzzy app search, a calculator (start with `=`) and emoji (start with `:`)
-- notification popups and a notification centre with a calendar and do not disturb
+- notification popups and a unified dashboard with notifications, calendar, music, system stats and clipboard history
 - quick settings for Wi-Fi, Bluetooth, power profile, do not disturb and night light, plus volume and brightness sliders and media controls
 - on-screen displays for volume and brightness
 - a lock screen that uses `ext-session-lock` and PAM, with optional fingerprint unlock

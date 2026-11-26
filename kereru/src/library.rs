@@ -49,6 +49,7 @@ pub struct Item {
     pub title: String,
     pub kind: Kind,
     pub preview: Option<PathBuf>,
+    pub video: Option<PathBuf>,
     pub mature: bool,
     pub workshop: bool,
 }
@@ -67,6 +68,7 @@ struct Project {
     #[serde(rename = "type")]
     kind: Option<String>,
     preview: Option<String>,
+    file: Option<String>,
     contentrating: Option<String>,
 }
 
@@ -161,6 +163,17 @@ fn plain_file(dir: &Path, name: &str) -> Option<PathBuf> {
     (meta.is_file() && meta.len() <= PREVIEW_LIMIT).then_some(p)
 }
 
+fn media_file(dir: &Path, name: &str) -> Option<PathBuf> {
+    let rel = Path::new(name);
+    let mut comps = rel.components();
+    let only = matches!(comps.next(), Some(Component::Normal(_))) && comps.next().is_none();
+    if !only || name.chars().any(char::is_control) {
+        return None;
+    }
+    let p = dir.join(rel);
+    std::fs::symlink_metadata(&p).ok()?.is_file().then_some(p)
+}
+
 fn title_of(v: Option<&serde_json::Value>) -> Option<String> {
     let s = match v? {
         serde_json::Value::String(s) => s.clone(),
@@ -193,6 +206,9 @@ pub fn read_item(dir: &Path, workshop: bool) -> Option<Item> {
         title: title_of(p.title.as_ref()).unwrap_or_else(|| sys::clean_text(&name, 120)),
         kind,
         preview: p.preview.as_deref().and_then(|f| plain_file(dir, f)),
+        video: (kind == Kind::Video)
+            .then(|| p.file.as_deref().and_then(|f| media_file(dir, f)))
+            .flatten(),
         mature: p.contentrating.as_deref().is_some_and(|r| {
             r.eq_ignore_ascii_case("mature") || r.eq_ignore_ascii_case("questionable")
         }),

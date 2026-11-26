@@ -22,8 +22,8 @@ Singleton {
         if (!hasBattery)
             return "power";
         if (charging)
-            return "battery_charging_full";
-        const steps = ["battery_0_bar", "battery_1_bar", "battery_2_bar", "battery_3_bar", "battery_4_bar", "battery_5_bar", "battery_6_bar", "battery_full"];
+            return "battery_android_bolt";
+        const steps = ["battery_android_0", "battery_android_1", "battery_android_2", "battery_android_3", "battery_android_4", "battery_android_5", "battery_android_6", "battery_android_full"];
         return steps[Math.max(0, Math.min(7, Math.round(level * 7)))];
     }
     readonly property string profileName: profile === PowerProfile.PowerSaver ? "power saver" : profile === PowerProfile.Performance ? "performance" : "balanced"

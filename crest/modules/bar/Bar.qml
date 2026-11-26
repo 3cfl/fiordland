@@ -31,11 +31,6 @@ PanelWindow {
         }
 
         Region {
-            item: content.mediaIsland.visible ? content.mediaIsland : null
-            radius: 22
-        }
-
-        Region {
             item: content.rightIsland
             radius: 22
         }
