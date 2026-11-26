@@ -1,3 +1,4 @@
+use crate::colors;
 use crate::config::{self, Config};
 use crate::engine::{self, Engine, Plan};
 use crate::library::{self, Library};
@@ -7,6 +8,7 @@ use anyhow::Result;
 use ksni::blocking::TrayMethods;
 use std::os::fd::AsRawFd;
 use std::os::unix::fs::OpenOptionsExt;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{self, RecvTimeoutError, Sender};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -18,6 +20,26 @@ const SCAN_EVERY: Duration = Duration::from_secs(120);
 const QUICK_CRASH: Duration = Duration::from_secs(20);
 const MAX_FAILURES: u32 = 5;
 const MENU_ITEMS: usize = 40;
+
+static QUIT: AtomicBool = AtomicBool::new(false);
+
+extern "C" fn on_quit_signal(_: libc::c_int) {
+    QUIT.store(true, Ordering::SeqCst);
+}
+
+fn quit_on_signals() {
+    let handler = on_quit_signal as extern "C" fn(libc::c_int) as libc::sighandler_t;
+    for sig in [libc::SIGTERM, libc::SIGINT, libc::SIGHUP] {
+        unsafe {
+            libc::signal(sig, handler);
+        }
+    }
+}
+
+pub fn stop_wallpaper(c: &mut Config) {
+    c.wallpaper = None;
+    c.monitors.clear();
+}
 
 pub enum Msg {
     Wake,
@@ -255,6 +277,16 @@ impl ksni::Tray for Tray {
             }
             .into(),
         );
+        menu.push(
+            StandardItem {
+                label: "Stop live wallpaper".into(),
+                icon_name: "media-playback-stop".into(),
+                enabled: v.current.is_some(),
+                activate: Box::new(|t: &mut Self| t.change(stop_wallpaper)),
+                ..Default::default()
+            }
+            .into(),
+        );
         menu.push(ksni::MenuItem::Separator);
         menu.push(
             CheckmarkItem {
@@ -399,6 +431,7 @@ pub fn run(autostart: bool) -> Result<()> {
         }
         anyhow::bail!("XDG_RUNTIME_DIR is missing or not private");
     };
+    quit_on_signals();
     let view = Arc::new(Mutex::new(View::default()));
     let (tx, rx) = mpsc::channel();
     let handle = Tray {
@@ -433,8 +466,12 @@ pub fn run(autostart: bool) -> Result<()> {
         gave_up_on: None,
     };
     let mut shown = View::default();
+    let mut publisher = colors::Publisher::new(colors::dir());
 
     loop {
+        if QUIT.load(Ordering::SeqCst) {
+            break;
+        }
         let mut force = false;
         match rx.recv_timeout(TICK) {
             Ok(Msg::Quit) | Err(RecvTimeoutError::Disconnected) => break,
@@ -489,6 +526,11 @@ pub fn run(autostart: bool) -> Result<()> {
         if let Some(e) = sup.engine.as_mut() {
             e.set_paused(pause);
         }
+        let playing = match (&sup.engine, &sup.running_plan) {
+            (Some(_), Some(p)) => colors::playing_key(&p.screens, |m| cfg.wallpaper_for(m)),
+            _ => None,
+        };
+        publisher.publish(playing, |k| lib.current(k).and_then(|i| i.preview));
 
         let current = monitors
             .first()
@@ -515,6 +557,7 @@ pub fn run(autostart: bool) -> Result<()> {
         }
     }
     sup.stop();
+    publisher.publish(None, |_| None);
     drop(handle);
     Ok(())
 }

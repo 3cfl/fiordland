@@ -1,3 +1,4 @@
+mod colors;
 mod config;
 mod daemon;
 mod engine;
@@ -11,7 +12,7 @@ use config::Config;
 
 slint::include_modules!();
 
-const USAGE: &str = "usage: kereru [--tray | --autostart | --pause | --resume | --toggle | --next | --status | --version]";
+const USAGE: &str = "usage: kereru [--tray | --autostart | --pause | --resume | --toggle | --next | --stop | --status | --version]";
 
 fn change(f: impl FnOnce(&mut Config)) -> anyhow::Result<()> {
     Config::update(f)?;
@@ -79,6 +80,7 @@ fn main() -> anyhow::Result<()> {
                 }
             }
         }
+        Some("--stop") => change(daemon::stop_wallpaper),
         Some("--status") => {
             status();
             Ok(())

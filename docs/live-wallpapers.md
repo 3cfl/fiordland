@@ -51,6 +51,12 @@ The tray menu has **Pause** and **Resume**. By default the wallpaper also pauses
 
 Turn either off in the picker's settings or from the tray menu. Sound is off until you turn on **play sound**.
 
+**Stop live wallpaper** in the tray menu, or `kereru --stop`, stops playing and brings back your normal wallpaper.
+
+## Desktop colors
+
+While a wallpaper plays, Kererū saves a small copy of its preview so Fiordland can match the desktop's colors to it. When you stop the wallpaper or quit Kererū, the colors go back to following your normal wallpaper.
+
 ## From the terminal
 
 ```
@@ -58,6 +64,7 @@ kereru --pause
 kereru --resume
 kereru --toggle
 kereru --next
+kereru --stop
 kereru --status
 ```
 

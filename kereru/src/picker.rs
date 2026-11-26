@@ -86,11 +86,7 @@ fn decode_reader<R: std::io::BufRead + std::io::Seek>(
     mut reader: image::ImageReader<R>,
     blur: bool,
 ) -> Option<Thumb> {
-    let mut limits = image::Limits::default();
-    limits.max_image_width = Some(8192);
-    limits.max_image_height = Some(8192);
-    limits.max_alloc = Some(256 << 20);
-    reader.limits(limits);
+    reader.limits(crate::colors::limits());
     let img = reader.decode().ok()?;
     let img = if blur {
         img.resize_exact(16, 9, image::imageops::FilterType::Triangle)

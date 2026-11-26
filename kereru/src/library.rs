@@ -302,7 +302,7 @@ impl Library {
         self.items.iter().find(|i| i.key == key)
     }
 
-    fn current(&self, key: &str) -> Option<Item> {
+    pub fn current(&self, key: &str) -> Option<Item> {
         match self.find(key) {
             Some(i) => read_item(&i.dir, i.workshop),
             None if config::valid_workshop_id(key) => None,

@@ -58,6 +58,7 @@ kereru --pause     pause
 kereru --resume    resume
 kereru --toggle    pause or resume
 kereru --next      switch to the next wallpaper
+kereru --stop      stop playing and go back to your normal wallpaper
 kereru --status    show what is playing
 ```
 
@@ -67,7 +68,14 @@ Steam's image servers, over HTTPS only. It needs no API key and sends nothing
 about you beyond a normal web request.
 
 Settings live in `~/.config/kereru/kereru.conf`. The engine's output goes to
-`~/.local/state/kereru/engine.log`. To stop Kererū from starting at login, turn
+`~/.local/state/kereru/engine.log`.
+
+While a wallpaper plays, Kererū writes `~/.local/state/kereru/colors.json` and a
+small copy of its preview, `colors.png` (at most 320×180, first frame of an
+animated preview), so the desktop can take its colors from it. The JSON is
+`{"playing":true,"key":"…","image":"/abs/path/colors.png"}`, without `image`
+when there is no preview, or `{"playing":false}` when nothing plays. It is
+rewritten only when the wallpaper or the playing state changes. To stop Kererū from starting at login, turn
 off "start when I log in" in the picker's settings.
 
 ## Wallpaper folders
