@@ -15,8 +15,13 @@ Rectangle {
     color: Colours.alpha(Colours.surfaceContainerHighest, 0.7)
     clip: true
 
-    Component.onCompleted: Media.tracking = true
-    Component.onDestruction: Media.tracking = false
+    property bool live: true
+
+    Hold {
+        active: root.live && root.visible
+        onAcquire: Media.trackers++
+        onRelease: Media.trackers--
+    }
 
     Image {
         id: art

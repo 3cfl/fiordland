@@ -1,11 +1,11 @@
 pkgname=fiordland-desktop
 pkgver=1.0
-pkgrel=22
+pkgrel=25
 pkgdesc="Fiordland Linux desktop defaults and branding"
 arch=('any')
 url='https://fiordlandlinux.org'
 license=('MIT')
-depends=('fiordland-base' 'inter-font' 'ttf-jetbrains-mono' 'fastfetch' 'papirus-icon-theme' 'dconf' 'ttf-nerd-fonts-symbols' 'kuaka' 'weka')
+depends=('fiordland-base' 'inter-font' 'ttf-jetbrains-mono' 'fastfetch' 'papirus-icon-theme' 'dconf' 'ttf-nerd-fonts-symbols' 'kuaka' 'weka' 'adw-gtk-theme')
 makedepends=('python' 'papirus-icon-theme')
 install=fiordland-desktop.install
 
@@ -22,6 +22,7 @@ package() {
   for v in 3.0 4.0; do
     install -Dm644 "$f/gtk/settings.ini" "$pkgdir/usr/share/fiordland/xdg/gtk-$v/settings.ini"
     install -Dm644 "$f/gtk/gtk.css" "$pkgdir/etc/skel/.config/gtk-$v/gtk.css"
+    install -Dm644 "$f/gtk/crest.css" "$pkgdir/etc/skel/.config/gtk-$v/crest.css"
   done
   install -Dm644 "$f/gtk/dconf" "$pkgdir/etc/dconf/db/local.d/00-fiordland"
   install -Dm644 /dev/stdin "$pkgdir/etc/dconf/profile/user" <<< $'user-db:user\nsystem-db:local'
@@ -35,6 +36,7 @@ package() {
   install -Dm644 "$f/speed/pkgfile-update-dropin.conf" "$pkgdir/usr/lib/systemd/system/pkgfile-update.timer.d/fiordland.conf"
   install -Dm644 "$f/speed/makepkg.conf" "$pkgdir/etc/makepkg.conf.d/fiordland.conf"
   install -Dm644 "$f/speed/flatpak-appstream.service" "$pkgdir/usr/lib/systemd/system/flatpak-appstream.service"
+  install -Dm644 /dev/stdin "$pkgdir/usr/lib/tmpfiles.d/fiordland-flatpak.conf" <<< 'd /var/lib/flatpak/exports/share/applications 0755 root root -'
   install -Dm644 "$f/speed/flatpak-appstream.timer" "$pkgdir/usr/lib/systemd/system/flatpak-appstream.timer"
   install -d "$pkgdir/usr/lib/systemd/system/timers.target.wants"
   ln -s ../flatpak-appstream.timer "$pkgdir/usr/lib/systemd/system/timers.target.wants/flatpak-appstream.timer"

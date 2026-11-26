@@ -13,8 +13,16 @@ Singleton {
     readonly property string mode: Config.appearance.mode === "light" ? "light" : "dark"
     readonly property list<string> variants: ["scheme-tonal-spot", "scheme-expressive", "scheme-content", "scheme-fidelity", "scheme-vibrant", "scheme-neutral", "scheme-monochrome", "scheme-rainbow", "scheme-fruit-salad"]
     readonly property string variant: variants.indexOf(Config.appearance.variant) >= 0 ? Config.appearance.variant : "scheme-tonal-spot"
-    readonly property bool fromWallpaper: Config.appearance.scheme === "wallpaper" && !Wallpapers.isDefault
-    readonly property string key: fromWallpaper ? `${Wallpapers.current}|${variant}` : "fjord"
+    readonly property string liveDir: (Quickshell.env("XDG_STATE_HOME")?.startsWith("/") ? Quickshell.env("XDG_STATE_HOME") : Config.home + "/.local/state") + "/kereru"
+    property bool liveReady: false
+    property string liveImage: ""
+    property string liveKey: ""
+    property string lockKind: ""
+    property string lockVideo: ""
+    property string lockStill: ""
+    readonly property bool live: liveImage !== ""
+    readonly property bool fromWallpaper: Config.appearance.scheme === "wallpaper" && (live || !Wallpapers.isDefault)
+    readonly property string key: fromWallpaper ? (live ? `kereru:${liveKey}|${variant}` : `${Wallpapers.current}|${variant}`) : "fjord"
     property var override: null
     property var cache: ({})
     property string cachedKey: ""
@@ -44,7 +52,7 @@ Singleton {
             return;
         }
         gen.targetKey = key;
-        gen.command = ["matugen", "image", Wallpapers.current, "-t", variant, "-m", mode, "--json", "hex", "--dry-run", "--source-color-index", "0"];
+        gen.command = ["matugen", "image", root.liveImage !== "" ? root.liveImage : Wallpapers.current, "-t", variant, "-m", mode, "--json", "hex", "--dry-run", "--source-color-index", "0"];
         gen.running = true;
     }
 
@@ -70,6 +78,40 @@ Singleton {
         return Object.keys(out).length >= 10 ? out : null;
     }
 
+    function safePath(p: var): string {
+        return typeof p === "string" && p.startsWith("/") && p.length <= 4096 && !/[\x00-\x1f]/.test(p) && p.split("/").indexOf("..") < 0 ? p : "";
+    }
+
+    function fileUrl(p: string): string {
+        return p ? "file://" + p.split("/").map(encodeURIComponent).join("/") : "";
+    }
+
+    function readLive(text: string): void {
+        let image = "";
+        let key = "";
+        let lock = null;
+        try {
+            const s = JSON.parse(text);
+            if (s && s.playing === true && s.lock && typeof s.lock === "object")
+                lock = s.lock;
+            const expected = root.liveDir + "/colors.png";
+            if (s && s.playing === true && s.image === expected && typeof s.key === "string" && s.key.length > 0 && s.key.length <= 4096 && s.key.indexOf("\n") < 0) {
+                image = expected;
+                key = s.key;
+            }
+        } catch (e) {}
+        root.lockKind = lock && ["video", "scene", "web"].indexOf(lock.kind) >= 0 ? lock.kind : "";
+        root.lockVideo = root.lockKind === "video" ? root.safePath(lock.video) : "";
+        root.lockStill = root.lockKind ? root.safePath(lock.still) : "";
+        if (image === "") {
+            root.liveImage = "";
+            root.liveKey = "";
+        } else {
+            root.liveKey = key;
+            root.liveImage = image;
+        }
+    }
+
     function pushBorders(): void {
         Hypr.setBorders(Colours.primary, Colours.tertiary, Colours.outlineVariant);
     }
@@ -78,6 +120,11 @@ Singleton {
         id: gen
 
         property string targetKey
+
+        onExited: {
+            if (targetKey !== root.key)
+                Qt.callLater(root.refresh);
+        }
 
         stdout: StdioCollector {
             onStreamFinished: {
@@ -120,6 +167,23 @@ Singleton {
             root.stateLoaded = true;
         }
         onLoadFailed: root.stateLoaded = true
+    }
+
+    Process {
+        running: !Config.demo
+        command: ["mkdir", "-p", "-m", "700", root.liveDir]
+        onExited: root.liveReady = true
+    }
+
+    FileView {
+        id: liveState
+
+        path: root.liveReady ? root.liveDir + "/colors.json" : ""
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
+        onLoaded: root.readLive(text())
+        onLoadFailed: root.readLive("")
     }
 
     Connections {

@@ -25,11 +25,11 @@ PAGE = """<!doctype html>
 <meta property="og:url" content="https://fiordlandlinux.org/news/">
 <meta property="og:title" content="Fiordland news">
 <meta property="og:description" content="Release notes for each Fiordland version.">
-<meta property="og:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
+<meta property="og:image" content="https://fiordlandlinux.org/assets/og.png?v=6">
 <meta property="og:site_name" content="Fiordland Linux">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
+<meta name="twitter:image" content="https://fiordlandlinux.org/assets/og.png?v=6">
 <link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="/assets/site.css?v=19">
@@ -60,7 +60,10 @@ PAGE = """<!doctype html>
 <footer class="foot">
   <div class="wrap foot-in">
     <span class="mark">Fiordland</span>
+    <span class="credit">Created by <a href="https://apollo44.lat" rel="author">Apollo</a> (<a href="https://github.com/3cfl">3cfl</a>)</span>
     <a href="/docs/">Docs</a>
+    <a href="/why/">Why Fiordland</a>
+    <a href="/low-end/">Low-end PCs</a>
     <a href="/wiki/">Wiki</a>
     <a href="/mirrors/">Mirrors</a>
     <a href="/repo/x86_64/">Repo</a>
@@ -121,8 +124,9 @@ def write(path, text):
 def point_home_page_at(version):
     index = SITE / "index.html"
     text = index.read_text(encoding="utf-8")
+    shown = re.sub(r"(\.0)+$", "", version)
     text, a = re.subn(r'<a class="badge" href="[^"]*">(<span class="dot"></span><span class="shine">)Fiordland [0-9.]+ ',
-                      rf'<a class="badge" href="/news/#v{version}">\g<1>Fiordland {version} ', text)
+                      rf'<a class="badge" href="/news/#v{version}">\g<1>Fiordland {shown} ', text)
     text, b = re.subn(r'"softwareVersion":"[^"]*"', f'"softwareVersion":"{version}"', text)
     if not (a and b):
         sys.exit("post-news: couldn't find the version badge on the home page; it may have been redesigned.")

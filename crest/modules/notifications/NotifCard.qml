@@ -76,6 +76,13 @@ Item {
 
         HoverHandler {
             id: hover
+
+            cursorShape: root.entry.defaultAction ? Qt.PointingHandCursor : Qt.ArrowCursor
+        }
+
+        TapHandler {
+            enabled: root.entry.defaultAction !== null
+            onTapped: root.entry.activate()
         }
 
         TapHandler {

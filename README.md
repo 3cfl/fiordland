@@ -5,6 +5,8 @@ Named after the Fiordland penguin, the tawaki.</p>
 
 <p align="center"><a href="https://fiordlandlinux.org">fiordlandlinux.org</a></p>
 
+<p align="center">Created by <a href="https://apollo44.lat">Apollo</a> (<a href="https://github.com/3cfl">3cfl</a> on GitHub, u5sk on Discord)</p>
+
 <p align="center"><a href="https://donate.stripe.com/8x25kFfe96fn0WL6X12wU00"><img src=".github/donate.svg" alt="Donate to Fiordland"></a> <a href="https://discord.gg/gy4ANH2Q9V"><img src=".github/discord.svg" alt="Join the Fiordland Discord"></a></p>
 
 <p align="center"><img src="web/assets/shots/hyprland.webp" alt="Hyprland with crest, the Fiordland shell, showing its dashboard over kitty and Thunar"></p>
@@ -90,6 +92,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the repo layout, how to build and tes
 Report vulnerabilities privately; see [SECURITY.md](SECURITY.md). Signing key handling and backups: [docs/signing-key.md](docs/signing-key.md).
 
 ## Credits
+
+Fiordland Linux was created by [Apollo](https://apollo44.lat) ([3cfl](https://github.com/3cfl), u5sk on Discord), who designs and maintains it, with help from the contributors listed on GitHub. It builds on:
 
 - [Caelestia shell](https://github.com/caelestia-dots/shell) by the Caelestia contributors, which the earlier crest was forked from, and [end-4's dots-hyprland](https://github.com/end-4/dots-hyprland), which crest 1 draws on (both GPL-3.0)
 - [Quickshell](https://quickshell.org) by outfoxxed and contributors, which crest is built on

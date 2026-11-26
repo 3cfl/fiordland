@@ -5,14 +5,13 @@ local crested = shell == "crest"
 local function crest(name) return hl.dsp.global("crest:" .. name) end
 local runs = { crest = "qs -c crest -d", noctalia = "noctalia", dux = "dms run", none = "waybar" }
 local files = "thunar"
-local browser = "firefox"
+local browser = "sh -c 'gtk-launch \"$(xdg-settings get default-web-browser)\" || firefox'"
 
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
 
 hl.env("XDG_CONFIG_DIRS", "/usr/share/fiordland/xdg:/etc/xdg")
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
-hl.env("GTK_THEME", "Adwaita:dark")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 if not os.getenv("QS_ICON_THEME") then hl.env("QS_ICON_THEME", "Fiordland") end
@@ -33,7 +32,17 @@ if nvidia_only() then
     hl.env("NVD_BACKEND", "direct")
 end
 
+local function installed(path)
+    local f = io.open(path, "r")
+    if f then f:close() end
+    return f ~= nil
+end
+
 hl.on("hyprland.start", function()
+    local home = os.getenv("HOME")
+    if home and home:sub(1, 1) == "/" then
+        os.execute("mkdir -p '" .. (home:gsub("'", "'\\''")) .. "/.local/share/flatpak/exports/share/applications'")
+    end
     if runs[shell] then hl.exec_cmd(runs[shell]) end
     if shell == "none" then
         hl.exec_cmd("mako")
@@ -42,6 +51,8 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
     hl.exec_cmd("xdg-user-dirs-update")
     hl.exec_cmd("fiordland-dots")
+    hl.exec_cmd("kuaka --tray")
+    if installed("/usr/bin/kereru") then hl.exec_cmd("kereru --autostart") end
 end)
 
 hl.config({
@@ -79,6 +90,7 @@ hl.config({
         vrr = 2,
         focus_on_activate = true,
         middle_click_paste = false,
+        allow_session_lock_restore = true,
     },
     dwindle = { preserve_split = true },
 })
@@ -102,7 +114,7 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(mod .. " + T", hl.dsp.exec_cmd(terminal))
 if crested then
-    hl.bind("SUPER + SUPER_L", crest("launcher"), { release = true })
+    hl.bind("SUPER + SUPER_L", crest("launcherTap"), { release = true })
     hl.bind(mod .. " + SPACE", crest("launcher"))
     hl.bind(mod .. " + D", crest("overview"))
     hl.bind(mod .. " + A", crest("quicksettings"))
@@ -114,7 +126,14 @@ if crested then
     hl.bind(mod .. " + I", crest("settings"))
     hl.bind(mod .. " + W", crest("wallpaper"))
     hl.bind(mod .. " + PERIOD", crest("emoji"))
-    hl.bind(mod .. " + SHIFT + S", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | wl-copy"))
+    hl.bind(mod .. " + S", crest("dashboard"))
+    hl.bind(mod .. " + V", crest("clipboard"))
+    hl.bind(mod .. " + SHIFT + V", hl.dsp.window.float({ action = "toggle" }))
+    hl.bind("Print", crest("capture"))
+    hl.bind("SHIFT + Print", crest("screenshotRegion"))
+    hl.bind("CTRL + Print", crest("screenshotScreen"))
+    hl.bind(mod .. " + SHIFT + S", crest("screenshotRegion"))
+    hl.bind(mod .. " + ALT + R", crest("recordRegion"))
 else
     hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd("pkill fuzzel || fuzzel"), { release = true })
     hl.bind(mod .. " + SPACE", hl.dsp.exec_cmd("pkill fuzzel || fuzzel"))
@@ -125,8 +144,10 @@ hl.bind(mod .. " + E", hl.dsp.exec_cmd(files))
 hl.bind(mod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mod .. " + Q", hl.dsp.window.close())
 hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }))
-hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind("Print", hl.dsp.exec_cmd("grim - | wl-copy"), { locked = true })
+if not crested then
+    hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
+    hl.bind("Print", hl.dsp.exec_cmd("grim - | wl-copy"), { locked = true })
+end
 hl.bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mod .. " + TAB", hl.dsp.focus({ workspace = "previous" }))
@@ -145,8 +166,8 @@ for i = 1, 10 do
     hl.bind(mod .. " + " .. key, hl.dsp.focus({ workspace = i }))
     hl.bind(mod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
-hl.bind(mod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(mod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
+hl.bind(mod .. " + mouse_down", hl.dsp.focus({ workspace = "r+1" }))
+hl.bind(mod .. " + mouse_up", hl.dsp.focus({ workspace = "r-1" }))
 hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
@@ -174,11 +195,12 @@ else
     hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
     hl.bind("XF86AudioStop", hl.dsp.exec_cmd("playerctl stop"), { locked = true })
 end
-hl.layer_rule({ match = { namespace = "^crest-(bar|launcher|quicksettings|notifications|session|osd|wallpaper|overview)$" }, blur = true, ignore_alpha = 0.3, no_anim = true })
+hl.layer_rule({ match = { namespace = "^crest-(bar|launcher|quicksettings|notifications|session|osd|wallpaper|overview|dashboard|capture)$" }, blur = true, ignore_alpha = 0.3, no_anim = true })
 hl.layer_rule({ match = { namespace = "^crest-background$" }, no_anim = true })
 hl.layer_rule({ match = { namespace = "^(selection|hyprpicker|wayfreeze)$" }, animation = "fade" })
 hl.layer_rule({ match = { namespace = "^launcher$" }, animation = "popin 80%", blur = true })
 
+hl.window_rule({ name = "suppress-maximize", match = { class = ".*" }, suppress_event = "maximize" })
 hl.window_rule({ name = "fiordland-dots", match = { class = "^fiordland-dots$" }, float = true, center = true, size = "1000 640" })
 hl.window_rule({ name = "pavucontrol", match = { class = "^org.pulseaudio.pavucontrol$" }, float = true, size = "760 520" })
 hl.window_rule({ name = "nm-editor", match = { class = "^nm-connection-editor$" }, float = true })
@@ -188,8 +210,11 @@ hl.window_rule({ name = "games-tear", match = { content = "game" }, immediate = 
 hl.window_rule({ name = "steam-games", match = { class = "^steam_app_.*" }, immediate = true })
 hl.window_rule({ name = "xwayland-drags", match = { class = "^$", title = "^$", xwayland = true, float = true, fullscreen = false, pin = false }, no_focus = true })
 
-local user = io.open((os.getenv("HOME") or "") .. "/.config/hypr/user.lua", "r")
-if user then
-    user:close()
-    require("user")
+for _, name in ipairs({ "user", "crest-binds" }) do
+    local path = (os.getenv("HOME") or "") .. "/.config/hypr/" .. name .. ".lua"
+    local f = io.open(path, "r")
+    if f then
+        f:close()
+        dofile(path)
+    end
 end

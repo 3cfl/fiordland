@@ -67,11 +67,15 @@ Singleton {
             Greetd.cancelSession();
     }
 
+    function quote(word: string): string {
+        if (/^[A-Za-z0-9_@%+:,.\/-]+$/.test(word))
+            return word;
+        return "'" + word.replace(/'/g, "'\\''") + "'";
+    }
+
     function command(s: var): var {
-        const wrap = ["/bin/sh", "-l", "-c", "exec \"$@\"", "sh"];
-        if (s.type === "x11")
-            return wrap.concat(["startx", "/usr/bin/env"], s.exec, ["--"]);
-        return wrap.concat(s.exec);
+        const argv = s.type === "x11" ? ["startx", "/usr/bin/env"].concat(s.exec, ["--"]) : s.exec;
+        return argv.map(quote);
     }
 
     function environment(s: var): var {

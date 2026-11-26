@@ -1,0 +1,40 @@
+pkgname=kereru
+pkgver=0.1.0
+pkgrel=2
+pkgdesc="Live Wallpaper Engine wallpapers for Fiordland, with a tray icon and a picker"
+arch=('x86_64')
+url='https://fiordlandlinux.org'
+license=('GPL-3.0-only')
+depends=('linux-wallpaperengine' 'bubblewrap' 'qt6-multimedia' 'qt6-multimedia-ffmpeg' 'gcc-libs' 'glibc' 'fontconfig' 'freetype2' 'libxkbcommon'
+         'libxkbcommon-x11' 'wayland' 'libglvnd' 'libx11' 'libxcursor' 'libxrandr' 'libxi')
+makedepends=('cargo')
+options=('!lto' '!debug')
+optdepends=('steam: Wallpaper Engine and its Workshop downloads'
+            'xdg-utils: open the Steam Workshop from the picker'
+            'xorg-xrandr: screen names on X11 window managers'
+            'ttf-material-symbols-variable: full icon set')
+
+prepare() {
+  cd "$startdir/../../kereru"
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "$startdir/../../kereru"
+  CARGO_TARGET_DIR="$srcdir/target" cargo build --release --frozen
+}
+
+check() {
+  cd "$startdir/../../kereru"
+  CARGO_TARGET_DIR="$srcdir/target" cargo test --release --frozen
+}
+
+package() {
+  local d="$startdir/../../kereru"
+  install -Dm755 "$srcdir/target/release/kereru" "$pkgdir/usr/bin/kereru"
+  install -Dm644 "$d/dist/kereru.desktop" "$pkgdir/usr/share/applications/kereru.desktop"
+  install -Dm644 "$d/dist/kereru-autostart.desktop" "$pkgdir/etc/xdg/autostart/kereru.desktop"
+  install -Dm644 "$d/dist/kereru.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/kereru.svg"
+  install -Dm644 "$d/README.md" "$pkgdir/usr/share/doc/kereru/README.md"
+  install -Dm644 "$d/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

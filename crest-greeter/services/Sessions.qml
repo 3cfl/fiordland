@@ -96,7 +96,7 @@ Singleton {
 
     Process {
         running: !root.demo
-        command: ["sh", "-c", "command -v startx >/dev/null 2>&1 && echo startx; find /usr/share/wayland-sessions /usr/share/xsessions -maxdepth 1 -name '*.desktop' -type f -exec grep -H -E '^(Name|Exec|NoDisplay|Hidden|DesktopNames)=' {} + 2>/dev/null; true"]
+        command: ["sh", "-c", "command -v startx >/dev/null 2>&1 && echo startx; for f in /usr/share/wayland-sessions/*.desktop /usr/share/xsessions/*.desktop; do [ -f \"$f\" ] || continue; t=$(sed -n 's/^TryExec=//p' \"$f\" | head -n 1); [ -z \"$t\" ] || command -v \"$t\" >/dev/null 2>&1 || continue; grep -H -E '^(Name|Exec|NoDisplay|Hidden|DesktopNames)=' \"$f\" 2>/dev/null; done; true"]
         stdout: StdioCollector {
             onStreamFinished: root.parse(text)
         }

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1D4A74"/>
+      <stop offset="1" stop-color="#0B1B2C"/>
+    </linearGradient>
+    <linearGradient id="fjord" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#86D6CB"/>
+      <stop offset="1" stop-color="#00504A"/>
+    </linearGradient>
+    <clipPath id="tile">
+      <rect x="8" y="8" width="112" height="112" rx="32"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect x="8" y="8" width="112" height="112" fill="url(#sky)"/>
+    <circle cx="86" cy="40" r="12" fill="#D2E4FF"/>
+    <path d="M8 92 L40 52 L58 74 L76 50 L120 96 L120 120 L8 120 Z" fill="#9ECAFF"/>
+    <path d="M8 104 C32 96 52 110 72 102 C92 94 108 104 120 100 L120 120 L8 120 Z" fill="url(#fjord)"/>
+  </g>
+  <path d="M84 84 l18 10 -18 10 z" fill="#FFFFFF" fill-opacity="0.92"/>
+</svg>

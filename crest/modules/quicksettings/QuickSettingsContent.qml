@@ -12,6 +12,10 @@ Glass {
     id: root
 
     property string page: "main"
+    property bool live: true
+
+    onLiveChanged: if (!live)
+        page = "main"
     readonly property string user: Quickshell.env("USER") ?? ""
 
     implicitWidth: 412
@@ -39,7 +43,7 @@ Glass {
                 Layout.preferredHeight: 44
                 shape: "cookie6"
                 initial: root.user
-                source: Config.demo ? "" : `file://${Config.home}/.face`
+                source: Account.face
             }
 
             ColumnLayout {
@@ -170,6 +174,7 @@ Glass {
             }
 
             MediaCard {
+                live: root.live
                 Layout.fillWidth: true
                 Layout.topMargin: 4
                 visible: Media.available

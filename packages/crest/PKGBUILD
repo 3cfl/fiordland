@@ -1,7 +1,7 @@
 pkgname=crest
 epoch=2
-pkgver=1.0.0
-pkgrel=1
+pkgver=1.0.1
+pkgrel=3
 pkgdesc="Fiordland desktop shell for Hyprland, written in QML for Quickshell"
 arch=('any')
 url='https://fiordlandlinux.org'
@@ -10,9 +10,13 @@ depends=('quickshell' 'qt6-declarative' 'qt6-imageformats' 'qt6-svg' 'hyprland'
          'matugen' 'hyprsunset' 'brightnessctl' 'wl-clipboard'
          'networkmanager' 'bluez' 'upower' 'power-profiles-daemon' 'pipewire'
          'ttf-material-symbols-variable' 'inter-font' 'ttf-jetbrains-mono'
-         'grim' 'slurp' 'bash' 'coreutils' 'findutils' 'systemd')
+         'grim' 'slurp' 'cliphist' 'wf-recorder' 'libnotify' 'xdg-user-dirs'
+         'cava' 'gnome-keyring' 'libsecret' 'seahorse' 'xdg-utils'
+         'procps-ng' 'bash' 'coreutils' 'findutils' 'systemd')
 optdepends=('fprintd: fingerprint unlock for the lock screen'
-            'noto-fonts-emoji: colour emoji in the launcher')
+            'noto-fonts-emoji: colour emoji in the launcher'
+            'libpulse: record desktop audio with screen recordings'
+            'kitty: terminal colours that follow the shell')
 conflicts=('caelestia-shell' 'caelestia-shell-git')
 replaces=('caelestia-shell')
 source=("crest-$pkgver.tar.gz")

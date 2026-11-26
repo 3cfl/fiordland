@@ -63,7 +63,7 @@ Item {
         shape: root.shape
         color: "white"
         visible: false
-        layer.enabled: root.hasImage && Style.effects
+        layer.enabled: Style.effects
         layer.samples: 4
     }
 

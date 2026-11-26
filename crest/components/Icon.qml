@@ -18,11 +18,7 @@ Text {
     verticalAlignment: Text.AlignVCenter
     font.family: Style.icons
     font.pixelSize: size
+    font.hintingPreference: Font.PreferNoHinting
+    renderType: Text.CurveRendering
     font.variableAxes: ({ "FILL": root.fill, "wght": root.weight, "GRAD": 0, "opsz": Math.max(20, Math.min(48, root.size)) })
-
-    Behavior on fill {
-        Ease {
-            duration: Motion.durShort
-        }
-    }
 }

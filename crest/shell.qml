@@ -7,7 +7,9 @@ import qs.services
 import "modules"
 import "modules/background"
 import "modules/bar"
+import "modules/capture"
 import "modules/common"
+import "modules/dashboard"
 import "modules/launcher"
 import "modules/lock"
 import "modules/notifications"
@@ -27,6 +29,9 @@ ShellRoot {
         Perf.lowEnd;
         Scheme.mode;
         NightLight.enabled;
+        TermTheme.enabled;
+        GtkTheme.enabled;
+        Clip.watching;
     }
 
     Variants {
@@ -60,18 +65,11 @@ ShellRoot {
 
     Popout {
         name: "quicksettings"
+        keepAlive: true
         edge: "top-right"
         open: Panels.quicksettings
         onDismissed: Panels.close()
         content: QuickSettingsContent {}
-    }
-
-    Popout {
-        name: "notifications"
-        edge: "top"
-        open: Panels.notifications
-        onDismissed: Panels.close()
-        content: CentreContent {}
     }
 
     Popout {
@@ -106,6 +104,27 @@ ShellRoot {
         open: Panels.overview
         onDismissed: Panels.close()
         content: OverviewContent {
+            onDone: Panels.close()
+        }
+    }
+
+    Popout {
+        name: "dashboard"
+        keepAlive: true
+        edge: "top"
+        open: Panels.dashboard
+        onDismissed: Panels.close()
+        content: DashboardContent {
+            onDone: Panels.close()
+        }
+    }
+
+    Popout {
+        name: "capture"
+        edge: "bottom"
+        open: Panels.capture
+        onDismissed: Panels.close()
+        content: CaptureContent {
             onDone: Panels.close()
         }
     }

@@ -13,7 +13,7 @@ PanelWindow {
     property string shown: ""
 
     screen: modelData
-    color: Colours.surfaceContainerLowest
+    color: Scheme.live ? "transparent" : Colours.surfaceContainerLowest
     WlrLayershell.namespace: "crest-background"
     WlrLayershell.layer: WlrLayer.Background
     exclusionMode: ExclusionMode.Ignore
@@ -43,6 +43,7 @@ PanelWindow {
         id: img
 
         anchors.fill: parent
+        visible: !Scheme.live
         sourceSize.width: win.width
         sourceSize.height: win.height
         fillMode: Image.PreserveAspectCrop
