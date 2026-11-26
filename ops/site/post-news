@@ -25,11 +25,11 @@ PAGE = """<!doctype html>
 <meta property="og:url" content="https://fiordlandlinux.org/news/">
 <meta property="og:title" content="Fiordland news">
 <meta property="og:description" content="Release notes for each Fiordland version.">
-<meta property="og:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
+<meta property="og:image" content="https://fiordlandlinux.org/assets/og.png?v=6">
 <meta property="og:site_name" content="Fiordland Linux">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
+<meta name="twitter:image" content="https://fiordlandlinux.org/assets/og.png?v=6">
 <link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="/assets/site.css?v=19">

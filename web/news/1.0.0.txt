@@ -10,3 +10,4 @@ Fiordland 1
 - One front door: fiordland version, news, tune, report, channel, kernel and dns. fiordland report collects details for a bug report; nothing is uploaded.
 - Now included: firewall on by default, printing with network printer discovery, Bluetooth, firmware updates (fwupd), disk health tools, CJK and emoji fonts, audio and video codecs with hardware decoding, plocate, and monthly Btrfs scrubs. Snapshots from updates are trimmed to the newest 10.
 - Optional: encrypted DNS with sudo fiordland dns tls and a Btrfs swap file with sudo fiordland-tune swapfile 8.
+- Updated install image 2026.11.26-3: the installer asks you to join Wi-Fi before it starts, retries slow downloads, and the crest lock screen accepts your password every time.

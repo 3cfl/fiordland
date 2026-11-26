@@ -10,11 +10,11 @@
 <meta property="og:url" content="https://fiordlandlinux.org/docs/install/">
 <meta property="og:title" content="Install Fiordland">
 <meta property="og:description" content="Make a USB stick, boot it and run the installer.">
-<meta property="og:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
+<meta property="og:image" content="https://fiordlandlinux.org/assets/og.png?v=6">
 <meta property="og:site_name" content="Fiordland Linux">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://fiordlandlinux.org/assets/og.png?v=5">
+<meta name="twitter:image" content="https://fiordlandlinux.org/assets/og.png?v=6">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
@@ -52,7 +52,7 @@
       <li><h3>Download the ISO</h3><p>Get it from the <a href="/">home page</a>. The SHA-256 checksum is listed under the download button. On Linux, check it with:</p><pre class="term">sha256sum fiordland-*.iso</pre></li>
       <li><h3>Write it to a USB stick</h3><p>On Windows use <a href="https://rufus.ie">Rufus</a> and pick <em>DD image mode</em> when it asks. On macOS or Windows, <a href="https://etcher.balena.io">balenaEtcher</a> also works. On Linux:</p><pre class="term">sudo dd if=fiordland-*.iso of=/dev/sdX bs=4M status=progress oflag=sync</pre><p>Replace <code>sdX</code> with the USB stick. <code>lsblk</code> lists your drives. Picking the wrong one erases it.</p></li>
       <li><h3>Boot from the stick</h3><p>Restart and press the boot menu key while the logo shows. It is usually F12, F11, F8, Esc or F2. Turn off <strong>Secure Boot</strong> in the firmware settings first; Fiordland's boot files are not signed yet.</p></li>
-      <li><h3>Run the installer</h3><p>The live desktop opens the installer by itself. Pick your language, keyboard, timezone, the disk (the whole disk, alongside Windows with a slider for the size, or partitions you choose, with a partition editor one click away), your account and a desktop. KDE Plasma is the default and the easiest switch from Windows. The review page lets you change the graphics driver and kernel before anything is written.</p></li>
+      <li><h3>Run the installer</h3><p>The live desktop opens the installer by itself. Packages download during the install, so if you are not on a cable it asks you to join a Wi&#8209;Fi network first. Pick your language, keyboard, timezone, the disk (the whole disk, alongside Windows with a slider for the size, or partitions you choose, with a partition editor one click away), your account and a desktop. KDE Plasma is the default and the easiest switch from Windows. The review page lets you change the graphics driver and kernel before anything is written.</p></li>
       <li><h3>Restart</h3><p>Packages download fresh, so the install takes 5 to 20 minutes. Remove the USB stick when the computer restarts.</p></li>
     </ol>
   </section>
