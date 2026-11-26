@@ -132,7 +132,7 @@ h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
 }
 .main-pad{padding-top:130px;max-width:900px;padding-bottom:0}
 .mark{display:inline-flex;align-items:center;gap:9px}
-.mark img{width:auto;height:21px}
+.mark img{width:auto;height:40px}
 .page{font-size:clamp(30px,5vw,46px);line-height:1.08;letter-spacing:-.035em;margin:0 0 12px}
 .main-pad .eyebrow{margin-bottom:12px}
 .lede{font-size:17px;max-width:560px}
