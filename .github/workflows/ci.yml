@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pkg: [fiordland-keyring, fiordland-base, fiordland-desktop, fiordland-tune, rawaru, tawaki]
+        pkg: [fiordland-keyring, fiordland-base, fiordland-desktop, fiordland-tune, fiordland-gaming, fiordland-dev, rawaru, tawaki]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

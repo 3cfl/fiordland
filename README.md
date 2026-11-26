@@ -66,6 +66,10 @@ The installer detects the GPU: NVIDIA Turing and newer get `nvidia-open` (plus `
 
 Every install comes with the `fiordland-gaming` meta package: Steam, proton-cachyos, wine-cachyos, umu-launcher, protontricks, winetricks, gamemode, MangoHud and gamescope. Existing installs get it in the background after updating to fiordland-base 0.9.1. Remove it with `sudo pacman -Rns fiordland-gaming`.
 
+## Development
+
+`fiordland-dev` is an opt-in meta package for programming: base-devel, git, git-lfs, github-cli, cmake, meson, ninja, clang, lldb, gdb, valgrind, strace, Python with pip and pipx, Node.js and npm, rustup, Go, OpenJDK, podman and podman-compose, shellcheck, jq, ripgrep, fd and man pages. Install it with `tawaki install fiordland-dev`, then run `rustup default stable` for Rust.
+
 ## crest
 
 Runs with `qs -c crest`. Settings live in `~/.config/crest/config.json` and in the settings window (Super + I). Colours come from the wallpaper through matugen, with the Fiordland palette as the fallback. Low-end mode turns off blur, shadows and most animation, and switches on by itself under software rendering or with less than 4 GB of memory. See [crest/README.md](crest/README.md) for shortcuts and IPC.

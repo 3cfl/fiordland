@@ -1,0 +1,3 @@
+post_install() {
+  echo "  fiordland-dev: run 'rustup default stable' to install a Rust toolchain."
+}
