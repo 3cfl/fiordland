@@ -18,7 +18,6 @@ Singleton {
     property string liveImage: ""
     property string liveKey: ""
     readonly property bool live: liveImage !== ""
-    readonly property string source: live ? liveImage : Wallpapers.current
     readonly property bool fromWallpaper: Config.appearance.scheme === "wallpaper" && (live || !Wallpapers.isDefault)
     readonly property string key: fromWallpaper ? (live ? `kereru:${liveKey}|${variant}` : `${Wallpapers.current}|${variant}`) : "fjord"
     property var override: null
@@ -50,7 +49,7 @@ Singleton {
             return;
         }
         gen.targetKey = key;
-        gen.command = ["matugen", "image", source, "-t", variant, "-m", mode, "--json", "hex", "--dry-run", "--source-color-index", "0"];
+        gen.command = ["matugen", "image", root.liveImage !== "" ? root.liveImage : Wallpapers.current, "-t", variant, "-m", mode, "--json", "hex", "--dry-run", "--source-color-index", "0"];
         gen.running = true;
     }
 
@@ -87,8 +86,13 @@ Singleton {
                 key = s.key;
             }
         } catch (e) {}
-        root.liveKey = key;
-        root.liveImage = image;
+        if (image === "") {
+            root.liveImage = "";
+            root.liveKey = "";
+        } else {
+            root.liveKey = key;
+            root.liveImage = image;
+        }
     }
 
     function pushBorders(): void {
