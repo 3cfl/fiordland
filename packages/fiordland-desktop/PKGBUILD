@@ -1,6 +1,6 @@
 pkgname=fiordland-desktop
 pkgver=1.0
-pkgrel=22
+pkgrel=23
 pkgdesc="Fiordland Linux desktop defaults and branding"
 arch=('any')
 url='https://fiordlandlinux.org'
