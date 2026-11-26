@@ -13,7 +13,7 @@ Scope {
     Auth {
         id: authCtx
 
-        active: lock.locked
+        active: Session.locked
     }
 
     IdleMonitor {
