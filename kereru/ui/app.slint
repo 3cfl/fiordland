@@ -1,0 +1,572 @@
+import { Theme, Icon, Txt, Badge, PillButton, IconButton, Card, Chip, Switch, Backdrop } from "fiord.slint";
+
+export { Theme }
+
+export struct Wall {
+    key: string,
+    title: string,
+    kind: string,
+    preview: image,
+    has-preview: bool,
+    hidden: bool,
+    selected: bool,
+}
+
+export struct Screen {
+    name: string,
+    label: string,
+    custom: bool,
+}
+
+component Scroller inherits Flickable {
+    in property <length> content: 0px;
+    content-height: max(self.height, content);
+    if self.content-height > self.height + 1px: Rectangle {
+        x: root.width - 6px;
+        y: -root.content-y - root.content-y / root.content-height * root.height + 6px;
+        width: 4px;
+        height: max(24px, root.height / root.content-height * root.height - 12px);
+        border-radius: 2px;
+        background: Theme.on-surface.with-alpha(0.18);
+    }
+}
+
+component SettingRow inherits Rectangle {
+    in property <string> icon;
+    in property <string> text;
+    in property <string> note;
+    in-out property <bool> checked;
+    callback toggled();
+    min-height: row.preferred-height;
+    row := HorizontalLayout {
+        spacing: 12px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+        VerticalLayout {
+            alignment: center;
+            Icon {
+                name: root.icon;
+                size: 20px;
+                tint: Theme.on-surface-variant;
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            spacing: 2px;
+            Txt {
+                text: root.text;
+                role: "bodyM";
+            }
+            if root.note != "": Txt {
+                text: root.note;
+                role: "bodyS";
+                color: Theme.on-surface-variant;
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            Switch {
+                label: root.text;
+                checked <=> root.checked;
+                toggled => {
+                    root.toggled();
+                }
+            }
+        }
+    }
+}
+
+component WallCard inherits Rectangle {
+    in property <Wall> wall;
+    callback picked();
+    border-radius: Theme.xl;
+    background: Theme.glass(Theme.surface-container);
+    border-width: wall.selected ? 3px : 1px;
+    border-color: wall.selected ? Theme.primary : Theme.outline-variant.with-alpha(0.6);
+    animate border-color { duration: Theme.short; }
+    clip: true;
+    accessible-role: button;
+    accessible-label: wall.title;
+    accessible-checked: wall.selected;
+    accessible-action-default => {
+        root.picked();
+    }
+    property <length> shot: self.width * 9 / 16;
+    Rectangle {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.shot;
+        background: Theme.surface-container-highest;
+        if root.wall.has-preview: Image {
+            width: parent.width;
+            height: parent.height;
+            source: root.wall.preview;
+            image-fit: cover;
+        }
+        if !root.wall.has-preview: Icon {
+            name: root.wall.kind == "video" ? "movie" : root.wall.kind == "web" ? "language" : "landscape";
+            size: 40px;
+            tint: Theme.on-surface-variant;
+        }
+        if root.wall.hidden: Rectangle {
+            width: parent.width;
+            height: parent.height;
+            background: Theme.surface.with-alpha(0.35);
+            Txt {
+                text: "preview hidden";
+                role: "labelM";
+                color: Theme.on-surface;
+                horizontal-alignment: center;
+            }
+        }
+        Rectangle {
+            x: parent.width - self.width - 10px;
+            y: 10px;
+            width: kind-row.preferred-width;
+            height: 24px;
+            border-radius: 12px;
+            background: Theme.surface.with-alpha(0.8);
+            kind-row := HorizontalLayout {
+                padding-left: 8px;
+                padding-right: 10px;
+                spacing: 4px;
+                VerticalLayout {
+                    alignment: center;
+                    Icon {
+                        name: root.wall.kind == "video" ? "movie" : root.wall.kind == "web" ? "language" : "landscape";
+                        size: 14px;
+                        tint: Theme.on-surface;
+                    }
+                }
+                Text {
+                    text: root.wall.kind;
+                    color: Theme.on-surface;
+                    font-size: 11px;
+                    font-weight: 600;
+                    vertical-alignment: center;
+                }
+            }
+        }
+        if root.wall.selected: Badge {
+            x: 10px;
+            y: 10px;
+            size: 32px;
+            icon: "check";
+            shape: "c9";
+            fill: Theme.primary;
+            tint: Theme.on-primary;
+        }
+    }
+    Txt {
+        x: 16px;
+        y: root.shot + 10px;
+        width: root.width - 32px;
+        height: root.height - root.shot - 16px;
+        text: root.wall.title;
+        role: "titleS";
+        wrap: no-wrap;
+        overflow: elide;
+        vertical-alignment: top;
+    }
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => {
+            root.picked();
+        }
+    }
+    Rectangle {
+        background: touch.has-hover ? Theme.on-surface.with-alpha(0.06) : transparent;
+        animate background { duration: Theme.short; }
+    }
+}
+
+export component App inherits Window {
+    title: "Kererū";
+    preferred-width: 1120px;
+    preferred-height: 740px;
+    min-width: 760px;
+    min-height: 520px;
+    background: Theme.surface;
+    default-font-family: Theme.font;
+
+    in property <[Wall]> walls;
+    in property <[Screen]> screens;
+    in property <int> total: 0;
+    in-out property <int> scope: 0;
+    in-out property <string> filter: "all";
+    in-out property <string> query;
+    in property <string> subline;
+    in property <string> problem-title;
+    in property <string> problem;
+    in property <string> problem-action;
+    in property <string> engine-note;
+    in property <bool> running;
+    in property <bool> has-choice;
+    in property <string> version;
+    in-out property <bool> paused;
+    in-out property <bool> pause-fullscreen: true;
+    in-out property <bool> pause-battery: true;
+    in-out property <bool> sound;
+    in-out property <bool> autostart: true;
+    in-out property <bool> show-mature;
+    in-out property <int> fps: 30;
+
+    callback pick(string);
+    callback scope-changed();
+    callback filter-changed();
+    callback settings-changed();
+    callback mature-changed();
+    callback toggle-pause();
+    callback problem-clicked();
+    callback reset-screen();
+    callback start-service();
+    callback rescan();
+
+    property <length> side: 320px;
+    property <length> gap: 16px;
+    property <int> cols: max(1, floor((grid.width - 24px + root.gap) / (230px + root.gap)));
+    property <length> card-w: (grid.width - 24px - (root.cols - 1) * root.gap) / root.cols;
+    property <length> card-h: root.card-w * 9 / 16 + 48px;
+    property <int> rows: ceil(root.walls.length / root.cols);
+
+    Backdrop {
+        width: root.width;
+        height: root.height;
+    }
+
+    HorizontalLayout {
+        padding: 24px;
+        spacing: 24px;
+
+        VerticalLayout {
+            spacing: 16px;
+            horizontal-stretch: 1;
+
+            HorizontalLayout {
+                spacing: 16px;
+                Badge {
+                    icon: "wallpaper";
+                    size: 56px;
+                    shape: "c9";
+                }
+                VerticalLayout {
+                    alignment: center;
+                    spacing: 2px;
+                    Txt {
+                        text: "live wallpapers";
+                        role: "headlineS";
+                    }
+                    Txt {
+                        text: root.subline;
+                        role: "bodyM";
+                        color: Theme.on-surface-variant;
+                    }
+                }
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+                VerticalLayout {
+                    alignment: center;
+                    if !root.running: PillButton {
+                        text: "start";
+                        icon: "play_arrow";
+                        kind: "tonal";
+                        clicked => {
+                            root.start-service();
+                        }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    PillButton {
+                        text: root.paused ? "resume" : "pause";
+                        icon: root.paused ? "play_arrow" : "pause";
+                        kind: root.paused ? "filled" : "tonal";
+                        enabled: root.has-choice;
+                        clicked => {
+                            root.toggle-pause();
+                        }
+                    }
+                }
+            }
+
+            if root.problem != "": Card {
+                tone: Theme.tertiary-container;
+                outlined: false;
+                min-height: prob.preferred-height;
+                prob := HorizontalLayout {
+                    padding: 16px;
+                    spacing: 16px;
+                    VerticalLayout {
+                        alignment: center;
+                        Icon {
+                            name: "info";
+                            size: 24px;
+                            tint: Theme.on-tertiary-container;
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        spacing: 2px;
+                        horizontal-stretch: 1;
+                        Txt {
+                            text: root.problem-title;
+                            role: "titleS";
+                            color: Theme.on-tertiary-container;
+                        }
+                        Txt {
+                            text: root.problem;
+                            role: "bodyM";
+                            color: Theme.on-tertiary-container;
+                        }
+                    }
+                    if root.problem-action != "": VerticalLayout {
+                        alignment: center;
+                        PillButton {
+                            text: root.problem-action;
+                            icon: "open_in_new";
+                            kind: "tertiary";
+                            clicked => {
+                                root.problem-clicked();
+                            }
+                        }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 8px;
+                alignment: start;
+                Chip {
+                    text: "all screens";
+                    icon: "desktop_windows";
+                    interactive: true;
+                    selected: root.scope == 0;
+                    clicked => {
+                        root.scope = 0;
+                        root.scope-changed();
+                    }
+                }
+                for s[i] in root.screens: Chip {
+                    text: s.label + (s.custom ? " ·  own pick" : "");
+                    interactive: true;
+                    selected: root.scope == i + 1;
+                    clicked => {
+                        root.scope = i + 1;
+                        root.scope-changed();
+                    }
+                }
+                if root.scope > 0 && root.screens[root.scope - 1].custom: PillButton {
+                    text: "same as all screens";
+                    kind: "text";
+                    height: 32px;
+                    clicked => {
+                        root.reset-screen();
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 8px;
+                Rectangle {
+                    height: 40px;
+                    min-width: 200px;
+                    horizontal-stretch: 1;
+                    border-radius: 20px;
+                    background: Theme.glass(Theme.surface-container-high);
+                    HorizontalLayout {
+                        padding-left: 14px;
+                        padding-right: 14px;
+                        spacing: 8px;
+                        VerticalLayout {
+                            alignment: center;
+                            Icon {
+                                name: "search";
+                                size: 20px;
+                                tint: Theme.on-surface-variant;
+                            }
+                        }
+                        search := TextInput {
+                            text <=> root.query;
+                            color: Theme.on-surface;
+                            font-size: 14px;
+                            vertical-alignment: center;
+                            single-line: true;
+                            accessible-role: text-input;
+                            accessible-label: "search wallpapers";
+                            edited => {
+                                root.filter-changed();
+                            }
+                            if self.text == "": Text {
+                                text: "search " + root.total + " wallpapers";
+                                color: Theme.on-surface-variant;
+                                font-size: 14px;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
+                }
+                for f in ["all", "scene", "video", "web"]: Chip {
+                    text: f;
+                    interactive: true;
+                    selected: root.filter == f;
+                    y: 4px;
+                    clicked => {
+                        root.filter = f;
+                        root.filter-changed();
+                    }
+                }
+            }
+
+            grid := Scroller {
+                vertical-stretch: 1;
+                content: root.rows * (root.card-h + root.gap);
+                for w[i] in root.walls: WallCard {
+                    x: Math.mod(i, root.cols) * (root.card-w + root.gap);
+                    y: floor(i / root.cols) * (root.card-h + root.gap);
+                    width: root.card-w;
+                    height: root.card-h;
+                    wall: w;
+                    picked => {
+                        root.pick(w.key);
+                    }
+                }
+                if root.walls.length == 0 && root.problem == "": VerticalLayout {
+                    alignment: center;
+                    spacing: 8px;
+                    width: grid.width;
+                    height: grid.height;
+                    Txt {
+                        text: root.total == 0 ? "no wallpapers yet" : "nothing matches";
+                        role: "titleM";
+                        horizontal-alignment: center;
+                    }
+                    Txt {
+                        text: root.total == 0 ? "Subscribe to wallpapers in the Steam Workshop and they show up here." : "Try another search or filter.";
+                        role: "bodyM";
+                        color: Theme.on-surface-variant;
+                        horizontal-alignment: center;
+                    }
+                }
+            }
+        }
+
+        Card {
+            width: root.side;
+            VerticalLayout {
+                padding: 20px;
+                spacing: 4px;
+                alignment: start;
+                Txt {
+                    text: "settings";
+                    role: "titleM";
+                }
+                Rectangle {
+                    height: 8px;
+                }
+                SettingRow {
+                    icon: "fullscreen";
+                    text: "pause for fullscreen apps";
+                    note: "Games and videos get the whole GPU.";
+                    checked <=> root.pause-fullscreen;
+                    toggled => {
+                        root.settings-changed();
+                    }
+                }
+                SettingRow {
+                    icon: "battery_full";
+                    text: "pause on battery";
+                    checked <=> root.pause-battery;
+                    toggled => {
+                        root.settings-changed();
+                    }
+                }
+                SettingRow {
+                    icon: "volume_up";
+                    text: "play sound";
+                    checked <=> root.sound;
+                    toggled => {
+                        root.settings-changed();
+                    }
+                }
+                SettingRow {
+                    icon: "power_settings_new";
+                    text: "start when I log in";
+                    checked <=> root.autostart;
+                    toggled => {
+                        root.settings-changed();
+                    }
+                }
+                SettingRow {
+                    icon: "visibility";
+                    text: "show mature previews";
+                    checked <=> root.show-mature;
+                    toggled => {
+                        root.mature-changed();
+                    }
+                }
+                Rectangle {
+                    height: 8px;
+                }
+                HorizontalLayout {
+                    spacing: 12px;
+                    VerticalLayout {
+                        alignment: center;
+                        Icon {
+                            name: "speed";
+                            size: 20px;
+                            tint: Theme.on-surface-variant;
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        Txt {
+                            text: "frame rate";
+                            role: "bodyM";
+                        }
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    padding-top: 8px;
+                    alignment: start;
+                    for n in [15, 30, 60]: Chip {
+                        text: n + " fps";
+                        interactive: true;
+                        selected: root.fps == n;
+                        clicked => {
+                            root.fps = n;
+                            root.settings-changed();
+                        }
+                    }
+                }
+                Rectangle {
+                    height: 16px;
+                }
+                Txt {
+                    text: root.engine-note;
+                    role: "bodyS";
+                    color: Theme.on-surface-variant;
+                }
+                HorizontalLayout {
+                    alignment: start;
+                    padding-top: 8px;
+                    PillButton {
+                        text: "rescan";
+                        icon: "refresh";
+                        kind: "outlined";
+                        clicked => {
+                            root.rescan();
+                        }
+                    }
+                }
+                Txt {
+                    text: "Kererū " + root.version + ". Needs your own copy of Wallpaper Engine from Steam. Kererū draws your wallpapers with the open-source linux-wallpaperengine.";
+                    role: "bodyS";
+                    color: Theme.on-surface-variant;
+                }
+            }
+        }
+    }
+}
