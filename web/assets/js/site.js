@@ -152,4 +152,20 @@ if (mlist) {
     if (where) where.textContent = country ? `Sorted by distance to ${country} (from your connection, nothing is stored).` : "Sorted by status.";
   });
 }
+const badge = document.querySelector(".badge88-btn");
+if (badge) {
+  const msg = document.querySelector(".badge88-msg");
+  const base = msg.textContent;
+  let t;
+  badge.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText('<a href="https://fiordlandlinux.org"><img src="https://fiordlandlinux.org/assets/fiordland-88x31.gif" width="88" height="31" alt="Powered by Fiordland Linux"></a>');
+      msg.textContent = "Copied! Paste it into your site's HTML.";
+    } catch {
+      msg.textContent = "Couldn't copy, right-click the image to save it instead.";
+    }
+    clearTimeout(t);
+    t = setTimeout(() => { msg.textContent = base; }, 3000);
+  });
+}
 })();

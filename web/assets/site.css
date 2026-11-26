@@ -204,3 +204,8 @@ h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
 .msec .term+p,.msteps .term+p{margin-top:12px}
 @media(max-width:560px){.dcmd,.dcmd tbody,.dcmd tr,.dcmd th,.dcmd td{display:block}.dcmd th{padding-bottom:2px!important;border:0!important}.dcmd td{padding-top:0!important}}
 .dcmd{min-width:0}.dcmd td{text-align:left}@media(max-width:560px){.dcmd td{padding-left:14px!important}}
+.foot-in .badge88{width:100%;order:10;display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.badge88-btn{display:block;padding:0;border:0;background:none;cursor:pointer;line-height:0;transition:transform .2s}
+.badge88-btn:hover{transform:translateY(-1px)}
+.badge88-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.badge88-btn img{display:block;width:88px;height:31px;image-rendering:pixelated}
