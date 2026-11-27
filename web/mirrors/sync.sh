@@ -13,18 +13,29 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 curl -fsS --retry 3 --max-time 60 "$SRC/mirrors/manifest.txt" -o "$work/manifest"
 
+# Cache only verified destination identities; rehash everything at least weekly.
+cache="$DEST/.verified"
+mkdir -p "$cache"
 valid='^(repo/x86_64/[A-Za-z0-9._+@:-]+|repo/lastupdate|iso/[A-Za-z0-9._+-]+)$'
-grep -Eq ' repo/x86_64/fiordland\.db' "$work/manifest" || { echo "manifest looks wrong, aborting" >&2; exit 1; }
+grep -Eq ' repo/x86_64/fiordland\.db$' "$work/manifest" || { echo "manifest looks wrong, aborting" >&2; exit 1; }
 
 fetch() {
   local sum="$1" size="$2" rel="$3" target="$DEST/$3"
-  if [ -f "$target" ] && [ "$(stat -c %s "$target")" = "$size" ]; then
-    [ "$(sha256sum "$target" | cut -d' ' -f1)" = "$sum" ] && return 0
+  local stamp="$cache/${rel//\//_}" identity
+  if [[ ! -L $target ]] && [ -f "$target" ] && [ "$(stat -c %s "$target")" = "$size" ]; then
+    identity=$(stat -c '%d %i %s %z' "$target")
+    if [[ -f $stamp && $(<"$stamp") == "$sum $identity" ]] &&
+       [[ -n $(find "$stamp" -mtime -7 -print) ]]; then return 0; fi
+    if [ "$(sha256sum "$target" | cut -d' ' -f1)" = "$sum" ]; then
+      printf '%s %s\n' "$sum" "$identity" > "$stamp"
+      return 0
+    fi
   fi
   echo "fetching $rel"
   curl -fsS --retry 3 -C - "$SRC/$rel" -o "$target.part"
   [ "$(sha256sum "$target.part" | cut -d' ' -f1)" = "$sum" ] || { rm -f "$target.part"; echo "checksum mismatch for $rel" >&2; return 1; }
-  mv "$target.part" "$target"
+  mv -T "$target.part" "$target"
+  printf '%s %s\n' "$sum" "$(stat -c '%d %i %s %z' "$target")" > "$stamp"
 }
 
 pass() {

@@ -13,7 +13,7 @@ Singleton {
     property bool probed: Config.demo
     readonly property bool watching: available && Config.clipboard.enabled && !Config.demo
     readonly property int keep: Math.max(10, Math.min(2000, Config.clipboard.keep))
-    readonly property string runtimeDir: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/crest-clip"
+    readonly property string runtimeDir: Quickshell.env("XDG_RUNTIME_DIR") ? Quickshell.env("XDG_RUNTIME_DIR") + "/crest-clip" : ""
     readonly property string favDir: Config.stateDir + "/clipboard"
     property var entries: Config.demo ? [
         { id: "3", text: "fiordland.org", image: false },
@@ -29,13 +29,16 @@ Singleton {
     }
 
     function thumb(id: string): string {
-        return /^\d+$/.test(id) ? `file://${runtimeDir}/${id}?v=${thumbsVersion}` : "";
+        return runtimeDir && /^\d+$/.test(id) ? `file://${runtimeDir}/${id}?v=${thumbsVersion}` : "";
     }
 
     function refresh(): void {
         if (!available || Config.demo)
             return;
-        lister.running = true;
+        if (lister.running)
+            lister.refreshAgain = true;
+        else
+            lister.running = true;
     }
 
     function parseList(text: string): void {
@@ -58,7 +61,14 @@ Singleton {
         }
         root.entries = out;
         const ids = out.filter(e => e.image).slice(0, 40).map(e => e.id);
-        if (ids.length > 0) {
+        if (root.runtimeDir) {
+            thumbs.ids = ids;
+            thumbs.refresh();
+        }
+    }
+
+    function buildThumbs(ids: var): void {
+        if (root.runtimeDir) {
             thumbs.command = ["sh", "-c", 'd=$1; shift; mkdir -p -m 700 "$d" || exit 1; for id; do [ -s "$d/$id" ] || cliphist decode "$id" > "$d/$id" 2>/dev/null; done; for f in "$d"/*; do case " $* " in *" ${f##*/} "*) ;; *) rm -f "$f" ;; esac; done', "sh", root.runtimeDir].concat(ids);
             thumbs.running = true;
         }
@@ -164,6 +174,14 @@ Singleton {
     Process {
         id: lister
 
+        property bool refreshAgain: false
+        onExited: {
+            if (refreshAgain) {
+                refreshAgain = false;
+                Qt.callLater(root.refresh);
+            }
+        }
+
         command: ["cliphist", "list"]
         stdout: StdioCollector {
             onStreamFinished: root.parseList(text)
@@ -172,8 +190,22 @@ Singleton {
 
     Process {
         id: thumbs
-
-        onExited: root.thumbsVersion++
+        property var ids: []
+        property bool pending: false
+        function refresh(): void {
+            if (running) {
+                pending = true;
+                return;
+            }
+            root.buildThumbs(ids);
+        }
+        onExited: {
+            root.thumbsVersion++;
+            if (pending) {
+                pending = false;
+                Qt.callLater(refresh);
+            }
+        }
     }
 
     Process {

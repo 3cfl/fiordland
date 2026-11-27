@@ -1,6 +1,6 @@
 pkgname=kereru
 pkgver=0.1.0
-pkgrel=2
+pkgrel=3
 pkgdesc="Live Wallpaper Engine wallpapers for Fiordland, with a tray icon and a picker"
 arch=('x86_64')
 url='https://fiordlandlinux.org'

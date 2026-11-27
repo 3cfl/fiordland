@@ -6,6 +6,11 @@ puid=${PUID:-1000}
 pgid=${PGID:-1000}
 password=${PASSWORD:-${PASSWD:-}}
 
+if [[ -z $password && ${FIORDLAND_PROXY_AUTH:-0} != 1 ]]; then
+  echo "Set PASSWORD or set FIORDLAND_PROXY_AUTH=1 behind an authenticating proxy." >&2
+  exit 1
+fi
+
 if mountpoint -q /config 2>/dev/null; then
   home=/config
 else
@@ -33,10 +38,10 @@ fi
 
 auth=(SELKIES_ENABLE_BASIC_AUTH=false)
 if [ -n "$password" ]; then
-  echo "$user:$password" | chpasswd
+  printf '%s:%s\n' "$user" "$password" | chpasswd
   auth=(SELKIES_ENABLE_BASIC_AUTH=true SELKIES_BASIC_AUTH_USER="$user" SELKIES_BASIC_AUTH_PASSWORD="$password")
 else
-  passwd -d "$user" >/dev/null
+  passwd -l "$user" >/dev/null
   echo "fiordland-selkies: no PASSWORD set, serving the desktop without a login" >&2
 fi
 
@@ -44,7 +49,7 @@ for dev in /dev/dri/* /dev/nvidia*; do
   [ -c "$dev" ] || continue
   gid=$(stat -c %g "$dev")
   case "$gid" in 0|65534) continue ;; esac
-  grp=$(getent group "$gid" | cut -d: -f1)
+  grp=$(getent group "$gid" | cut -d: -f1) || grp=
   if [ -z "$grp" ]; then
     grp=gpu$gid
     groupadd -g "$gid" "$grp"
@@ -61,8 +66,10 @@ case "${SELKIES_ENABLE_HTTPS:-}" in
         install -d -m 755 "$dir"
         openssl req -x509 -nodes -newkey rsa:2048 -days 3650 -subj "/CN=fiordland" \
           -keyout "$dir/key.pem" -out "$dir/cert.pem" >/dev/null 2>&1
-        chmod 644 "$dir/cert.pem" "$dir/key.pem"
       fi
+      chown "root:$user" "$dir/key.pem"
+      chmod 640 "$dir/key.pem"
+      chmod 644 "$dir/cert.pem"
       tls=(SELKIES_HTTPS_CERT="$dir/cert.pem" SELKIES_HTTPS_KEY="$dir/key.pem")
     fi
     ;;
@@ -76,12 +83,19 @@ if [ ! -S /run/dbus/system_bus_socket ]; then
   dbus-daemon --system --fork --nopidfile
 fi
 
-pass=()
-while IFS= read -r v; do pass+=("$v"); done < <(env | grep -E "^(SELKIES_|NVIDIA_|CUDA_|LIBVA_|__GLX_|__EGL_|DRINODE=|DRI_NODE=|TZ=|SUBFOLDER=)" | grep -v -E "^SELKIES_(BASIC_AUTH_|ENABLE_BASIC_AUTH=|PORT=)" || true)
-[ -z "${SELKIES_UI_TITLE:-}" ] && pass+=(SELKIES_UI_TITLE="${TITLE:-Fiordland}")
+session_lang=${LANG:-en_US.UTF-8}
+session_title=${SELKIES_UI_TITLE:-${TITLE:-Fiordland}}
+while IFS= read -r name; do
+  case "$name" in
+    SELKIES_BASIC_AUTH_*|SELKIES_ENABLE_BASIC_AUTH|SELKIES_PORT) export -n "${name?}" ;;
+    SELKIES_*|NVIDIA_*|CUDA_*|LIBVA_*|__GLX_*|__EGL_*|DRINODE|DRI_NODE|TZ|SUBFOLDER) ;;
+    *) export -n "${name?}" ;;
+  esac
+done < <(compgen -e)
+export HOME="$home" USER="$user" LOGNAME="$user" SHELL=/bin/bash
+export PATH=/usr/local/bin:/usr/bin LANG="$session_lang" XDG_RUNTIME_DIR="/run/user/$uid"
+export SELKIES_UI_TITLE="$session_title" "${auth[@]}"
+if (( ${#tls[@]} )); then export "${tls[@]}"; fi
 
-exec runuser -u "$user" -- env -i \
-  HOME="$home" USER="$user" LOGNAME="$user" SHELL=/bin/bash \
-  PATH=/usr/local/bin:/usr/bin LANG="${LANG:-en_US.UTF-8}" \
-  XDG_RUNTIME_DIR="/run/user/$uid" "${pass[@]}" "${tls[@]}" "${auth[@]}" \
+exec runuser --preserve-environment -u "$user" -- \
   selkies session --session=fiordland --public --port="$port" "$@"

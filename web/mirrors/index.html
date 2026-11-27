@@ -60,7 +60,7 @@ Server = https://MIRROR/repo/$arch</pre>
 
   <section class="msec">
     <h2 class="h3">Host a mirror</h2>
-    <p>You need about 10 GB of disk, a hostname with HTTPS, and a connection that can handle ISO downloads of 3 GB each. Sync once an hour.</p>
+    <p>You need enough disk for all files listed in the current mirror manifest, plus room for a new ISO, a hostname with HTTPS, and a connection that can handle ISO downloads of 3 GB each. Sync once an hour.</p>
     <ol class="msteps">
       <li><h3>Get the script</h3><pre class="term" id="m-get">curl -O https://fiordlandlinux.org/mirrors/sync.sh</pre></li>
       <li><h3>Run the first sync</h3><pre class="term" id="m-run">bash sync.sh /srv/mirror/fiordland</pre><p>It downloads the repo and ISOs, checks every file against a SHA256 manifest, and removes files the primary no longer has.</p></li>

@@ -2,6 +2,8 @@ import hashlib
 import json
 import os
 import re
+import subprocess
+import tempfile
 import time
 import urllib.request
 from pathlib import Path
@@ -43,7 +45,12 @@ def build_manifest():
     entries = []
     newest = 0
     for path in sorted(REPO.iterdir()):
-        if path.is_symlink() or not path.is_file() or not NAME.match(path.name):
+        if path.is_symlink():
+            if path.name not in ("fiordland.db", "fiordland.files", "fiordland.db.sig", "fiordland.files.sig"):
+                continue
+            if path.resolve().parent != REPO.resolve():
+                continue
+        if not path.is_file() or not NAME.fullmatch(path.name):
             continue
         newest = max(newest, int(path.stat().st_mtime))
         entries.append(("repo/x86_64/" + path.name, path))
@@ -69,8 +76,21 @@ def probe(url):
         request = urllib.request.Request(url.rstrip("/") + "/repo/lastupdate", headers={"User-Agent": "fiordland-mirror-check"})
         with urllib.request.urlopen(request, timeout=8) as response:
             body = response.read(64).decode().strip()
+        with tempfile.TemporaryDirectory() as tmp:
+            for filename, limit in (("fiordland.db", 16 << 20), ("fiordland.db.sig", 64 << 10)):
+                req = urllib.request.Request(url.rstrip("/") + "/repo/x86_64/" + filename,
+                                             headers={"User-Agent": "fiordland-mirror-check"})
+                with urllib.request.urlopen(req, timeout=8) as response:
+                    content = response.read(limit + 1)
+                if not content or len(content) > limit:
+                    return {"ok": False}
+                (Path(tmp) / filename).write_bytes(content)
+            verify = subprocess.run(["gpgv", "--keyring", str(Path(__file__).resolve().with_name("fiordland.gpg")),
+                                     "fiordland.db.sig", "fiordland.db"], cwd=tmp, capture_output=True, timeout=10)
+            if verify.returncode:
+                return {"ok": False}
         return {"ok": True, "updated": int(body), "ms": int((time.monotonic() - started) * 1000)}
-    except (OSError, ValueError):
+    except (OSError, ValueError, subprocess.TimeoutExpired):
         return {"ok": False}
 
 
@@ -83,7 +103,7 @@ def check(newest):
         url = m["url"].rstrip("/")
         if not url.startswith("https://") or m.get("disabled"):
             continue
-        result = {"ok": True, "updated": newest, "ms": 0} if m.get("primary") else probe(url)
+        result = probe(url)
         if result["ok"]:
             result["lag"] = max(0, newest - result["updated"])
             result["ok"] = result["lag"] <= MAX_LAG

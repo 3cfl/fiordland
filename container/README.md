@@ -2,11 +2,12 @@
 
 A Fiordland XFCE desktop streamed to the browser with [Selkies](https://github.com/selkies-project/selkies). Built from a pinned Arch archive snapshot, so every pull of a tag is the same tested image.
 
-```
-docker run -d --shm-size=2g -p 8080:8080 -e PASSWORD=changeme ghcr.io/Fiordland-Linux/fiordland-xfce:latest
+```sh
+read -rsp "Desktop password: " PASSWORD; export PASSWORD; echo
+docker run -d --shm-size=2g -p 127.0.0.1:8080:8080 -e PASSWORD ghcr.io/Fiordland-Linux/fiordland-xfce:latest
 ```
 
-Open `http://host:8080` and log in as `fiord` with the password.
+Open `http://localhost:8080` and log in as `fiord` with the password.
 
 Also published as a rootfs tarball: https://fiordlandlinux.org/iso/container/fiordland-xfce-latest.tar.zst (`.sha256` beside it).
 
@@ -14,8 +15,9 @@ Also published as a rootfs tarball: https://fiordlandlinux.org/iso/container/fio
 
 NVIDIA (NVENC) is picked up automatically when the GPU is handed to the container:
 
-```
-docker run -d --gpus all --shm-size=2g -p 8080:8080 -e PASSWORD=changeme ghcr.io/Fiordland-Linux/fiordland-xfce:latest
+```sh
+read -rsp "Desktop password: " PASSWORD; export PASSWORD; echo
+docker run -d --gpus all --shm-size=2g -p 127.0.0.1:8080:8080 -e PASSWORD ghcr.io/Fiordland-Linux/fiordland-xfce:latest
 ```
 
 This needs the NVIDIA Container Toolkit on the host. `NVIDIA_DRIVER_CAPABILITIES=all` is set in the image. AMD VA-API is in Mesa and is used with `--device /dev/dri`; Intel needs `intel-media-driver`, which is not included. The desktop user is added to the groups that own the GPU device nodes at start. Without a GPU it falls back to x264 on the CPU.
@@ -30,7 +32,8 @@ The LinuxServer.io names work, so it drops in where their Selkies images ran.
 
 | Variable | Default | |
 |---|---|---|
-| `PASSWORD` | unset | Login password. Unset serves the desktop with no login, for platforms that do their own auth. |
+| `PASSWORD` | unset | Login password. Required unless an authenticating proxy is explicitly enabled. |
+| `FIORDLAND_PROXY_AUTH` | `0` | Set to `1` only behind an authenticating proxy to allow passwordless web access. |
 | `CUSTOM_USER` | `fiord` | Desktop user name, also the login name. |
 | `PUID` / `PGID` | `1000` | User and group id of the desktop user. |
 | `CUSTOM_PORT` / `SELKIES_PORT` | `8080` | Port the web client and stream listen on. |

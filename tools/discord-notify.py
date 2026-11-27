@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+from datetime import datetime
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -10,6 +12,8 @@ NAME = os.environ.get("DISCORD_NAME", "GitHub")
 AVATAR = os.environ.get("DISCORD_AVATAR", "https://fiordlandlinux.org/assets/github.png")
 HOOK = os.environ.get("DISCORD_WEBHOOK", "")
 STATE = os.environ.get("STATE_FILE", "/var/lib/fiordland-discord/state.json")
+
+MAX_EVENT_AGE = 3600
 
 COLOURS = {"opened": 0x8EC5FF, "reopened": 0x8EC5FF, "merged": 0xA78BFA, "closed": 0x6B7280, "published": 0x34D399,
            "push": 0x60A5FA, "create": 0x34D399, "delete": 0x6B7280, "fork": 0xF59E0B, "star": 0xFBBF24}
@@ -32,8 +36,11 @@ def save(state):
 
 
 def api(repo, path):
-    return urllib.request.Request(f"https://api.github.com/repos/{repo}/{path}",
+    request = urllib.request.Request(f"https://api.github.com/repos/{repo}/{path}",
                                   headers={"User-Agent": "fiordland-discord", "Accept": "application/vnd.github+json"})
+    if token := os.environ.get("FIORD_GITHUB_TOKEN"):
+        request.add_header("Authorization", f"Bearer {token}")
+    return request
 
 
 def commits(repo, p):
@@ -136,22 +143,54 @@ def post(repo, e, actor):
     urllib.request.urlopen(req, timeout=20).close()
 
 
-def poll(repo, st):
+def fresh(ev, now):
+    try:
+        when = datetime.fromisoformat(ev["created_at"].replace("Z", "+00:00"))
+        return when.tzinfo is not None and -300 <= now - when.timestamp() <= MAX_EVENT_AGE
+    except (AttributeError, KeyError, OverflowError, ValueError):
+        return False
+
+
+def push_id(ev):
+    if ev["type"] == "PushEvent":
+        return ev["payload"].get("push_id")
+    return None
+
+
+def poll(repo, state):
+    st = state["repos"].setdefault(repo, {})
     events, etag = fetch(repo, st.get("etag"))
     if events is None:
         return
     seen = set(st.get("seen", []))
     first = "seen" not in st
+    pushes = dict.fromkeys(st.get("pushes", []))
+    # Migrate existing state from event IDs without replaying a known push
+    # when GitHub includes it again under a different event ID.
+    for ev in events:
+        key = push_id(ev)
+        if ev["id"] in seen and key is not None:
+            pushes[key] = None
+    now = time.time()
     for ev in sorted(events, key=lambda x: int(x["id"])):
         if ev["id"] in seen:
             continue
+        key = push_id(ev)
+        if not first and fresh(ev, now) and (key is None or key not in pushes):
+            e = embed(repo, ev)
+            if e:
+                e["timestamp"] = ev["created_at"]
+                post(repo, e, ev["actor"])
+        if key is not None:
+            pushes[key] = None
         seen.add(ev["id"])
-        if first:
-            continue
-        e = embed(repo, ev)
-        if e:
-            post(repo, e, ev["actor"])
+        st["seen"] = sorted(seen, key=int)[-300:]
+        st["pushes"] = list(pushes)[-300:]
+        if not first:
+            save(state)
+    # An empty first poll still establishes a baseline.
     st["seen"] = sorted(seen, key=int)[-300:]
+    st["pushes"] = list(pushes)[-300:]
     st["etag"] = etag
 
 
@@ -161,13 +200,26 @@ def main():
     state = load()
     if "repos" not in state:
         state = {"repos": {"3cfl/fiordland": state} if state else {}}
+    if state.get("github_retry_at", 0) > time.time():
+        return
+    state.pop("github_retry_at", None)
     state.pop("next", None)
     failed = False
     try:
         for repo in REPOS:
             try:
-                poll(repo, state["repos"].setdefault(repo, {}))
+                poll(repo, state)
             except (urllib.error.URLError, OSError, ValueError) as e:
+                if isinstance(e, urllib.error.HTTPError) and e.url.startswith("https://api.github.com/"):
+                    if e.code == 429 or (e.code == 403 and
+                                         (e.headers.get("X-RateLimit-Remaining") == "0" or "Retry-After" in e.headers)):
+                        now = int(time.time())
+                        retry = e.headers.get("Retry-After", "")
+                        reset = e.headers.get("X-RateLimit-Reset", "")
+                        state["github_retry_at"] = max(now + (int(retry) if retry.isdigit() else 60),
+                                                       int(reset) if reset.isdigit() else 0)
+                        print(f"{repo}: GitHub rate limit; resuming after {state['github_retry_at']}", file=sys.stderr)
+                        break
                 print(f"{repo}: {e}", file=sys.stderr)
                 failed = True
     finally:

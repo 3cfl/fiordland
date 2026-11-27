@@ -1,7 +1,7 @@
 pkgname=crest
 epoch=2
 pkgver=1.0.1
-pkgrel=4
+pkgrel=5
 pkgdesc="Fiordland desktop shell for Hyprland, written in QML for Quickshell"
 arch=('any')
 url='https://fiordlandlinux.org'

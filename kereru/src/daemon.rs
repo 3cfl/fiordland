@@ -44,6 +44,8 @@ pub fn stop_wallpaper(c: &mut Config) {
 }
 
 pub enum Msg {
+    Outputs(Vec<Monitor>),
+    OutputsDisconnected,
     Wake,
     Quit,
 }
@@ -53,7 +55,7 @@ pub struct View {
     pub cfg: Option<Config>,
     pub current: Option<String>,
     pub current_title: String,
-    pub items: Vec<(String, String)>,
+    pub items: Arc<Vec<(String, String)>>,
     pub screens: usize,
     pub running: bool,
     pub paused: bool,
@@ -496,6 +498,21 @@ pub fn run(autostart: bool) -> Result<()> {
     let mut lib = library::scan();
     let mut scanned = Instant::now();
     let mut monitors: Vec<Monitor> = outputs::list();
+    let mut watching = std::env::var_os("WAYLAND_DISPLAY").is_some();
+    if watching {
+        let tx = tx.clone();
+        std::thread::spawn(move || {
+            let mut previous = None;
+            outputs::watch_wayland(|monitors| {
+                if previous.as_deref() != Some(monitors) {
+                    previous = Some(monitors.to_vec());
+                    return tx.send(Msg::Outputs(monitors.to_vec())).is_ok();
+                }
+                true
+            });
+            let _ = tx.send(Msg::OutputsDisconnected);
+        });
+    }
     let mut monitors_at = Instant::now();
     let mut battery = cfg.pause_on_battery && sys::on_battery();
     let mut battery_at = Instant::now();
@@ -514,6 +531,9 @@ pub fn run(autostart: bool) -> Result<()> {
     let mut notified: Option<Plan> = None;
     let mut scaler = crate::scale::Scaler::default();
     let mut shown = View::default();
+    let mut menu = Arc::new(menu_items(&lib, &sup.broken));
+    let mut menu_scan = scanned;
+    let mut broken_count = sup.broken.len();
     let mut publisher = colors::Publisher::new(colors::dir());
 
     loop {
@@ -524,6 +544,15 @@ pub fn run(autostart: bool) -> Result<()> {
         match rx.recv_timeout(TICK) {
             Ok(Msg::Quit) | Err(RecvTimeoutError::Disconnected) => break,
             Ok(Msg::Wake) => force = true,
+            Ok(Msg::Outputs(fresh)) => {
+                if fresh.is_empty() {
+                    watching = false;
+                } else {
+                    watching = true;
+                    monitors = fresh;
+                }
+            }
+            Ok(Msg::OutputsDisconnected) => watching = false,
             Err(RecvTimeoutError::Timeout) => {}
         }
         let now_stamp = config::stamp();
@@ -542,7 +571,7 @@ pub fn run(autostart: bool) -> Result<()> {
             lib = library::scan();
             scanned = Instant::now();
         }
-        if monitors_at.elapsed() >= MONITOR_EVERY {
+        if !watching && monitors_at.elapsed() >= MONITOR_EVERY {
             let fresh = outputs::list();
             if !fresh.is_empty() || monitors.is_empty() {
                 monitors = fresh;
@@ -614,10 +643,15 @@ pub fn run(autostart: bool) -> Result<()> {
             .and_then(|m| cfg.wallpaper_for(&m.name))
             .or(cfg.wallpaper.as_deref())
             .map(str::to_string);
+        if menu_scan != scanned || broken_count != sup.broken.len() {
+            menu = Arc::new(menu_items(&lib, &sup.broken));
+            menu_scan = scanned;
+            broken_count = sup.broken.len();
+        }
         let next = View {
             current_title: current.as_deref().map(|k| lib.title(k)).unwrap_or_default(),
             current,
-            items: menu_items(&lib, &sup.broken),
+            items: Arc::clone(&menu),
             screens: want.screens.len(),
             running: sup.engine.is_some(),
             paused: pause,

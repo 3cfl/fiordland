@@ -33,6 +33,9 @@ impl Dispatch<wl_registry::WlRegistry, ()> for State {
         _: &Connection,
         qh: &QueueHandle<Self>,
     ) {
+        if let wl_registry::Event::GlobalRemove { name } = event {
+            state.outputs.retain(|(id, _)| *id != name);
+        }
         if let wl_registry::Event::Global {
             name,
             interface,
@@ -103,6 +106,12 @@ fn label(name: &str, make: &str, model: &str, description: Option<&str>) -> Stri
 }
 
 fn wayland() -> Option<Vec<Monitor>> {
+    watch_wayland(|_| false)
+}
+
+// Keep the registry subscription alive until the caller has its first snapshot
+// or the compositor disconnects.
+pub fn watch_wayland(mut keep: impl FnMut(&[Monitor]) -> bool) -> Option<Vec<Monitor>> {
     std::env::var_os("WAYLAND_DISPLAY")?;
     let conn = Connection::connect_to_env().ok()?;
     let mut queue = conn.new_event_queue();
@@ -111,21 +120,26 @@ fn wayland() -> Option<Vec<Monitor>> {
     let mut state = State::default();
     queue.roundtrip(&mut state).ok()?;
     queue.roundtrip(&mut state).ok()?;
-    let mut list: Vec<Monitor> = state
-        .outputs
-        .into_iter()
-        .filter_map(|(_, o)| {
-            let name = o.name?;
-            config::valid_monitor(&name).then(|| Monitor {
-                label: label(&name, &o.make, &o.model, o.description.as_deref()),
-                name,
-                size: o.size,
+    loop {
+        let mut list: Vec<Monitor> = state
+            .outputs
+            .iter()
+            .filter_map(|(_, o)| {
+                let name = o.name.clone()?;
+                config::valid_monitor(&name).then(|| Monitor {
+                    label: label(&name, &o.make, &o.model, o.description.as_deref()),
+                    name,
+                    size: o.size,
+                })
             })
-        })
-        .collect();
-    list.sort();
-    list.dedup_by(|a, b| a.name == b.name);
-    Some(list)
+            .collect();
+        list.sort();
+        list.dedup_by(|a, b| a.name == b.name);
+        if !keep(&list) {
+            return Some(list);
+        }
+        queue.blocking_dispatch(&mut state).ok()?;
+    }
 }
 
 pub fn parse_xrandr(text: &str) -> Vec<Monitor> {

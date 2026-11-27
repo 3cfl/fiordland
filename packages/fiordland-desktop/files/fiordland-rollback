@@ -41,6 +41,9 @@ src=$(findmnt -s -no SOURCE /)
 dev=$(findfs "$src")
 [ "$(findmnt -s -no FSTYPE /)" = btrfs ] || { echo "/ is not btrfs" >&2; exit 1; }
 
+exec 9>/run/fiordland-rollback.lock
+flock -n 9 || { echo "Another rollback operation is active." >&2; exit 1; }
+
 top=$(mktemp -d)
 trap 'umount "$top" 2>/dev/null; rmdir "$top"' EXIT
 mount -o subvolid=5 "$dev" "$top"
@@ -77,12 +80,15 @@ if [ $yes = 0 ]; then
   [[ $a =~ ^[Yy] ]] || exit 1
 fi
 
-mv "$top/@" "$top/$backup"
-if ! btrfs subvolume snapshot "$snap" "$top/@" >/dev/null; then
-  mv "$top/$backup" "$top/@"
-  echo "Rollback failed, nothing was changed." >&2
+[[ ! -e "$top/$backup" ]] || { echo "Backup name already exists" >&2; exit 1; }
+btrfs subvolume snapshot "$snap" "$top/$backup" >/dev/null
+rm -f "$top/$backup/var/lib/pacman/db.lck"
+# Both roots exist throughout the exchange. Fail closed on unsupported filesystems.
+if ! mv --exchange --no-copy -T "$top/@" "$top/$backup"; then
+  btrfs subvolume delete "$top/$backup" >/dev/null
+  echo "Root exchange failed. The original root is still active." >&2
   exit 1
 fi
-rm -f "$top/@/var/lib/pacman/db.lck"
+btrfs filesystem sync "$top" >/dev/null
 echo "Done. Reboot to start the rolled-back system."
 echo "When everything works, free the space with: sudo fiordland-rollback --clean"
