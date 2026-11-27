@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from datetime import datetime
 import json
 import os
 import sys
@@ -11,6 +12,8 @@ NAME = os.environ.get("DISCORD_NAME", "GitHub")
 AVATAR = os.environ.get("DISCORD_AVATAR", "https://fiordlandlinux.org/assets/github.png")
 HOOK = os.environ.get("DISCORD_WEBHOOK", "")
 STATE = os.environ.get("STATE_FILE", "/var/lib/fiordland-discord/state.json")
+
+MAX_EVENT_AGE = 3600
 
 COLOURS = {"opened": 0x8EC5FF, "reopened": 0x8EC5FF, "merged": 0xA78BFA, "closed": 0x6B7280, "published": 0x34D399,
            "push": 0x60A5FA, "create": 0x34D399, "delete": 0x6B7280, "fork": 0xF59E0B, "star": 0xFBBF24}
@@ -140,6 +143,20 @@ def post(repo, e, actor):
     urllib.request.urlopen(req, timeout=20).close()
 
 
+def fresh(ev, now):
+    try:
+        when = datetime.fromisoformat(ev["created_at"].replace("Z", "+00:00"))
+        return when.tzinfo is not None and -300 <= now - when.timestamp() <= MAX_EVENT_AGE
+    except (AttributeError, KeyError, OverflowError, ValueError):
+        return False
+
+
+def push_id(ev):
+    if ev["type"] == "PushEvent":
+        return ev["payload"].get("push_id")
+    return None
+
+
 def poll(repo, state):
     st = state["repos"].setdefault(repo, {})
     events, etag = fetch(repo, st.get("etag"))
@@ -147,19 +164,33 @@ def poll(repo, state):
         return
     seen = set(st.get("seen", []))
     first = "seen" not in st
+    pushes = dict.fromkeys(st.get("pushes", []))
+    # Migrate existing state from event IDs without replaying a known push
+    # when GitHub includes it again under a different event ID.
+    for ev in events:
+        key = push_id(ev)
+        if ev["id"] in seen and key is not None:
+            pushes[key] = None
+    now = time.time()
     for ev in sorted(events, key=lambda x: int(x["id"])):
         if ev["id"] in seen:
             continue
-        if not first:
+        key = push_id(ev)
+        if not first and fresh(ev, now) and (key is None or key not in pushes):
             e = embed(repo, ev)
             if e:
+                e["timestamp"] = ev["created_at"]
                 post(repo, e, ev["actor"])
+        if key is not None:
+            pushes[key] = None
         seen.add(ev["id"])
+        st["seen"] = sorted(seen, key=int)[-300:]
+        st["pushes"] = list(pushes)[-300:]
         if not first:
-            # Preserve progress if a later event in this batch fails.
-            st["seen"] = sorted(seen, key=int)[-300:]
             save(state)
+    # An empty first poll still establishes a baseline.
     st["seen"] = sorted(seen, key=int)[-300:]
+    st["pushes"] = list(pushes)[-300:]
     st["etag"] = etag
 
 
