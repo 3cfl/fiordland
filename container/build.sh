@@ -74,15 +74,16 @@ sudo sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' "$root/etc/locale.gen"
 echo LANG=en_US.UTF-8 | sudo tee "$root/etc/locale.conf" >/dev/null
 sudo arch-chroot "$root" bash -e <<'IN'
 locale-gen >/dev/null
-pacman-key --init >/dev/null 2>&1
-pacman-key --populate archlinux fiordland >/dev/null 2>&1
 fiordland-migrate --os-release
-rm -f /etc/machine-id
-dbus-uuidgen --ensure=/etc/machine-id
+rm -f /etc/machine-id /var/lib/dbus/machine-id
+install -m644 /dev/null /etc/machine-id
+ln -s /etc/machine-id /var/lib/dbus/machine-id
 IN
 cleanup
+# pacstrap can initialize a local signing identity. Each deployed container needs its own.
+sudo rm -rf "$root/etc/pacman.d/gnupg"
 sudo rm -rf "$root"/var/cache/pacman/pkg/* "$root"/var/lib/pacman/sync/* "$root"/var/log/* \
-  "$root"/etc/pacman.d/gnupg/{openpgp-revocs.d,S.*} "$root"/root/.cache "$root"/tmp/* 2>/dev/null || true
+  "$root"/root/.cache "$root"/tmp/* 2>/dev/null || true
 
 tarball=$out/$name-$date.tar.zst
 sudo tar --numeric-owner --xattrs --acls -C "$root" -c . | zstd -q -T0 -10 -o "$tarball" -f
