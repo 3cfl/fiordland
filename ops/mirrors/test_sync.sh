@@ -5,6 +5,7 @@ T=$(mktemp -d)
 port=$((20000 + RANDOM % 20000))
 trap 'kill $srv 2>/dev/null; rm -rf "$T"' EXIT
 mkdir -p "$T/src/repo/x86_64" "$T/src/iso" "$T/src/mirrors" "$T/dest/iso"
+gpg --batch --dearmor < "$here/packages/fiordland-keyring/fiordland.gpg" | cmp - "$here/ops/mirrors/fiordland.gpg"
 cd "$T/src"
 echo db > repo/x86_64/fiordland.db.tar.gz
 ln -s fiordland.db.tar.gz repo/x86_64/fiordland.db

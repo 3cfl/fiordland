@@ -2,6 +2,8 @@ import hashlib
 import json
 import os
 import re
+import subprocess
+import tempfile
 import time
 import urllib.request
 from pathlib import Path
@@ -74,14 +76,21 @@ def probe(url):
         request = urllib.request.Request(url.rstrip("/") + "/repo/lastupdate", headers={"User-Agent": "fiordland-mirror-check"})
         with urllib.request.urlopen(request, timeout=8) as response:
             body = response.read(64).decode().strip()
-        for suffix in ("fiordland.db", "fiordland.db.sig"):
-            url_db = url.rstrip("/") + "/repo/x86_64/" + suffix
-            with urllib.request.urlopen(url_db, timeout=8) as response:
-                prefix = response.read(2)
-                if len(prefix) != 2 or (suffix.endswith(".db") and prefix != b"\x1f\x8b"):
+        with tempfile.TemporaryDirectory() as tmp:
+            for filename, limit in (("fiordland.db", 16 << 20), ("fiordland.db.sig", 64 << 10)):
+                req = urllib.request.Request(url.rstrip("/") + "/repo/x86_64/" + filename,
+                                             headers={"User-Agent": "fiordland-mirror-check"})
+                with urllib.request.urlopen(req, timeout=8) as response:
+                    content = response.read(limit + 1)
+                if not content or len(content) > limit:
                     return {"ok": False}
+                (Path(tmp) / filename).write_bytes(content)
+            verify = subprocess.run(["gpgv", "--keyring", str(Path(__file__).resolve().with_name("fiordland.gpg")),
+                                     "fiordland.db.sig", "fiordland.db"], cwd=tmp, capture_output=True, timeout=10)
+            if verify.returncode:
+                return {"ok": False}
         return {"ok": True, "updated": int(body), "ms": int((time.monotonic() - started) * 1000)}
-    except (OSError, ValueError):
+    except (OSError, ValueError, subprocess.TimeoutExpired):
         return {"ok": False}
 
 
