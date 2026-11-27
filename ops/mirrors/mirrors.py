@@ -43,7 +43,12 @@ def build_manifest():
     entries = []
     newest = 0
     for path in sorted(REPO.iterdir()):
-        if path.is_symlink() or not path.is_file() or not NAME.match(path.name):
+        if path.is_symlink():
+            if path.name not in ("fiordland.db", "fiordland.files", "fiordland.db.sig", "fiordland.files.sig"):
+                continue
+            if path.resolve().parent != REPO.resolve():
+                continue
+        if not path.is_file() or not NAME.fullmatch(path.name):
             continue
         newest = max(newest, int(path.stat().st_mtime))
         entries.append(("repo/x86_64/" + path.name, path))
@@ -69,6 +74,12 @@ def probe(url):
         request = urllib.request.Request(url.rstrip("/") + "/repo/lastupdate", headers={"User-Agent": "fiordland-mirror-check"})
         with urllib.request.urlopen(request, timeout=8) as response:
             body = response.read(64).decode().strip()
+        for suffix in ("fiordland.db", "fiordland.db.sig"):
+            url_db = url.rstrip("/") + "/repo/x86_64/" + suffix
+            with urllib.request.urlopen(url_db, timeout=8) as response:
+                prefix = response.read(2)
+                if len(prefix) != 2 or (suffix.endswith(".db") and prefix != b"\x1f\x8b"):
+                    return {"ok": False}
         return {"ok": True, "updated": int(body), "ms": int((time.monotonic() - started) * 1000)}
     except (OSError, ValueError):
         return {"ok": False}
@@ -83,7 +94,7 @@ def check(newest):
         url = m["url"].rstrip("/")
         if not url.startswith("https://") or m.get("disabled"):
             continue
-        result = {"ok": True, "updated": newest, "ms": 0} if m.get("primary") else probe(url)
+        result = probe(url)
         if result["ok"]:
             result["lag"] = max(0, newest - result["updated"])
             result["ok"] = result["lag"] <= MAX_LAG

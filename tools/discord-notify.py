@@ -2,6 +2,7 @@
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -32,8 +33,11 @@ def save(state):
 
 
 def api(repo, path):
-    return urllib.request.Request(f"https://api.github.com/repos/{repo}/{path}",
+    request = urllib.request.Request(f"https://api.github.com/repos/{repo}/{path}",
                                   headers={"User-Agent": "fiordland-discord", "Accept": "application/vnd.github+json"})
+    if token := os.environ.get("FIORD_GITHUB_TOKEN"):
+        request.add_header("Authorization", f"Bearer {token}")
+    return request
 
 
 def commits(repo, p):
@@ -136,7 +140,8 @@ def post(repo, e, actor):
     urllib.request.urlopen(req, timeout=20).close()
 
 
-def poll(repo, st):
+def poll(repo, state):
+    st = state["repos"].setdefault(repo, {})
     events, etag = fetch(repo, st.get("etag"))
     if events is None:
         return
@@ -145,12 +150,15 @@ def poll(repo, st):
     for ev in sorted(events, key=lambda x: int(x["id"])):
         if ev["id"] in seen:
             continue
+        if not first:
+            e = embed(repo, ev)
+            if e:
+                post(repo, e, ev["actor"])
         seen.add(ev["id"])
-        if first:
-            continue
-        e = embed(repo, ev)
-        if e:
-            post(repo, e, ev["actor"])
+        if not first:
+            # Preserve progress if a later event in this batch fails.
+            st["seen"] = sorted(seen, key=int)[-300:]
+            save(state)
     st["seen"] = sorted(seen, key=int)[-300:]
     st["etag"] = etag
 
@@ -161,13 +169,26 @@ def main():
     state = load()
     if "repos" not in state:
         state = {"repos": {"3cfl/fiordland": state} if state else {}}
+    if state.get("github_retry_at", 0) > time.time():
+        return
+    state.pop("github_retry_at", None)
     state.pop("next", None)
     failed = False
     try:
         for repo in REPOS:
             try:
-                poll(repo, state["repos"].setdefault(repo, {}))
+                poll(repo, state)
             except (urllib.error.URLError, OSError, ValueError) as e:
+                if isinstance(e, urllib.error.HTTPError) and e.url.startswith("https://api.github.com/"):
+                    if e.code == 429 or (e.code == 403 and
+                                         (e.headers.get("X-RateLimit-Remaining") == "0" or "Retry-After" in e.headers)):
+                        now = int(time.time())
+                        retry = e.headers.get("Retry-After", "")
+                        reset = e.headers.get("X-RateLimit-Reset", "")
+                        state["github_retry_at"] = max(now + (int(retry) if retry.isdigit() else 60),
+                                                       int(reset) if reset.isdigit() else 0)
+                        print(f"{repo}: GitHub rate limit; resuming after {state['github_retry_at']}", file=sys.stderr)
+                        break
                 print(f"{repo}: {e}", file=sys.stderr)
                 failed = True
     finally:

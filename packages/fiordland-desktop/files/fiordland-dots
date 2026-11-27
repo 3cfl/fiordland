@@ -32,50 +32,53 @@ fi
 id=$2
 bold=$'\e[1m' dim=$'\e[2m' blue=$'\e[38;2;142;197;255m' reset=$'\e[0m'
 
-aur_helper() {
-  command -v paru >/dev/null || command -v yay >/dev/null && return
-  echo "${dim}Installing paru for AUR packages${reset}"
-  local d
-  d=$(mktemp -d)
-  git clone --depth 1 https://aur.archlinux.org/paru-bin.git "$d/paru-bin" && (cd "$d/paru-bin" && makepkg -si --noconfirm)
-  rm -rf "$d"
+checkout() {
+  local repo=$1 rev=$2 dest=$3 stage
+  if [[ -e $dest || -L $dest ]]; then
+    echo "Preserving existing directory: $dest. Move it aside to retry." >&2
+    return 1
+  fi
+  mkdir -p "$(dirname "$dest")" || return 1
+  stage=$(mktemp -d "${dest}.new.XXXXXXXX") || return 1
+  if git -C "$stage" init -q && git -C "$stage" remote add origin "$repo" &&
+     git -C "$stage" fetch --depth=1 origin "$rev" &&
+     git -C "$stage" checkout -q --detach "$rev" &&
+     git -C "$stage" submodule update --init --recursive &&
+     mv -T --no-clobber "$stage" "$dest" && [[ ! -d $stage ]]; then
+    return 0
+  fi
+  rm -rf -- "$stage"
+  return 1
 }
 
 run() {
   case $id in
     caelestia)
-      aur_helper
-      local h; h=$(command -v paru || command -v yay)
-      "$h" -S --needed caelestia-cli && caelestia install ;;
+      sudo pacman -S --needed caelestia-cli && caelestia install ;;
     illogical-impulse)
       local p="$HOME/.cache/dots-hyprland" repo=https://github.com/end-4/dots-hyprland
-      if [ -d "$p/.git" ]; then
-        git -C "$p" remote get-url origin | grep -q "end-4/dots-hyprland" || { echo "$p is not a copy of $repo"; return 1; }
-        git -C "$p" pull --ff-only origin main || return 1
-      else
-        rm -rf "$p" && git clone "$repo" "$p" || return 1
-      fi
-      git -C "$p" submodule update --init --recursive && (cd "$p" && ./setup install) ;;
+      checkout "$repo" 21733c3ca7f4edc20faafedea844dc96002c6f7f "$p" &&
+        (cd "$p" && ./setup install) ;;
     hyde)
-      rm -rf "$HOME/HyDE"
-      git clone --depth 1 https://github.com/HyDE-Project/HyDE "$HOME/HyDE" && cd "$HOME/HyDE/Scripts" && ./install.sh ;;
+      checkout https://github.com/HyDE-Project/HyDE cc824554ac63417d58253ea6764dc0045d963dce "$HOME/HyDE" &&
+        (cd "$HOME/HyDE/Scripts" && ./install.sh) ;;
     ml4w)
-      local d tag repo=https://github.com/mylinuxforwork/ml4w-dotfiles-installer.git
+      local d
       sudo pacman -S --needed --noconfirm git make curl jq || return 1
-      tag=$(git ls-remote --tags --refs "$repo" | sed 's|.*refs/tags/||' | grep -E '^v?[0-9]+(\.[0-9]+)*$' | sort -V | tail -n1)
-      [ -n "$tag" ] || { echo "could not find an ML4W installer release"; return 1; }
-      d=$(mktemp -d)
-      git clone --depth=1 --branch "$tag" -c advice.detachedHead=false "$repo" "$d" && (cd "$d" && make install) &&
+      d=$(mktemp -d) || return 1
+      checkout https://github.com/mylinuxforwork/ml4w-dotfiles-installer 715112aaea5a1aa33a656948a56410c0e9a76606 "$d/installer" &&
+        (cd "$d/installer" && make install) &&
         PATH="$HOME/.local/bin:$PATH" ml4w-dotfiles-installer --install \
-          https://raw.githubusercontent.com/mylinuxforwork/dotfiles/main/hyprland-dotfiles-stable.dotinst
+          https://raw.githubusercontent.com/mylinuxforwork/dotfiles/c6505852344be629f94bcc8ea6daef6270b4cf8e/hyprland-dotfiles-stable.dotinst
       local rc=$?
       rm -rf "$d"
       return $rc ;;
     jakoolit)
-      sh <(curl -fsSL https://raw.githubusercontent.com/JaKooLit/Arch-Hyprland/main/auto-install.sh) ;;
+      checkout https://github.com/JaKooLit/Arch-Hyprland 7a3d6609b6419527c9ae79399a183b2ec6c1075d "$HOME/Arch-Hyprland" &&
+        (cd "$HOME/Arch-Hyprland" && bash ./install.sh) ;;
     inir)
-      mkdir -p "$HOME/.local/src" && rm -rf "$HOME/.local/src/inir"
-      git clone https://github.com/snowarch/inir.git "$HOME/.local/src/inir" && cd "$HOME/.local/src/inir" && ./setup install ;;
+      checkout https://github.com/snowarch/inir 28365436c2a00d083d29503aacfc0b5b321d67c6 "$HOME/.local/src/inir" &&
+        (cd "$HOME/.local/src/inir" && ./setup install) ;;
   esac
 }
 
