@@ -11,6 +11,15 @@ if [[ -z $password && ${FIORDLAND_PROXY_AUTH:-0} != 1 ]]; then
   exit 1
 fi
 
+if [[ ! -f /etc/pacman.d/gnupg/.fiordland-populated ]]; then
+  pacman-key --init >/dev/null
+  pacman-key --populate archlinux fiordland >/dev/null
+  touch /etc/pacman.d/gnupg/.fiordland-populated
+fi
+if [[ ! -s /etc/machine-id ]]; then
+  dbus-uuidgen > /etc/machine-id
+fi
+
 if mountpoint -q /config 2>/dev/null; then
   home=/config
 else
