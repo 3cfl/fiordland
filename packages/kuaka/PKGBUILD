@@ -1,5 +1,5 @@
 pkgname=kuaka
-pkgver=1.0.1
+pkgver=1.0.2
 pkgrel=1
 pkgdesc="The Fiordland Linux update app"
 arch=('x86_64')
@@ -14,7 +14,7 @@ optdepends=('flatpak: Flathub app updates'
 makedepends=('cargo')
 options=('!lto' '!debug')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('8793a952a30c5f6bb24b38ac25ecdb7f0423db89f92bad06899066e6368fe7f1')
+sha256sums=('c93febf32e6db9b49be3749c0285f234311e4a33e714f96d301d7d492d277ba6')
 
 prepare() {
   cd "$pkgname-$pkgver"
