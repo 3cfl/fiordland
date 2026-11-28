@@ -21,29 +21,19 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Verify and import the published root filesystem
+      - name: Verify and load the published Docker image
         run: |
           set -euo pipefail
           [[ $VERSION =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}$ ]]
-          file="fiordland-xfce-$VERSION.tar.zst"
+          file="fiordland-xfce-$VERSION.docker.tar.zst"
           url="https://fiordlandlinux.org/iso/container/$file"
           curl --fail --location --retry 3 "$url" -o "$RUNNER_TEMP/$file"
           curl --fail --location --retry 3 "$url.sig" -o "$RUNNER_TEMP/$file.sig"
           gpgv --keyring "$GITHUB_WORKSPACE/ops/mirrors/fiordland.gpg" "$RUNNER_TEMP/$file.sig" "$RUNNER_TEMP/$file"
-          tar --zstd -xOf "$RUNNER_TEMP/$file" ./etc/fiordland/image > "$RUNNER_TEMP/image-info"
-          grep -Fx "built=$VERSION" "$RUNNER_TEMP/image-info"
-          snapshot=$(sed -n 's/^snapshot=//p' "$RUNNER_TEMP/image-info")
-          selkies=$(sed -n 's/^selkies=//p' "$RUNNER_TEMP/image-info")
-          zstd -dc "$RUNNER_TEMP/$file" | docker import \
-            --change 'ENV LANG=en_US.UTF-8' \
-            --change 'ENV NVIDIA_DRIVER_CAPABILITIES=all' \
-            --change 'ENV NVIDIA_VISIBLE_DEVICES=all' \
-            --change 'CMD ["/usr/local/bin/fiordland-selkies"]' \
-            --change 'EXPOSE 8080' \
-            --change 'LABEL org.opencontainers.image.source=https://github.com/Fiordland-Linux/fiordland' \
-            --change "LABEL org.opencontainers.image.version=$VERSION" \
-            --change "LABEL lat.apollo44.fiordland.snapshot=$snapshot" \
-            --change "LABEL lat.apollo44.fiordland.selkies=$selkies" - "$IMAGE:$VERSION"
+          docker load -i "$RUNNER_TEMP/$file"
+          source_image=localhost/fiordland-xfce:latest
+          test "$(docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.version" }}' "$source_image")" = "$VERSION"
+          docker tag "$source_image" "$IMAGE:$VERSION"
           docker run --rm "$IMAGE:$VERSION" sh -ec 'test -x /usr/local/bin/fiordland-selkies && command -v selkies'
       - name: Push dated and latest tags
         env:
