@@ -100,5 +100,8 @@ podman import \
   --change "LABEL lat.apollo44.fiordland.selkies=$selkies" \
   "$tarball" "localhost/$name:$date" >/dev/null
 podman tag "localhost/$name:$date" "localhost/$name:latest"
-ls -la "$tarball"
+archive="$out/$name-$date.docker.tar.zst"
+podman save --format docker-archive "localhost/$name:latest" | zstd -q -T0 -6 -f -o "$archive"
+(cd "$out" && sha256sum "${archive##*/}" > "${archive##*/}.sha256")
+ls -la "$tarball" "$archive"
 podman images "localhost/$name"
